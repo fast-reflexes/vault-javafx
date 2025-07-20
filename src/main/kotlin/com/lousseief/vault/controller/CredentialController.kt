@@ -6,6 +6,10 @@ import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.model.ui.UiCredential
 import com.lousseief.vault.utils.copySelectionToClipboard
 import com.lousseief.vault.utils.timeToStringDate
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
@@ -29,6 +33,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Paint
 import java.time.Instant
 
 class CredentialController(
@@ -202,6 +207,9 @@ class CredentialController(
         copyPasswordButton.setOnAction {
             copySelectionToClipboard(credential.password.value)
         }
+        copyPasswordButton.graphic = FontAwesomeIconView(FontAwesomeIcon.COPY).apply {
+            fill = Paint.valueOf("#666666")
+        }
 
         showPasswordCheckbox.selectedProperty().addListener { _, _, newValue ->
             if(newValue) {
@@ -215,15 +223,31 @@ class CredentialController(
         associatedUsernamesList.itemsProperty().bind(credential.identities)
 
         addUsernameButton.setOnAction { onAddUsername() }
+        addUsernameButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
+            size = "16px"
+            fill = Paint.valueOf("#3e9b0a")
+        }
         removeUsernameButton.disableProperty().bind(identity.isNull)
         removeUsernameButton.setOnAction { onDeleteUsername() }
+        removeUsernameButton.graphic = MaterialDesignIconView(MaterialDesignIcon.MINUS_CIRCLE).apply {
+            size = "16px"
+            fill = Paint.valueOf("red")
+        }
 
         createdLabel.textProperty().bind(Bindings.concat("Created: " ).concat(createdString))
         lastUpdatedLabel.textProperty().bind(Bindings.concat("Last updated: " ).concat(lastUpdatedString))
 
         deleteCredentialsButton.setOnAction { onDeleteCredential() }
+        deleteCredentialsButton.graphic = FontAwesomeIconView(FontAwesomeIcon.TRASH).apply {
+            size = "20px"
+            fill = Paint.valueOf("white")
+        }
+
 
         updatePasswordButton.setOnAction { onChangePassword() }
+        updatePasswordButton.graphic = MaterialDesignIconView(MaterialDesignIcon.CACHED).apply {
+            fill = Paint.valueOf("#000000")
+        }
 
         Platform.runLater {
             copyPasswordButton.requestFocus()

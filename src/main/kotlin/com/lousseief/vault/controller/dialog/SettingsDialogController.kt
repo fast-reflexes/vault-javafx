@@ -4,6 +4,8 @@ import com.lousseief.vault.dialog.SingleStringInputDialog
 import com.lousseief.vault.list.SettingsCategoryListCellFactory
 import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.utils.initializeSpinner
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
@@ -21,6 +23,7 @@ import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Paint
 import javafx.scene.text.TextAlignment
 
 class SettingsDialogController(
@@ -89,6 +92,10 @@ class SettingsDialogController(
                 user.settings.categories.value.add(newCat.get())
             }
         }
+        newCategoryButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
+            size = "16px"
+            fill = Paint.valueOf("#3e9b0a")
+        }
     }
 
     private fun setupRemoveCategoryButton() {
@@ -98,6 +105,10 @@ class SettingsDialogController(
                 throw Error("Category has entries bound to it")
             }
             user.settings.categories.remove(selectedCategory.value)
+        }
+        removeCategoryButton.graphic = MaterialDesignIconView(MaterialDesignIcon.MINUS_CIRCLE).apply {
+            size = "16px"
+            fill = Paint.valueOf("red")
         }
 
     }
@@ -122,7 +133,7 @@ class SettingsDialogController(
         val icon = Label().apply {
             styleClass.addAll("alert", "confirmation", "dialog-pane")
         }
-        readyDialog.headerText = "User settings"
+        readyDialog.headerText = "Profile settings"
         readyDialog.graphic = icon
         readyDialog.setResultConverter { type: ButtonType ->
             when (type) {

@@ -145,8 +145,12 @@
         </padding>
     </Separator>
     <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10">
-        <Button text="Credentials" fx:id="credentialsButton" />
+        <Button text="Credentials" fx:id="credentialsButton" styleClass="big-button" />
         <Region HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-        <Button text="Delete entry" fx:id="deleteEntryButton" />
+        <Button
+            text="Delete entry"
+            fx:id="deleteEntryButton"
+            styleClass="delete-button,big-button"
+        />
     </HBox>
 </VBox>

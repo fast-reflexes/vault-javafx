@@ -17,12 +17,12 @@
   -fx-background-color: #28a3f4;
 }
 
-.logout-button {
+.header-button {
   -fx-background-insets: 0, 0, 0, 0, 0;
-  -fx-background-radius: 10%;
+  -fx-background-radius: 4px;
 }
 
-.logout-button:focused, .logout-button:pressed {
+.header-button:focused, .header-button:pressed {
   -fx-background-insets: -0.2, 1, 2, -1.4, 2.6;
 }
 
@@ -35,4 +35,29 @@
   -fx-border-width: 0 0 2px 0;
   -fx-border-color: #666666;
   -fx-border-style: solid;
+}
+
+.create-entry-button {
+  -fx-color: rgba(62, 155, 10, 1.0);
+  -fx-cursor: hand;
+  -fx-text-fill: white;
+}
+
+.create-entry-button:hover {
+  -fx-color: rgba(62, 155, 10, 0.5);
+}
+
+.delete-button {
+  -fx-color: rgba(255, 0, 0, 1.0);
+  -fx-cursor: hand;
+  -fx-text-fill: white;
+}
+
+.delete-button:hover {
+  -fx-color: rgba(255, 0, 0, 0.65);
+}
+
+.big-button {
+  -fx-min-height: 28;
+  -fx-max-height: 28;
 }

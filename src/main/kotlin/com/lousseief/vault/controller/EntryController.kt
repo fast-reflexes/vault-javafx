@@ -6,6 +6,12 @@ import com.lousseief.vault.list.EntryCategoryListCellFactory
 import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
 import com.lousseief.vault.model.ui.UiCredential
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
+import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -26,6 +32,7 @@ import javafx.scene.control.TextField
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Paint
 import javafx.scene.text.TextAlignment
 import javafx.stage.Modality
 import javafx.stage.Stage
@@ -133,6 +140,10 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
                 association.secondaryIdentifiers.remove(selectedSecondIdentifier.value)
             }
         }
+        removeSecondaryIdentifierButton.graphic = MaterialDesignIconView(MaterialDesignIcon.MINUS_CIRCLE).apply {
+            size = "16px"
+            fill = Paint.valueOf("red")
+        }
     }
 
     private fun setupNewCategoryButton() {
@@ -150,6 +161,10 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
             if (newCat.isPresent) {
                 user.settings.categories.value.add(newCat.get())
             }
+        }
+        newCategoryButton.graphic = MaterialDesignIconView(MaterialDesignIcon.CREATION).apply {
+            size = "16px"
+            fill = Paint.valueOf("#debb00")
         }
     }
 
@@ -173,12 +188,13 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
                 )
                 val credentialsView: Parent = loader.load()
                 stage.scene = Scene(credentialsView)
+                stage.scene.stylesheets.add("/styles.css")
                 stage.title = "Credentials"
                 stage.isResizable = false
                 stage.initModality(Modality.WINDOW_MODAL)
                 stage.initOwner((it.source as Node).scene.window)
-                stage.maxWidth = 300.0
-                stage.minWidth = 300.0
+                stage.maxWidth = 330.0
+                stage.minWidth = 330.0
                 stage.maxHeight = 607.0
                 stage.minHeight = 607.0
                 stage.showAndWait()
@@ -195,6 +211,7 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
                 }*/
             }
         }
+        credentialsButton.graphic = FontAwesomeIconView(FontAwesomeIcon.KEY).apply { fill = Paint.valueOf("#debb00")}
     }
 
     private fun setupAddSecondIdentifierButton() {
@@ -213,6 +230,10 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
                 association.secondaryIdentifiers.add(newId.get())
                 association.secondaryIdentifiers.sortWith { a, b -> a.compareTo(b) }
             }
+        }
+        addSecondaryIdentifierButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
+            size = "16px"
+            fill = Paint.valueOf("#3e9b0a")
         }
     }
 
@@ -241,6 +262,12 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
         category.cellFactory = EntryCategoryListCellFactory()
         category.buttonCell = EntryCategoryButtonCell()
         category.placeholder = Label("No categories so far")
-        category.promptText = "Select category"
+        //category.promptText = "Select category"
+        category.selectionModel.selectFirst()
+
+        deleteEntryButton.graphic = FontAwesomeIconView(FontAwesomeIcon.TRASH).apply {
+            size = "20px"
+            fill = Paint.valueOf("white")
+        }
     }
 }

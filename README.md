@@ -67,9 +67,23 @@ med det.. GCM är fett men i detta fall är CBC bättre).
 fall kan timing issues rörande bindings och listeners göra att saker och ting inte funkar som det ska. Detta verkar hända
 oftare då man ansluter subvyer och sånt snarare än då man sätter en vy direkt i rotelementet.
 
+### Icons
+This project uses icons from a series of different libraries:
+* Fontawesome
+* Material Icons
+* Material Design Font
+
+Even more icons are available. To see icons online, check the build file and extract the version of the icon library used 
+and search for that, for example Font Awesome 4.7.0
+
+### JavaFX CSS
+
+* You can't target elements
+* Classes are added with `styleClass` attribute in FXML and may be found in the global css file or a local one
+* Some attributes are not the same as the ones used in HTML, for example, the button color is set with `-fx-color` 
+instead and one should NOT use `-fx-background-color` because then focus behaviours are messed up as well.
+
 ### Frågor:
-* Hur får man i onDock en View att sätta rätt storlek till sig (som i sizeToScene = true när anropet görs)?
-* Finns det något sätt att se när en View har förstörts, gått utom scope helt?
   
 ### Frågor och svar
 
@@ -83,28 +97,31 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 
 ## TODO
 
-Todo:
+### Backlog:
 * Färdig settings
 * Efterforska NULL ITEM i entriesList (när man väljer)
 
 * Fixa så att man får en property som avgör om man behöver spara eller ej och styr så att man inte kan stänga vissa saker utan varning
 * Only save credential if something is changed
 * skriv klart filterfunktionenr
-* When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text
+  * kolla att regex funkar.. verkar inte som det just nu
 * Sätt allt inom Platform.runLater i initialize som rör bindings och listeners
-* Fixa så att booleska flaggor i filter är comboboxes istället
 * Samma ska fortsätta vara selected även om man filtrerar, helst ska man selecta null om den som var selectad inte lägre är kvar
-* Lägg cellfacotries och sånt i eget paket
-
-* Add feature to see stats (or use a different word), for example list usernames and how often they are used
+* Add a way to point out where vaultfiles are stored (settings)
 * hantera last updated i credentials (och i entry?)
 * kolla att stängning med kryss och cancel ger samma resultat ( påmminner när något är osparat etc...)
-* filterfunktion ska funka korrekt
-* fixa sjysst meny
+* fixa java-menyn uppe i hörnet
 * ändra button text på en del ställen till "Quit anyways" eller "Cose anyways" istället för "Ok"
 * kolla beteende med när man byter entry och stänger utan att ha sparat å så så att de varningar jag vill ha upp kommer upp som de ska
-* vad består egentligen en separator av? Varför går den inte att sätta ordnetligt (färg etc..)
 * hur görs översättning till ascii om fel bytes används? Säkert
-* tänk på filtrering och hur göra med isNeeded tex.. ska frånvaro av den betyda att man bafa vill ha såna där den INTE är på eller vad?
 * gå igenom allt och om jag verkligen gör saker i rätt ordning
-* kolla att regex funkar.. verkar inte som det just nu	
+* How to deal with errors? e.g-. when a mainidentifiers already exists?
+* Fix delete entry
+* Write in readme about how this software is supposed to be used
+* Factor out colors into constants and use them as much as possible
+* Write in readme about WHEN and HOW things are saved and make sure this is correct
+
+### Inbox
+* When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
+* Add feature to see stats (or use a different word), for example list usernames and how often they are used
+* Implement coloring of entries that are changed and unsaved in the entries list and also color fields that are changed.

@@ -2,6 +2,8 @@ package com.lousseief.vault.controller.dialog
 
 import com.lousseief.vault.crypto.CryptoUtils
 import com.lousseief.vault.crypto.CryptoUtils.getCharPoolContent
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
@@ -22,6 +24,7 @@ import javafx.scene.control.TextField
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Paint
 import javafx.scene.text.TextAlignment
 import javafx.util.StringConverter
 
@@ -131,6 +134,10 @@ class AddPasswordDialogController(
                     stringLengthProperty.value
                 )
             )
+        }
+        generatePasswordButton.graphic = MaterialDesignIconView(MaterialDesignIcon.CREATION).apply {
+            size = "16px"
+            fill = Paint.valueOf("#debb00")
         }
     }
 

@@ -9,6 +9,12 @@ import com.lousseief.vault.list.EntryListCellFactory
 import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
 import com.lousseief.vault.utils.timeToStringDateTime
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
+import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.collections.FXCollections
@@ -20,12 +26,20 @@ import javafx.scene.Parent
 import javafx.scene.control.*
 import javafx.scene.input.MouseEvent.MOUSE_CLICKED
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Paint
+import javafx.stage.DirectoryChooser
+import javafx.stage.Stage
+import java.io.File
 import java.util.concurrent.Callable
+
 
 class MainController(private val router: Router, private val user: UiProfile) {
 
     @FXML
     private lateinit var logoutButton: Button
+
+    @FXML
+    private lateinit var directoryChooserButton: Button
 
     @FXML
     private lateinit var addAssociationButton: Button
@@ -138,6 +152,10 @@ class MainController(private val router: Router, private val user: UiProfile) {
                 entriesList.requestFocus()
             }
         }
+        addAssociationButton.graphic = MaterialDesignIconView(MaterialDesignIcon.SHAPE_SQUARE_PLUS).apply {
+            size = "16px"
+            fill = Paint.valueOf("white")
+        }
     }
 
     private fun setupChangeMasterPasswordButton() {
@@ -173,12 +191,25 @@ class MainController(private val router: Router, private val user: UiProfile) {
                 }.showAndWait()
             }
         }
+        settingsButton.graphic = FontAwesomeIconView(FontAwesomeIcon.COG).apply {
+            fill = Paint.valueOf("#666666")
+            size = "18px"
+        }
     }
 
     @FXML
     fun initialize() {
         logoutButton.setOnAction { router.showLogin() }
+        logoutButton.graphic = MaterialIconView(MaterialIcon.EXIT_TO_APP).apply { fill = Paint.valueOf("#666666")}
         entriesPane.isCollapsible = false
+
+        val directoryChooser = DirectoryChooser()
+        directoryChooser.initialDirectory = File(".")
+
+        directoryChooserButton.setOnAction({ e ->
+            val selectedDirectory = directoryChooser.showDialog(Stage())
+            println(selectedDirectory.absolutePath)
+        })
 
         /*Platform.runLater {
             println("PRINT")
@@ -227,9 +258,17 @@ class MainController(private val router: Router, private val user: UiProfile) {
                 }.showAndWait()
             }
         }
+        exportVaultButton.graphic = MaterialIconView(MaterialIcon.IMPORT_EXPORT).apply {
+            fill = Paint.valueOf("#28a3f4")
+            size = "20px"
+        }
 
         saveVaultButton.setOnAction {
             user.save()
+        }
+        saveVaultButton.graphic = MaterialIconView(MaterialIcon.SAVE).apply {
+            fill = Paint.valueOf("#28a3f4")
+            size = "22px"
         }
         Platform.runLater {
             entriesList.selectionModel.selectFirst()

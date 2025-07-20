@@ -5,10 +5,11 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml">
     <top>
-        <HBox styleClass="top-banner">
-            <Label text="Vault - securing your passwords" style="-fx-font-size: 20; -fx-text-fill: #222222; -fx-outline: 0; -fx-font-weight: 500" />
+        <HBox styleClass="top-banner" spacing="10">
+            <Label text="Vault - securing your passwords" style="-fx-font-size: 20; -fx-text-fill: #ffffff; -fx-outline: 2; -fx-font-weight: 700" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Logout" styleClass="logout-button" HBox.hgrow="NEVER" VBox.vgrow="NEVER" fx:id="logoutButton" />
+            <Button text="Change vault file directory" styleClass="header-button" HBox.hgrow="NEVER" fx:id="directoryChooserButton"/>
+            <Button text="Logout" styleClass="header-button" HBox.hgrow="NEVER" VBox.vgrow="NEVER" fx:id="logoutButton" />
         </HBox>
     </top>
     <center>
@@ -40,7 +41,14 @@
                         </placeholder>
                     </ListView>
                 </TitledPane>
-                <Button text="Create new entry" fx:id="addAssociationButton" maxWidth="Infinity" HBox.hgrow="ALWAYS" VBox.vgrow="NEVER" />
+                <Button
+                    text="Create new entry"
+                    fx:id="addAssociationButton"
+                    styleClass="create-entry-button,big-button"
+                    maxWidth="Infinity"
+                    HBox.hgrow="ALWAYS"
+                    VBox.vgrow="NEVER"
+                />
             </VBox>
             <VBox
                 HBox.hgrow="ALWAYS"
@@ -74,13 +82,13 @@
             spacing="10"
             alignment="CENTER_RIGHT"
         >
-            <Button text="Settings" fx:id="settingsButton" />
-            <Button text="Change master password" fx:id="changeMasterPasswordButton" />
-            <Button text="String generator" fx:id="stringGeneratorButton" />
+            <Button text="Profile settings" fx:id="settingsButton" styleClass="big-button" />
+            <Button text="Change master password" fx:id="changeMasterPasswordButton" styleClass="big-button" />
+            <Button text="String generator" fx:id="stringGeneratorButton" styleClass="big-button" />
             <Label fx:id="nextLoginTimeLabel" />
             <Region HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-            <Button text="Export vault" fx:id="exportVaultButton" />
-            <Button text="Save vault to disk" fx:id="saveVaultButton" />
+            <Button text="Export vault" fx:id="exportVaultButton" styleClass="big-button" />
+            <Button text="Save vault to disk" fx:id="saveVaultButton" styleClass="big-button" />
         </HBox>
     </bottom>
 </BorderPane>

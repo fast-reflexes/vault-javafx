@@ -7,6 +7,8 @@ import com.lousseief.vault.model.ui.UiAssociation
 import com.lousseief.vault.model.ui.UiCredential
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleListProperty
@@ -23,6 +25,7 @@ import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Paint
 import java.time.Instant
 
 class CredentialsController(
@@ -167,6 +170,10 @@ class CredentialsController(
         }
 
         addCredentialButton.setOnAction { onAddCredential() }
+        addCredentialButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
+            size = "16px"
+            fill = Paint.valueOf("#3e9b0a")
+        }
 
         doneButton.setOnAction {
             user.passwordRequiredAction()?.let { password ->

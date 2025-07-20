@@ -4,6 +4,10 @@ import com.lousseief.vault.crypto.CryptoUtils
 import com.lousseief.vault.crypto.CryptoUtils.getCharPoolContent
 import com.lousseief.vault.utils.copySelectionToClipboard
 import com.lousseief.vault.utils.initializeSpinner
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleBooleanProperty
@@ -11,6 +15,7 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
+import javafx.scene.control.Button
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.CheckBox
@@ -19,6 +24,7 @@ import javafx.scene.control.DialogPane
 import javafx.scene.control.Label
 import javafx.scene.control.Spinner
 import javafx.scene.control.TextField
+import javafx.scene.paint.Paint
 
 class StringGeneratorDialogController(val defaultPasswordLength: Int) {
 
@@ -82,6 +88,11 @@ class StringGeneratorDialogController(val defaultPasswordLength: Int) {
         ButtonBar.setButtonUniformSize(dialogPane.lookupButton(closeButton), false)
 
         dialogPane.lookupButton(generateButton).apply {
+            this as Button
+            graphic = MaterialDesignIconView(MaterialDesignIcon.CREATION).apply {
+                size = "16px"
+                fill = Paint.valueOf("#debb00")
+            }
             addEventFilter(ActionEvent.ACTION) { event ->
                 generatedStringProperty.set(
                     CryptoUtils.generateRandomString(
@@ -99,6 +110,8 @@ class StringGeneratorDialogController(val defaultPasswordLength: Int) {
             Platform.runLater { this.requestFocus() }
         }
         dialogPane.lookupButton(copyButton).apply {
+            this as Button
+            graphic = FontAwesomeIconView(FontAwesomeIcon.COPY).apply { fill = Paint.valueOf("#666666")}
             addEventFilter(ActionEvent.ACTION) { event ->
                 copySelectionToClipboard(generatedStringProperty.value)
                 event.consume()
