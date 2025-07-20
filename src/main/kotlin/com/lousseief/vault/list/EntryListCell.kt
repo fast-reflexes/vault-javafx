@@ -29,7 +29,7 @@ class EntryListCell : ListCell<UiAssociation>() {
         } else {
             if(item !== null) {
                 label.text = if (item.mainIdentifier.value === "") "(unnamed entry)" else item.mainIdentifier.value
-                graphic = pane;
+                graphic = pane
                 isDisable = false
                 style = "-fx-opacity: 1.0"
             }

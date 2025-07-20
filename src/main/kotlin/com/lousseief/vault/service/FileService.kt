@@ -4,7 +4,6 @@ import com.lousseief.vault.crypto.Conversion
 import com.lousseief.vault.exception.FileException
 import com.lousseief.vault.exception.InternalException
 import com.lousseief.vault.model.Profile
-import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.model.Vault
 import java.io.File
 import java.io.IOException
@@ -16,7 +15,12 @@ object FileService {
 
     fun userExists(user: String): Boolean {
         // why can't you put the dot in the expression template instead of in the SUFFIX?'
-        return File("../").list().contains(user + FILE_SUFFIX) && File("../$user$FILE_SUFFIX").isFile
+        val parentDir = File("../")
+        val parentDirContent = parentDir.list()
+        if(parentDirContent !== null) {
+            return parentDirContent.contains(user + FILE_SUFFIX) && File("../$user$FILE_SUFFIX").isFile
+        }
+        return false
     }
 
     fun readFile(user: String): Profile {

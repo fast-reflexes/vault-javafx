@@ -24,7 +24,7 @@ class Router : Application() {
         stage.scene = scene
         stage.title = "Vault"
         scene.fill = Color.valueOf("#EDEDED")
-        scene.stylesheets.add("/styles.css");
+        scene.stylesheets.add("/styles.css")
         stage.show()
         showLogin()
     }

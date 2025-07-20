@@ -15,7 +15,7 @@ class UsernameListCell(val credential: UiCredential, val usernameList: Observabl
                 if (usernameList.size == 1)
                     text = "No previous user names found"
                 else
-                    text = "Select a user name";
+                    text = "Select a user name"
             } else {
                 text = "$item (already in use)"
             }

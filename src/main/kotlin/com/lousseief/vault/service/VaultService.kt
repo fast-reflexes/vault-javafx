@@ -4,9 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.lousseief.vault.crypto.CbcCrypto
 import com.lousseief.vault.crypto.Conversion
-import com.lousseief.vault.model.AssociationWithCredentials
 import com.lousseief.vault.model.MutableVault
-import com.lousseief.vault.model.Settings
 import com.lousseief.vault.model.Vault
 
 object VaultService {

@@ -1,7 +1,6 @@
 package com.lousseief.vault.controller.dialog
 
 import javafx.application.Platform
-import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.fxml.FXML

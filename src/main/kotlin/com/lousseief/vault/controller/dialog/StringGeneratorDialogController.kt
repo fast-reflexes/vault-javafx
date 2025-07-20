@@ -117,6 +117,6 @@ class StringGeneratorDialogController(val defaultPasswordLength: Int) {
         readyDialog.graphic = icon
         readyDialog.setOnCloseRequest { readyDialog.close() }
 
-        readyDialog.dialogPane.scene.stylesheets.add("/styles.css");
+        readyDialog.dialogPane.scene.stylesheets.add("/styles.css")
     }
 }

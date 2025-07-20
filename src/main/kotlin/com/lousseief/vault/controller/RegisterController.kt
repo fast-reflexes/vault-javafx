@@ -100,7 +100,7 @@ class RegisterController(private val router: Router) {
     @FXML
     fun initialize() {
         // save button is disabled until every field has a value
-        registerButton.disableProperty().bind(username.isNull.or(password.isNull).or(passwordRepetition.isNull));
+        registerButton.disableProperty().bind(username.isNull.or(password.isNull).or(passwordRepetition.isNull))
 
         Platform.runLater {
             username.bind(usernameField.textProperty())

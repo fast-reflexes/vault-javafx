@@ -164,7 +164,7 @@ class AddPasswordDialogController(
                 }
             }
         }
-        readyDialog.dialogPane.scene.stylesheets.add("/styles.css");
+        readyDialog.dialogPane.scene.stylesheets.add("/styles.css")
 
         Platform.runLater {
             errorProperty.addListener { _, _, newValue ->

@@ -8,7 +8,6 @@ import com.lousseief.vault.exception.UserException
 import com.lousseief.vault.model.AssociationWithCredentials
 import com.lousseief.vault.model.Profile
 import com.lousseief.vault.model.Settings
-import com.lousseief.vault.model.UiProfile
 
 object UserService {
 

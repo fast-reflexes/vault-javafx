@@ -11,7 +11,6 @@ import com.lousseief.vault.service.*
 import javafx.beans.property.SimpleMapProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
-import javafx.event.ActionEvent
 
 class UiProfile(
     val name: SimpleStringProperty,

@@ -22,10 +22,10 @@ a lot longer than a regular hash.
 
 The 512-bit output from this step is then run AGAIN through the `PBKDF` function with a new salt (`verificationSalt`). 
 This time, we save the result (`verificationHash`) as a hash of the generated key from the previous step. This way, 
-we can easily verify whether an entered password correct or not.
+we can easily verify whether an entered password is correct or not.
 
 The final part in this step is to divide the key generated in the first iteration into two parts consisting of 256
-bits each. The first part used as encryption key and the second part is used as hmac key.
+bits each. The first part is used as encryption key and the second part is used as a hmac key.
 
 #### Step 2: verifying the vault file and decrypt data
 
@@ -41,8 +41,8 @@ vault's encrypted data containing the actual data of the vault. The encryption a
 Vault reads from an encrypted file and uses the user's password to derive an encryption key used to decrypt and encrypt
 the data in this file. When the vault is open and the program is used to manipulate data, the actual credentials are not
 in memory, instead, they are kept in the encrypted string in memory. When credentials are accessed, one must enter the
-password if a certain configurable time has been passed. When the credentials view is exited, the credentials are
-directly saved to the encrypted data in memory. So save it to disk, one must also save the entire vault (button to the
+password if a certain configurable time has passed. When the credentials view is exited, the credentials are
+directly saved to the encrypted data in memory. To save it to disk, one must also save the entire vault (button to the
 lower right). Other data updated in the vault will also only be saved upon saving the entire vault.
 
 ## Dokumentation:

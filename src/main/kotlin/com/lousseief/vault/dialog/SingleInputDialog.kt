@@ -9,7 +9,6 @@ import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
-import javafx.scene.paint.Color
 import javafx.scene.text.TextAlignment
 
 class SingleInputDialog(evaluator: (String, ActionEvent) -> Unit, header: String): TextInputDialog() {
@@ -25,7 +24,7 @@ class SingleInputDialog(evaluator: (String, ActionEvent) -> Unit, header: String
         errorLabel.textProperty().bind(errorProperty)
         errorLabel.textAlignment = TextAlignment.LEFT
         errorLabel.alignment = Pos.CENTER_LEFT
-        errorLabel.style = "-fx-text-fill: red";
+        errorLabel.style = "-fx-text-fill: red"
         errorLabel.isWrapText = true
         Platform.runLater{errorLabel.setMaxWidth(editor.width)}
 
@@ -34,7 +33,7 @@ class SingleInputDialog(evaluator: (String, ActionEvent) -> Unit, header: String
         headerText = header
 
         val g = dialogPane.content as GridPane
-        GridPane.setConstraints(errorLabel, 0, 1);
+        GridPane.setConstraints(errorLabel, 0, 1)
         g.vgap = 5.0
         g.getChildren().removeAt(0)
         println(g.getChildren()[0])
