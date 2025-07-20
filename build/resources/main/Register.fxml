@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<StackPane
+    xmlns="http://javafx.com/javafx/8"
+    xmlns:fx="http://javafx.com/fxml"
+    minWidth="300"
+    maxWidth="300"
+    alignment="TOP_RIGHT"
+    style="-fx-padding: 5"
+>
+    <VBox style="-fx-padding: 5" spacing="10.0">
+        <HBox spacing="5.0" alignment="CENTER_LEFT">
+            <FontAwesomeIconView glyphName="USER" size="20px" glyphStyle="-fx-fill: #888888" />
+            <Label text="Register" style="-fx-font-size: 1.3em" />
+        </HBox>
+        <HBox alignment="CENTER_LEFT">
+            <Region minWidth="0" HBox.hgrow="ALWAYS" />
+            <Label text="Username" HBox.hgrow="NEVER" style="-fx-padding: 0 10 0 0" />
+            <TextField fx:id="usernameField" />
+        </HBox>
+        <HBox alignment="CENTER_LEFT">
+            <Region minWidth="0" HBox.hgrow="ALWAYS" />
+            <Label text="Password" HBox.hgrow="NEVER" style="-fx-padding: 0 10 0 0" />
+            <PasswordField fx:id="passwordField" />
+        </HBox>
+        <HBox alignment="CENTER_LEFT">
+            <Region minWidth="0" HBox.hgrow="ALWAYS" />
+            <Label text="Password repetition" HBox.hgrow="NEVER" style="-fx-padding: 0 10 0 0" />
+            <PasswordField fx:id="passwordRepetitionField" />
+        </HBox>
+        <Button text="Log in" HBox.hgrow="ALWAYS" maxWidth="Infinity" fx:id="registerButton" />
+    </VBox>
+    <Hyperlink HBox.hgrow="NEVER" VBox.vgrow="NEVER" text="Login" fx:id="loginLink">
+    </Hyperlink>
+</StackPane>

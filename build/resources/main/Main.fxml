@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <HBox styleClass="top-banner">
+            <Label text="Vault - securing your passwords" style="-fx-font-size: 20; -fx-text-fill: #222222; -fx-outline: 0; -fx-font-weight: 500" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Logout" styleClass="logout-button" HBox.hgrow="NEVER" VBox.vgrow="NEVER" fx:id="logoutButton" />
+        </HBox>
+    </top>
+    <center>
+        <HBox maxHeight="Infinity" maxWidth="Infinity" style="-fx-padding: 0" spacing="0" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+            <VBox
+                fx:id="sideBarBox"
+                VBox.vgrow="ALWAYS"
+                HBox.hgrow="NEVER"
+                maxHeight="Infinity"
+                style="-fx-padding: 10; -fx-border-color: #aaaaaa; -fx-border-width: 1 0; -fx-border-style: solid"
+                spacing="5"
+                prefWidth="300"
+                minWidth="300"
+                maxWidth="300"
+                alignment="CENTER"
+            >
+                <TitledPane
+                    maxWidth="Infinity"
+                    maxHeight="Infinity"
+                    HBox.hgrow="ALWAYS"
+                    VBox.vgrow="ALWAYS"
+                    fx:id="entriesPane"
+                    text="Vault entries"
+
+                >
+                    <ListView fx:id="entriesList" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" maxHeight="Infinity" maxWidth="Infinity">
+                        <placeholder>
+                            <Label textAlignment="CENTER" wrapText="true" fx:id="listviewPlaceholderLabel" />
+                        </placeholder>
+                    </ListView>
+                </TitledPane>
+                <Button text="Create new entry" fx:id="addAssociationButton" maxWidth="Infinity" HBox.hgrow="ALWAYS" VBox.vgrow="NEVER" />
+            </VBox>
+            <VBox
+                HBox.hgrow="ALWAYS"
+                VBox.vgrow="ALWAYS"
+                maxHeight="Infinity"
+                maxWidth="Infinity"
+                style="-fx-padding: 10; -fx-background-color: aaaaaa; -fx-border-width: 0"
+            >
+                <VBox
+                    style="-fx-border-color: lightgray; -fx-border-width: 1; -fx-border-style: solid; -fx-background-color: #eeeeee"
+                    minWidth="896"
+                    HBox.hgrow="ALWAYS"
+                    VBox.vgrow="ALWAYS"
+                    maxWidth="Infinity"
+                    maxHeight="Infinity"
+                    spacing="10"
+                    alignment="CENTER"
+                    xmlns="http://javafx.com/javafx/8"
+                    xmlns:fx="http://javafx.com/fxml"
+                    fx:id="entryViewContainer"
+                >
+                    <Label text="Select an entry to view and edit it" />
+                </VBox>
+            </VBox>
+        </HBox>
+    </center>
+    <bottom>
+        <HBox
+            VBox.vgrow="NEVER"
+            style="-fx-padding: 10"
+            spacing="10"
+            alignment="CENTER_RIGHT"
+        >
+            <Button text="Settings" fx:id="settingsButton" />
+            <Button text="Change master password" fx:id="changeMasterPasswordButton" />
+            <Button text="String generator" fx:id="stringGeneratorButton" />
+            <Label fx:id="nextLoginTimeLabel" />
+            <Region HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+            <Button text="Export vault" fx:id="exportVaultButton" />
+            <Button text="Save vault to disk" fx:id="saveVaultButton" />
+        </HBox>
+    </bottom>
+</BorderPane>

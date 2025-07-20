@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane
+    fx:id="dialogPane"
+    HBox.hgrow="NEVER"
+    VBox.vgrow="ALWAYS"
+    xmlns="http://javafx.com/javafx/8"
+    xmlns:fx="http://javafx.com/fxml"
+>
+    <content>
+        <VBox maxWidth="Infinity" spacing="8" HBox.hgrow="ALWAYS" fx:id="verticalHolder">
+            <VBox maxWidth="Infinity" spacing="15" HBox.hgrow="ALWAYS">
+                <VBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="Infinity" alignment="CENTER_LEFT">
+                    <Label text="Categories (you may only delete categories without entries):"/>
+                    <ListView
+                        prefWidth="200"
+                        minWidth="200"
+                        maxHeight="200"
+                        prefHeight="200"
+                        fx:id="categoriesView"
+                        HBox.hgrow="ALWAYS"
+                        maxWidth="Infinity"
+                    />
+                    <GridPane hgap="10" HBox.hgrow="ALWAYS" maxWidth="Infinity" fx:id="categoryButtonsPane">
+                        <Button
+                            GridPane.rowIndex="0"
+                            GridPane.columnIndex="0"
+                            text="Remove category"
+                            fx:id="removeCategoryButton"
+                            HBox.hgrow="ALWAYS"
+                            maxWidth="Infinity"
+                        />
+                        <Button
+                            GridPane.rowIndex="0"
+                            GridPane.columnIndex="1"
+                            text="Add category"
+                            fx:id="newCategoryButton"
+                            HBox.hgrow="ALWAYS"
+                            maxWidth="Infinity"
+                        />
+                    </GridPane>
+                </VBox>
+                <HBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="Infinity" alignment="CENTER_RIGHT">
+                    <Label text="Default password length:"/>
+                    <Spinner maxWidth="80" amountToStepBy="1" prefWidth="80" fx:id="passwordLengthSpinner" />
+                </HBox>
+                <HBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="Infinity" alignment="CENTER_RIGHT">
+                    <Label text="Minutes to reuse entered password for subsequent operations:"/>
+                    <Spinner maxWidth="80" amountToStepBy="1" prefWidth="80" fx:id="dedupeTimeSpinner" />
+                </HBox>
+            </VBox>
+        </VBox>
+
+    </content>
+    <buttonTypes>
+        <ButtonType text="Cancel" fx:id="cancelButton" buttonData="CANCEL_CLOSE"/>
+        <ButtonType text="OK" fx:id="okButton" buttonData="OK_DONE"/>
+    </buttonTypes>
+</DialogPane>
