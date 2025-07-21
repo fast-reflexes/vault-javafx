@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.text.Text?>
+<DialogPane
+    fx:id="dialogPane"
+    HBox.hgrow="NEVER"
+    VBox.vgrow="ALWAYS"
+    xmlns="http://javafx.com/javafx/8"
+    xmlns:fx="http://javafx.com/fxml"
+    maxWidth="400"
+>
+    <content>
+        <VBox maxWidth="400" spacing="8" HBox.hgrow="NEVER" fx:id="verticalHolder">
+            <VBox spacing="15" HBox.hgrow="NEVER" maxWidth="400">
+                <Label fx:id="infoLabel" wrapText="true" />
+                <VBox spacing="5" HBox.hgrow="NEVER" maxWidth="400" alignment="CENTER_RIGHT">
+                    <Button text="Click to select profiles directory" fx:id="directoryChooserButton" HBox.hgrow="ALWAYS"/>
+                </VBox>
+                <TextFlow>
+                    <Text text="Selected: -" fx:id="selectedLabel" />
+                </TextFlow>
+            </VBox>
+        </VBox>
+
+    </content>
+    <buttonTypes>
+        <ButtonType text="OK" fx:id="okButton" buttonData="OK_DONE"/>
+    </buttonTypes>
+</DialogPane>

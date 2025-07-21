@@ -3,13 +3,16 @@ package com.lousseief.vault
 import com.lousseief.vault.controller.LoginController
 import com.lousseief.vault.controller.MainController
 import com.lousseief.vault.controller.RegisterController
+import com.lousseief.vault.dialog.ChooseProfilesLocationDialog
 import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.service.FileService
 import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.setupStage
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.Scene
+import javafx.scene.control.Alert
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
@@ -28,6 +31,27 @@ class Router : Application() {
         scene.stylesheets.add("/styles.css")
         stage.show()
         showLogin()
+        val systemIsSetup = FileService.setupSystemSettings()
+        if(!systemIsSetup) {
+            val directory = ChooseProfilesLocationDialog(true)
+                .showAndWait()
+            if(directory.isPresent && directory.get().isNotEmpty()) {
+                Alert(Alert.AlertType.CONFIRMATION).apply {
+                    title = "Location added"
+                    headerText = "Location added"
+                    contentText = "Successfully set the profiles location to '${directory.get()}'"
+                }.showAndWait()
+                FileService.writeSystemSettingsFile(directory.get())
+            } else {
+                Alert(Alert.AlertType.ERROR).apply {
+                    title = "Setup error"
+                    headerText = "Setup error"
+                    contentText = "Cannot start app without selecting directory, app will close"
+                }.showAndWait()
+                stage.close()
+            }
+        }
+
     }
 
     fun showLogin() {

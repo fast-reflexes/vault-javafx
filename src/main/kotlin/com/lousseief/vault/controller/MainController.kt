@@ -2,12 +2,14 @@ package com.lousseief.vault.controller
 
 import com.lousseief.vault.Router
 import com.lousseief.vault.dialog.ChangeMasterPasswordDialog
+import com.lousseief.vault.dialog.ChooseProfilesLocationDialog
 import com.lousseief.vault.dialog.SettingsDialog
 import com.lousseief.vault.dialog.SingleStringInputDialog
 import com.lousseief.vault.dialog.StringGeneratorDialog
 import com.lousseief.vault.list.EntryListCellFactory
 import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
+import com.lousseief.vault.service.FileService
 import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.timeToStringDateTime
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
@@ -28,10 +30,8 @@ import javafx.scene.control.*
 import javafx.scene.input.MouseEvent.MOUSE_CLICKED
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Paint
-import javafx.stage.DirectoryChooser
-import javafx.stage.Stage
-import java.io.File
 import java.util.concurrent.Callable
+import kotlin.text.isNotEmpty
 
 
 class MainController(private val router: Router, private val user: UiProfile) {
@@ -203,6 +203,18 @@ class MainController(private val router: Router, private val user: UiProfile) {
         }
     }
 
+    private fun onChooseProfileLocation() {
+        val directory = ChooseProfilesLocationDialog(false)
+            .showAndWait()
+        if(directory.isPresent && directory.get().isNotEmpty() && directory.get() != FileService.getCurrentProfilesLocation()) {
+            Alert(Alert.AlertType.INFORMATION).apply {
+                headerText = "Success"
+                contentText = "Successfully set the profiles location to '${directory.get()}'"
+            }.showAndWait()
+            FileService.writeSystemSettingsFile(directory.get())
+        }
+    }
+
     private fun onDeleteEntry(mainIdentifier: String) {
         user.passwordRequiredAction()?.let { password ->
             val deleteButtonType = ButtonType("Delete entry", ButtonBar.ButtonData.OK_DONE)
@@ -253,14 +265,6 @@ class MainController(private val router: Router, private val user: UiProfile) {
         logoutButton.setOnAction { router.showLogin() }
         logoutButton.graphic = MaterialIconView(MaterialIcon.EXIT_TO_APP).apply { fill = Paint.valueOf(Colors.GRAY_DARK)}
         entriesPane.isCollapsible = false
-
-        val directoryChooser = DirectoryChooser()
-        directoryChooser.initialDirectory = File(".")
-
-        directoryChooserButton.setOnAction({ e ->
-            val selectedDirectory = directoryChooser.showDialog(Stage())
-            println(selectedDirectory.absolutePath)
-        })
 
         /*Platform.runLater {
             println("PRINT")
@@ -320,6 +324,8 @@ class MainController(private val router: Router, private val user: UiProfile) {
             fill = Paint.valueOf(Colors.BLUE)
             size = "22px"
         }
+
+        directoryChooserButton.setOnAction { onChooseProfileLocation() }
         Platform.runLater {
             if(filtered.isEmpty()) {
                 loadItemView(null)

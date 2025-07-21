@@ -117,7 +117,6 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * Fixa så att man får en property som avgör om man behöver spara eller ej och styr så att man inte kan stänga vissa saker utan varning gäller huvudfönstret främst
 * Sätt allt inom Platform.runLater i initialize som rör bindings och listeners
 * Samma ska fortsätta vara selected även om man filtrerar, helst ska man selecta null om den som var selectad inte lägre är kvar
-* Add a way to point out where vaultfiles are stored (settings)
 * hantera last updated i credentials (och i entry?)
 * kolla att stängning med kryss och cancel ger samma resultat ( påmminner när något är osparat etc...)
 * ändra button text på en del ställen till "Quit anyways" eller "Cose anyways" istället för "Ok"
