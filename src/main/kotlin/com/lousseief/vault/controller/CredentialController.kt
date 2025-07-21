@@ -4,6 +4,7 @@ import com.lousseief.vault.dialog.AddPasswordDialog
 import com.lousseief.vault.dialog.AddUsernameDialog
 import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.model.ui.UiCredential
+import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.copySelectionToClipboard
 import com.lousseief.vault.utils.timeToStringDate
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
@@ -208,7 +209,7 @@ class CredentialController(
             copySelectionToClipboard(credential.password.value)
         }
         copyPasswordButton.graphic = FontAwesomeIconView(FontAwesomeIcon.COPY).apply {
-            fill = Paint.valueOf("#666666")
+            fill = Paint.valueOf(Colors.GRAY_DARK)
         }
 
         showPasswordCheckbox.selectedProperty().addListener { _, _, newValue ->
@@ -225,7 +226,7 @@ class CredentialController(
         addUsernameButton.setOnAction { onAddUsername() }
         addUsernameButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
             size = "16px"
-            fill = Paint.valueOf("#3e9b0a")
+            fill = Paint.valueOf(Colors.GREEN)
         }
         removeUsernameButton.disableProperty().bind(identity.isNull)
         removeUsernameButton.setOnAction { onDeleteUsername() }
@@ -246,7 +247,7 @@ class CredentialController(
 
         updatePasswordButton.setOnAction { onChangePassword() }
         updatePasswordButton.graphic = MaterialDesignIconView(MaterialDesignIcon.CACHED).apply {
-            fill = Paint.valueOf("#000000")
+            fill = Paint.valueOf("black")
         }
 
         Platform.runLater {

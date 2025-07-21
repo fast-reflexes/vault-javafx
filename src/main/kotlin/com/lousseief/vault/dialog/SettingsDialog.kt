@@ -5,7 +5,7 @@ import com.lousseief.vault.model.UiProfile
 import javafx.fxml.FXMLLoader
 import javafx.scene.control.*
 
-class SettingsDialog(user: UiProfile, evaluator: (String, String) -> Unit): Dialog<String?>() {
+class SettingsDialog(user: UiProfile, evaluator: (String, String) -> Unit): Dialog<Unit>() {
 
     init {
         val loader = FXMLLoader(javaClass.getResource("/SettingsDialog.fxml"))

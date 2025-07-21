@@ -2,6 +2,7 @@ package com.lousseief.vault.controller.dialog
 
 import com.lousseief.vault.crypto.CryptoUtils
 import com.lousseief.vault.crypto.CryptoUtils.getCharPoolContent
+import com.lousseief.vault.utils.Colors
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
 import javafx.application.Platform
@@ -137,7 +138,7 @@ class AddPasswordDialogController(
         }
         generatePasswordButton.graphic = MaterialDesignIconView(MaterialDesignIcon.CREATION).apply {
             size = "16px"
-            fill = Paint.valueOf("#debb00")
+            fill = Paint.valueOf(Colors.GOLD)
         }
     }
 

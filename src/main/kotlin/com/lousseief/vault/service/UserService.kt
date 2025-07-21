@@ -11,8 +11,6 @@ import com.lousseief.vault.model.Settings
 
 object UserService {
 
-    private var currentUser: Profile? = null
-
     fun loadUser(userName: String): Profile =
         FileService.readFile(userName)
         /*with(FileService.readFile(userName)) {

@@ -40,10 +40,7 @@ class LoginController(private val router: Router) {
             }.showAndWait()
             passwordField.requestFocus()
             passwordField.selectAll()
-        }
-        //else if(password.value !== passwordRepetition.value)
-        //    alert(Alert.AlertType.ERROR, "Password mismatch", "The password and password repetition didn't match")
-        else {
+        } else {
             try {
                 val loggedInUser = UserService.loadUser(username.value)
                 val (associations, settings, userNames) = loggedInUser.initialize(password.value)

@@ -65,10 +65,7 @@ class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
             useFilter.bind(useFilterCheckbox.selectedProperty())
 
             keyword.addListener { _, _, _ -> onFilterChanged() }
-            searchParameter.addListener { _, _, _ ->
-                println("in list")
-                onFilterChanged()
-            }
+            searchParameter.addListener { _, _, _ -> onFilterChanged() }
             isNeeded.addListener { _, _, _ -> onFilterChanged() }
             isDeactivated.addListener { _, _, _ -> onFilterChanged() }
             shouldBeDeactivated.addListener { _, _, _ -> onFilterChanged() }
@@ -102,27 +99,49 @@ class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
         comboBox.selectionModel.selectFirst()
     }
 
+    private fun entrySatisfiesBooleanFilters(it: UiAssociation): Boolean {
+        return(
+            ((isNeeded.get() == "Yes" && it.isNeeded.value) || (isNeeded.get() == "No" && !it.isNeeded.value) || (isNeeded.get() == "")) &&
+            ((isDeactivated.get() == "Yes" && it.isDeactivated.value) || (isDeactivated.get() == "No" && !it.isDeactivated.value) || (isDeactivated.get() == "")) &&
+            ((shouldBeDeactivated.get() == "Yes" && it.shouldBeDeactivated.value) || (shouldBeDeactivated.get() == "No" && !it.shouldBeDeactivated.value) || (shouldBeDeactivated.get() == ""))
+        )
+    }
+
+    private fun entrySatisfiesKeywordFilter(it: UiAssociation): Boolean {
+        if(keyword.value.isNullOrEmpty()) {
+            return true
+        } else {
+            val regex = Regex(keyword.value.replace("*", ".+"))
+            if(searchParameter.value == "All") {
+                return (
+                    regex.containsMatchIn(it.mainIdentifier.value) ||
+                    it.comment.value !== null && regex.containsMatchIn(it.comment.value) ||
+                    it.secondaryIdentifiers.any { regex.containsMatchIn(it) } ||
+                    it.category.value !== null && regex.containsMatchIn(it.category.value)
+                    )
+            } else {
+                return (
+                    (searchParameter.value == "Main identifier" && regex.containsMatchIn(it.mainIdentifier.value)) ||
+                    (searchParameter.value == "Comment" && it.comment.value !== null && regex.containsMatchIn(it.comment.value)) ||
+                    (searchParameter.value == "Secondary identifier" && it.secondaryIdentifiers.any { regex.containsMatchIn(it) }) ||
+                    (searchParameter.value == "Category" && it.category.value !== null && regex.containsMatchIn(it.category.value))
+                )
+            }
+        }
+    }
+
     private fun onFilterChanged() {
         if (useFilter.value) {
             try {
                 onFilter {
-                    val shouldBeShown = it !== null && (
-                        ((isNeeded.get() == "Yes" && it.isNeeded.value) || (isNeeded.get() == "No" && !it.isNeeded.value) || (isNeeded.get() == "")) &&
-                        ((isDeactivated.get() == "Yes" && it.isDeactivated.value) || (isDeactivated.get() == "No" && !it.isDeactivated.value) || (isDeactivated.get() == "")) &&
-                        ((shouldBeDeactivated.get() == "Yes" && it.shouldBeDeactivated.value) || (shouldBeDeactivated.get() == "No" && !it.shouldBeDeactivated.value) || (shouldBeDeactivated.get() == "")) &&
-                        (keyword.get().isNullOrEmpty() || (
-                            searchParameter.get() == "Main identifier" && Regex(keyword.value.replace("*", ".+")).containsMatchIn(it.mainIdentifier.value)
-                        ))
-                    )
+                    val shouldBeShown = entrySatisfiesBooleanFilters(it) && entrySatisfiesKeywordFilter(it)
                     shouldBeShown
                 }
             }
             catch(e: Exception) {
                 e.printStackTrace()
-                onFilter { it !== null && it.mainIdentifier.value == keyword.value }
             }
         } else {
-            println("Default case")
             onFilter { true }
         }
     }

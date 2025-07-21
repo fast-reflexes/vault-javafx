@@ -2,6 +2,7 @@ package com.lousseief.vault.controller.dialog
 
 import com.lousseief.vault.crypto.CryptoUtils
 import com.lousseief.vault.crypto.CryptoUtils.getCharPoolContent
+import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.copySelectionToClipboard
 import com.lousseief.vault.utils.initializeSpinner
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
@@ -91,7 +92,7 @@ class StringGeneratorDialogController(val defaultPasswordLength: Int) {
             this as Button
             graphic = MaterialDesignIconView(MaterialDesignIcon.CREATION).apply {
                 size = "16px"
-                fill = Paint.valueOf("#debb00")
+                fill = Paint.valueOf(Colors.GOLD)
             }
             addEventFilter(ActionEvent.ACTION) { event ->
                 generatedStringProperty.set(
@@ -111,7 +112,7 @@ class StringGeneratorDialogController(val defaultPasswordLength: Int) {
         }
         dialogPane.lookupButton(copyButton).apply {
             this as Button
-            graphic = FontAwesomeIconView(FontAwesomeIcon.COPY).apply { fill = Paint.valueOf("#666666")}
+            graphic = FontAwesomeIconView(FontAwesomeIcon.COPY).apply { fill = Paint.valueOf(Colors.GRAY_DARK)}
             addEventFilter(ActionEvent.ACTION) { event ->
                 copySelectionToClipboard(generatedStringProperty.value)
                 event.consume()

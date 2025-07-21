@@ -13,8 +13,8 @@
     style="-fx-padding: 5"
 >
     <VBox style="-fx-padding: 5" spacing="10.0">
-        <HBox spacing="5.0" alignment="CENTER_LEFT">
-            <FontAwesomeIconView glyphName="USER" size="20px" glyphStyle="-fx-fill: #888888" />
+        <HBox spacing="8.0" alignment="CENTER_LEFT">
+            <FontAwesomeIconView glyphName="USER" size="20px" glyphStyle="-fx-fill: rgba(40, 163, 244, 0.6)" />
             <Label text="Register" style="-fx-font-size: 1.3em" />
         </HBox>
         <HBox alignment="CENTER_LEFT">

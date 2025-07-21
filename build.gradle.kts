@@ -46,16 +46,41 @@ dependencies {
     testImplementation("junit", "junit", "4.12")
 }
 
+tasks.jar {
+    manifest.attributes.apply {
+        put("Implementation-Title", "Vault thin jar")
+        put("Implementation-Version", version)
+        put("Main-Class", "com.lousseief.vault.MainKt")
+    }
+}
+
+tasks.register<Jar>("fatJar") {
+    archiveClassifier.set("fat")
+    manifest.attributes.apply {
+        put("Implementation-Title", "Vault fat jar")
+        put("Implementation-Version", version)
+        put("Main-Class", "com.lousseief.vault.MainKt")
+        put("Application-Default-JVM-Args", "--add-opens=java.base/java.time=ALL-UNNAMED")
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(sourceSets.main.get().output)
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get()
+            .filter { it.name.endsWith("jar") }
+            .map { zipTree(it) }
+    })
+}
+
 configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_23
 }
 
 application {
     mainClass.set("com.lousseief.vault.MainKt")
-
     applicationDefaultJvmArgs = listOf(
         //"--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED", // likely not needed anymore
-        "--add-opens=java.base/java.time=ALL-UNNAMED"
+        //"--add-opens=java.base/java.time=ALL-UNNAMED" // not needed with custom typeadapter for Instant
     )
 }
 

@@ -4,6 +4,7 @@ import com.lousseief.vault.controller.LoginController
 import com.lousseief.vault.controller.MainController
 import com.lousseief.vault.controller.RegisterController
 import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.setupStage
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
@@ -23,14 +24,14 @@ class Router : Application() {
         val scene = Scene(root)
         stage.scene = scene
         stage.title = "Vault"
-        scene.fill = Color.valueOf("#EDEDED")
+        scene.fill = Color.valueOf(Colors.GRAY)
         scene.stylesheets.add("/styles.css")
         stage.show()
         showLogin()
     }
 
     fun showLogin() {
-        val loader = FXMLLoader(javaClass.getResource("/login.fxml"))
+        val loader = FXMLLoader(javaClass.getResource("/Login.fxml"))
         loader.setController(LoginController(this))
         val view: Parent = loader.load()
         root.children.setAll(view)
@@ -39,7 +40,7 @@ class Router : Application() {
     }
 
     fun showRegister() {
-        val loader = FXMLLoader(javaClass.getResource("/register.fxml"))
+        val loader = FXMLLoader(javaClass.getResource("/Register.fxml"))
         loader.setController(RegisterController(this))
         val view: Parent = loader.load()
         root.children.setAll(view)
@@ -47,7 +48,7 @@ class Router : Application() {
     }
 
     fun showMain(user: UiProfile) {
-        val loader = FXMLLoader(javaClass.getResource("/main.fxml"))
+        val loader = FXMLLoader(javaClass.getResource("/Main.fxml"))
         loader.setController(MainController(this, user))
         val view: Parent = loader.load()
         root.children.setAll(view)

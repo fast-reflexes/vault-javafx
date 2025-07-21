@@ -3,6 +3,7 @@ package com.lousseief.vault.controller.dialog
 import com.lousseief.vault.dialog.SingleStringInputDialog
 import com.lousseief.vault.list.SettingsCategoryListCellFactory
 import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.initializeSpinner
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
@@ -48,9 +49,6 @@ class SettingsDialogController(
     private lateinit var okButton: ButtonType
 
     @FXML
-    private lateinit var cancelButton: ButtonType
-
-    @FXML
     private lateinit var verticalHolder: VBox
 
     @FXML
@@ -94,7 +92,7 @@ class SettingsDialogController(
         }
         newCategoryButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
             size = "16px"
-            fill = Paint.valueOf("#3e9b0a")
+            fill = Paint.valueOf(Colors.GREEN)
         }
     }
 
@@ -129,19 +127,12 @@ class SettingsDialogController(
         categoryButtonsPane.columnConstraints.add(1, ColumnConstraints().apply { percentWidth = 50.0 })
     }
 
-    fun finalize(readyDialog: Dialog<String?>) {
+    fun finalize(readyDialog: Dialog<Unit>) {
         val icon = Label().apply {
             styleClass.addAll("alert", "confirmation", "dialog-pane")
         }
         readyDialog.headerText = "Profile settings"
         readyDialog.graphic = icon
-        readyDialog.setResultConverter { type: ButtonType ->
-            when (type) {
-                //okButton -> passwordProperty.value
-                cancelButton -> null
-                else -> null
-            }
-        }
         readyDialog.dialogPane.apply {
             lookupButton(okButton).apply {
                 addEventFilter(ActionEvent.ACTION) {

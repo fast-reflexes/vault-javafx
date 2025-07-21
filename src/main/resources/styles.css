@@ -1,7 +1,7 @@
 .checkbox .box {
 
   -fx-background-color: white;
-  -fx-border-color: #999999;
+  -fx-border-color: #aaaaaa;
   -fx-border-radius:3px;
 
 }
@@ -48,13 +48,13 @@
 }
 
 .delete-button {
-  -fx-color: rgba(255, 0, 0, 1.0);
+  -fx-color: rgb(210, 43, 43, 1.0);
   -fx-cursor: hand;
   -fx-text-fill: white;
 }
 
 .delete-button:hover {
-  -fx-color: rgba(255, 0, 0, 0.65);
+  -fx-color: rgb(210, 43, 43, 0.5);
 }
 
 .big-button {

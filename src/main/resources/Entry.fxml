@@ -18,8 +18,8 @@
         maxHeight="Infinity"
         style="-fx-padding: 10"
     >
-        <HBox spacing="4" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0">
-            <FontAwesomeIconView glyphName="PAPERCLIP" size="20px" glyphStyle="-fx-fill: #888888" />
+        <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0">
+            <FontAwesomeIconView glyphName="PAPERCLIP" size="20px" glyphStyle="-fx-fill: rgba(40, 163, 244, 0.6)" />
             <Label fx:id="header" style="-fx-font-size: 1.3em" />
         </HBox>
         <HBox style="-fx-padding: 0" spacing="10" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">

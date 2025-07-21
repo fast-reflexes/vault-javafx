@@ -56,7 +56,6 @@
 
     </content>
     <buttonTypes>
-        <ButtonType text="Cancel" fx:id="cancelButton" buttonData="CANCEL_CLOSE"/>
-        <ButtonType text="OK" fx:id="okButton" buttonData="OK_DONE"/>
+        <ButtonType text="Done" fx:id="okButton" buttonData="OK_DONE"/>
     </buttonTypes>
 </DialogPane>

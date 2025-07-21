@@ -6,12 +6,11 @@ import com.lousseief.vault.list.EntryCategoryListCellFactory
 import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
 import com.lousseief.vault.model.ui.UiCredential
+import com.lousseief.vault.utils.Colors
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
-import de.jensd.fx.glyphs.materialicons.MaterialIcon
-import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -38,7 +37,7 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import kotlin.text.equals
 
-class EntryController(val user: UiProfile, val association: UiAssociation) {
+class EntryController(val user: UiProfile, val association: UiAssociation, var onDeleteEntry: () -> Unit) {
 
     // fields
 
@@ -164,7 +163,7 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
         }
         newCategoryButton.graphic = MaterialDesignIconView(MaterialDesignIcon.CREATION).apply {
             size = "16px"
-            fill = Paint.valueOf("#debb00")
+            fill = Paint.valueOf(Colors.GOLD)
         }
     }
 
@@ -174,15 +173,17 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
             user.passwordRequiredAction()?.let { password ->
                 println("EXECUTIONG CREDENTIALS OPENING")
                 val vault = user.accessVault(password)
-                val credentials = (vault.second[association.mainIdentifier.value]?.credentials?.map(UiCredential::fromCredentials) ?: emptyList()).toMutableList()
+                val credentials = (vault.second[association.mainIdentifier.value]?.credentials ?: emptyList()).toMutableList()
+                val uiCredentials = credentials.map(UiCredential::fromCredentials)
                 val stage = Stage()
-                val loader = FXMLLoader(javaClass.getResource("/credentials.fxml"))
+                val loader = FXMLLoader(javaClass.getResource("/Credentials.fxml"))
                 loader.setController(
                     CredentialsController(
                         user,
                         association.savedAssociation.mainIdentifier,
                         association,
-                        FXCollections.observableArrayList(credentials),
+                        FXCollections.observableArrayList(uiCredentials),
+                        credentials,
                         { stage.close() }
                     )
                 )
@@ -211,7 +212,7 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
                 }*/
             }
         }
-        credentialsButton.graphic = FontAwesomeIconView(FontAwesomeIcon.KEY).apply { fill = Paint.valueOf("#debb00")}
+        credentialsButton.graphic = FontAwesomeIconView(FontAwesomeIcon.KEY).apply { fill = Paint.valueOf(Colors.GOLD)}
     }
 
     private fun setupAddSecondIdentifierButton() {
@@ -233,7 +234,7 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
         }
         addSecondaryIdentifierButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
             size = "16px"
-            fill = Paint.valueOf("#3e9b0a")
+            fill = Paint.valueOf(Colors.GREEN)
         }
     }
 
@@ -268,6 +269,11 @@ class EntryController(val user: UiProfile, val association: UiAssociation) {
         deleteEntryButton.graphic = FontAwesomeIconView(FontAwesomeIcon.TRASH).apply {
             size = "20px"
             fill = Paint.valueOf("white")
+        }
+        deleteEntryButton.setOnAction {
+            println("Delete entry")
+            onDeleteEntry()
+
         }
     }
 }

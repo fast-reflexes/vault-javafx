@@ -4,6 +4,19 @@ Rewritten with only JavaFX instead of the initial project which used TornadoFX w
 
 Current versions used are JavaFX 24.0.2 and Java 23 with Gradle 8.14.3 and Kotlin plugin 2.2.0.
 
+## Run
+
+To run during development, execute `./gradlew run`
+
+To build a thin jar, execute `./gradlew jar`
+
+To build a fat jar, execute `./gradlew fatJar`
+
+To run fat jar, execute `java -jar <JAR>>`
+
+An error is displayed on started due to that this project does not use Java modules and thus, this project is an unnamed
+module. This can be ignored.
+
 ## Base functionality
 
 ### Format and function
@@ -69,9 +82,9 @@ oftare då man ansluter subvyer och sånt snarare än då man sätter en vy dire
 
 ### Icons
 This project uses icons from a series of different libraries:
-* Fontawesome
+* Fontawesome (https://fontawesome.com/v3/icons/, https://fontawesome.com/v4/icons/)
 * Material Icons
-* Material Design Font
+* Material Design Font (https://pictogrammers.com/library/mdi/)
 
 Even more icons are available. To see icons online, check the build file and extract the version of the icon library used 
 and search for that, for example Font Awesome 4.7.0
@@ -98,30 +111,33 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 ## TODO
 
 ### Backlog:
-* Färdig settings
+* Färdig settings Evaluator för settings?
 * Efterforska NULL ITEM i entriesList (när man väljer)
 
-* Fixa så att man får en property som avgör om man behöver spara eller ej och styr så att man inte kan stänga vissa saker utan varning
-* Only save credential if something is changed
-* skriv klart filterfunktionenr
-  * kolla att regex funkar.. verkar inte som det just nu
+* Fixa så att man får en property som avgör om man behöver spara eller ej och styr så att man inte kan stänga vissa saker utan varning gäller huvudfönstret främst
 * Sätt allt inom Platform.runLater i initialize som rör bindings och listeners
 * Samma ska fortsätta vara selected även om man filtrerar, helst ska man selecta null om den som var selectad inte lägre är kvar
 * Add a way to point out where vaultfiles are stored (settings)
 * hantera last updated i credentials (och i entry?)
 * kolla att stängning med kryss och cancel ger samma resultat ( påmminner när något är osparat etc...)
-* fixa java-menyn uppe i hörnet
 * ändra button text på en del ställen till "Quit anyways" eller "Cose anyways" istället för "Ok"
-* kolla beteende med när man byter entry och stänger utan att ha sparat å så så att de varningar jag vill ha upp kommer upp som de ska
 * hur görs översättning till ascii om fel bytes används? Säkert
 * gå igenom allt och om jag verkligen gör saker i rätt ordning
 * How to deal with errors? e.g-. when a mainidentifiers already exists?
 * Fix delete entry
 * Write in readme about how this software is supposed to be used
-* Factor out colors into constants and use them as much as possible
 * Write in readme about WHEN and HOW things are saved and make sure this is correct
+* Kolla igenom att allt är likadant överallt och så och att vi har kontroll på alla lägen
+* Kolla på gamla koden som inspiration för om jag glömt ngt
+* Testa hur det blir när man byter mainidentifier på ett entry och sen sparar och sen gör vissa saker igen.. hmmm
+* Sortera om entries om man döper om main identifier.. eller förbjud att döpa om hmmm
+* Hur ändra iterations i PBKDF?
 
-### Inbox
+### Inbox (to do MAYBE at some later point)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
 * Add feature to see stats (or use a different word), for example list usernames and how often they are used
 * Implement coloring of entries that are changed and unsaved in the entries list and also color fields that are changed.
+* Remove default Java menu (and content) from the application
+* Use Java modules and add module-info.java to perhaps get rid of error when starting with jar
+* Fixa ny ikon till jaren
+

@@ -10,7 +10,6 @@ class BooleanListButtonCell : ListCell<String?>() {
     fun updateItem(item: String?, empty: Boolean) {
         super.updateItem(item, empty)
         if (item === "" || empty) {
-            println("Null Item")
             text = "Select value"
             isDisable = true
             style = "-fx-opacity: 0.4"

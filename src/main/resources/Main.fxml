@@ -6,7 +6,7 @@
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml">
     <top>
         <HBox styleClass="top-banner" spacing="10">
-            <Label text="Vault - securing your passwords" style="-fx-font-size: 20; -fx-text-fill: #ffffff; -fx-outline: 2; -fx-font-weight: 700" />
+            <Label text="Vault - securing your passwords" style="-fx-font-size: 20; -fx-text-fill: white; -fx-outline: 2; -fx-font-weight: 700" />
             <Region HBox.hgrow="ALWAYS" />
             <Button text="Change vault file directory" styleClass="header-button" HBox.hgrow="NEVER" fx:id="directoryChooserButton"/>
             <Button text="Logout" styleClass="header-button" HBox.hgrow="NEVER" VBox.vgrow="NEVER" fx:id="logoutButton" />
@@ -19,7 +19,7 @@
                 VBox.vgrow="ALWAYS"
                 HBox.hgrow="NEVER"
                 maxHeight="Infinity"
-                style="-fx-padding: 10; -fx-border-color: #aaaaaa; -fx-border-width: 1 0; -fx-border-style: solid"
+                style="-fx-padding: 10; -fx-border-color: #aaaaaa; -fx-border-width: 0 0 1 0; -fx-border-style: solid; -fx-background-color: #eeeeee"
                 spacing="5"
                 prefWidth="300"
                 minWidth="300"
@@ -33,7 +33,6 @@
                     VBox.vgrow="ALWAYS"
                     fx:id="entriesPane"
                     text="Vault entries"
-
                 >
                     <ListView fx:id="entriesList" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" maxHeight="Infinity" maxWidth="Infinity">
                         <placeholder>
@@ -55,10 +54,10 @@
                 VBox.vgrow="ALWAYS"
                 maxHeight="Infinity"
                 maxWidth="Infinity"
-                style="-fx-padding: 10; -fx-background-color: aaaaaa; -fx-border-width: 0"
+                style="-fx-padding: 10; -fx-background-color: #aaaaaa; -fx-border-width: 0"
             >
                 <VBox
-                    style="-fx-border-color: lightgray; -fx-border-width: 1; -fx-border-style: solid; -fx-background-color: #eeeeee"
+                    style="-fx-background-color: #eeeeee"
                     minWidth="896"
                     HBox.hgrow="ALWAYS"
                     VBox.vgrow="ALWAYS"
@@ -69,9 +68,7 @@
                     xmlns="http://javafx.com/javafx/8"
                     xmlns:fx="http://javafx.com/fxml"
                     fx:id="entryViewContainer"
-                >
-                    <Label text="Select an entry to view and edit it" />
-                </VBox>
+                />
             </VBox>
         </HBox>
     </center>
