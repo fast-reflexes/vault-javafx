@@ -6,7 +6,6 @@ import com.lousseief.vault.dialog.SettingsDialog
 import com.lousseief.vault.dialog.SingleStringInputDialog
 import com.lousseief.vault.dialog.StringGeneratorDialog
 import com.lousseief.vault.list.EntryListCellFactory
-import com.lousseief.vault.main
 import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
 import com.lousseief.vault.utils.Colors
