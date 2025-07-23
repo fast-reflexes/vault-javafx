@@ -67,7 +67,7 @@
                     alignment="CENTER"
                     xmlns="http://javafx.com/javafx/8"
                     xmlns:fx="http://javafx.com/fxml"
-                    fx:id="entryViewContainer"
+                    fx:id="associationViewContainer"
                 />
             </VBox>
         </HBox>

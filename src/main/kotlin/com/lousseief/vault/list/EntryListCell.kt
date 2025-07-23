@@ -10,10 +10,9 @@ import javafx.util.Callback
 class EntryListCell : ListCell<UiAssociation>() {
 
     private val label = Label()
-    private val pane: StackPane
+    private val pane: StackPane = StackPane()
 
     init {
-        pane = StackPane()
         pane.minWidth = 0.0
         pane.prefWidth = 1.0
         label.maxWidth = Double.Companion.MAX_VALUE

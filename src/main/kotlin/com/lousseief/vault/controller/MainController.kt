@@ -20,14 +20,12 @@ import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
-import javafx.collections.FXCollections
 import javafx.collections.transformation.FilteredList
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.control.*
-import javafx.scene.input.MouseEvent.MOUSE_CLICKED
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Paint
 import java.util.concurrent.Callable
@@ -76,17 +74,9 @@ class MainController(private val router: Router, private val user: UiProfile) {
     private lateinit var nextLoginTimeLabel: Label
 
     @FXML
-    private lateinit var entryViewContainer: VBox
+    private lateinit var associationViewContainer: VBox
 
-    private val mappedEntries = FXCollections.observableList<UiAssociation>(
-        mutableListOf(),
-        { assoc -> arrayOf(assoc.mainIdentifier) }
-    ).apply {
-        addAll(user.associations.value.values)
-        sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value) }
-    }
-
-    private val filtered = FilteredList(mappedEntries)
+    private val filtered = FilteredList(user.mappedEntries)
     private val nextLoginTimeProperty = Bindings.createStringBinding(
         { "Current entered password valid for further operations until: ${user.passwordData.savedPasswordExpiry.value?.let { timeToStringDateTime(it) } ?: "expired" }" },
         user.passwordData.savedPasswordExpiry
@@ -94,7 +84,7 @@ class MainController(private val router: Router, private val user: UiProfile) {
 
     val placeholderFn = Callable {
         println("Evaluating placeholder!")
-        if(filtered.isEmpty() && mappedEntries.isEmpty()) {
+        if(filtered.isEmpty() && user.mappedEntries.isEmpty()) {
             "No entries in table.\n Press \"Create new entry\" to create your first entry"
         } else {
             "No entries were matched by your filter.\n Please try again!"
@@ -103,32 +93,42 @@ class MainController(private val router: Router, private val user: UiProfile) {
 
     val listViewPlaceholder = Bindings.createStringBinding(
         placeholderFn,
-        filtered, mappedEntries
+        filtered, user.mappedEntries
     )
 
     private fun loadFilterView() {
         val loader = FXMLLoader(javaClass.getResource("/Filter.fxml"))
-        loader.setController(FilterController({ filtered.predicate = it }))
+        loader.setController(FilterController({
+            val currentSelection = entriesList.selectionModel.selectedItem
+            filtered.predicate = it
+            // selected item loses focus when we alter the filter so we solve this below
+            if(currentSelection in filtered) {
+                entriesList.selectionModel.select(currentSelection)
+            } else {
+                entriesList.selectionModel.clearSelection()
+            }
+
+        }))
         val filterView: Parent = loader.load()
         sideBarBox.children.add(0, filterView)
     }
 
-    private fun loadItemView(association: UiAssociation?) {
+    private fun loadAssociationView(association: UiAssociation?) {
         if(association != null) {
-            val loader = FXMLLoader(javaClass.getResource("/Entry.fxml"))
-            loader.setController(EntryController(user, association, { onDeleteEntry(association.mainIdentifier.value) }))
+            val loader = FXMLLoader(javaClass.getResource("/Association.fxml"))
+            loader.setController(AssociationController(user, association, { onDeleteEntry(association.savedAssociation.mainIdentifier) }))
             val entryView: Parent = loader.load()
-            entryViewContainer.children.removeIf { true }
-            entryViewContainer.children.add(entryView)
+            associationViewContainer.children.removeIf { true }
+            associationViewContainer.children.add(entryView)
         } else {
             val label = Label(
-                if(mappedEntries.isEmpty())
+                if(user.mappedEntries.isEmpty())
                     "Please add entries to the vault and then select one to show its content here"
                 else
                     "Select an entry to view and edit it"
             )
-            entryViewContainer.children.removeIf { true }
-            entryViewContainer.children.add(label)
+            associationViewContainer.children.removeIf { true }
+            associationViewContainer.children.add(label)
         }
     }
 
@@ -151,15 +151,16 @@ class MainController(private val router: Router, private val user: UiProfile) {
                     } else if (input === null || input.isBlank()) {
                         throw Exception("Empty identifier not allowed, please try again.")
                     }
-                    user.passwordRequiredAction()?.let { password ->
-                        user.addEntry(input, password)
-                    }
                 }
             ).showAndWait()
             if (newEntry.isPresent) {
-                mappedEntries.add(user.associations[newEntry.get()])
-                mappedEntries.sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value) }
-                val index = filtered.indexOfFirst { it.mainIdentifier.value == newEntry.get() }
+                val newIdentifier = newEntry.get()
+                user.passwordRequiredAction()?.let { password ->
+                    user.addAssociation(newIdentifier, password)
+                }
+                user.mappedEntries.add(user.associations[newIdentifier])
+                user.mappedEntries.sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value) }
+                val index = filtered.indexOfFirst { it.mainIdentifier.value == newIdentifier }
                 entriesList.selectionModel.select(index)
                 entriesList.requestFocus()
             }
@@ -170,32 +171,48 @@ class MainController(private val router: Router, private val user: UiProfile) {
         }
     }
 
+    private fun onDeleteEntry(savedMainIdentifier: String) {
+        val deleteButtonType = ButtonType("Delete entry", ButtonBar.ButtonData.OK_DONE)
+        val deleteEntryDialog = Alert(Alert.AlertType.WARNING).apply {
+            headerText = "Confirm delete"
+            contentText = "Are you sure you want to delete this entry?"
+            dialogPane.buttonTypes.add(ButtonType.CANCEL)
+            dialogPane.buttonTypes.remove(ButtonType.OK)
+            dialogPane.buttonTypes.add(deleteButtonType)
+        }
+        val res = deleteEntryDialog.showAndWait()
+        if(res.isPresent && res.get() === deleteButtonType) {
+            user.passwordRequiredAction()?.let { password ->
+                user.removeAssociation(savedMainIdentifier, password)
+            }
+            user.mappedEntries.removeIf { it.mainIdentifier.value == savedMainIdentifier }
+            entriesList.selectionModel.clearSelection()
+            entriesList.requestFocus()
+            Alert(Alert.AlertType.INFORMATION).apply {
+                headerText = "Entry successfully removed"
+                contentText =
+                    "The entry was successfully deleted. If you don't save the vault, the delete entry will reappear on next login. Upon saving the vault, the entry cannot be restored."
+            }.showAndWait()
+        }
+    }
+
     private fun setupChangeMasterPasswordButton() {
         changeMasterPasswordButton.setOnAction {
-            val newPassword = ChangeMasterPasswordDialog {
-                    oldPassword, newPassword ->
-                println(oldPassword)
-                println(newPassword)
+            val newPassword = ChangeMasterPasswordDialog { oldPassword, newPassword ->
                 user.accessVault(oldPassword, null, true, newPassword)
-                //controller.changeMasterPassword(oldPassword, newPassword)
             }.showAndWait()
             if(newPassword.isPresent) {
-                println("Showing alert")
                 Alert(Alert.AlertType.INFORMATION).apply {
                     headerText = "Master password successfully changed"
                     contentText = "The master password was updated, the vault must be saved to disk before quitting."
                 }.showAndWait()
-                //controller.altered.set(true)
             }
         }
     }
 
     private fun setupSettingsDialogButton() {
         settingsButton.setOnAction {
-            SettingsDialog(user) { oldPassword, newPassword ->
-                user.accessVault(oldPassword, null, true, newPassword)
-                //controller.changeMasterPassword(oldPassword, newPassword)
-            }.showAndWait()
+            SettingsDialog(user).showAndWait()
         }
         settingsButton.graphic = FontAwesomeIconView(FontAwesomeIcon.COG).apply {
             fill = Paint.valueOf(Colors.GRAY_DARK)
@@ -215,69 +232,11 @@ class MainController(private val router: Router, private val user: UiProfile) {
         }
     }
 
-    private fun onDeleteEntry(mainIdentifier: String) {
-        user.passwordRequiredAction()?.let { password ->
-            val deleteButtonType = ButtonType("Delete entry", ButtonBar.ButtonData.OK_DONE)
-            val deleteEntryDialog = Alert(Alert.AlertType.WARNING).apply {
-                headerText = "Confirm delete"
-                contentText = "Are you sure you want to delete this entry?"
-                dialogPane.buttonTypes.add(ButtonType.CANCEL)
-                dialogPane.buttonTypes.remove(ButtonType.OK)
-                dialogPane.buttonTypes.add(deleteButtonType)
-                dialogPane
-                    .lookupButton(deleteButtonType)
-                    .addEventFilter(ActionEvent.ACTION) {
-                        user.accessVault(
-                            password,
-                            { (settings, vaultData) ->
-                                val assoc = vaultData[mainIdentifier]
-                                println(assoc)
-                                assoc?.credentials?.forEach {
-                                    it.identities.forEach {
-                                        user.removeUsername(it)
-                                    }
-                                }
-                                Pair(settings, vaultData)
-                            }
-                        )
-                        println(user.associations[mainIdentifier])
-                        user.associations.remove(mainIdentifier)
-                        println("AFTER")
-                        println(user.associations[mainIdentifier])
-                    }
-            }
-            val res = deleteEntryDialog.showAndWait()
-            if(res.isPresent && res.get() === deleteButtonType) {
-                mappedEntries.removeIf { it.mainIdentifier.value == mainIdentifier }
-                entriesList.selectionModel.select(null)
-                entriesList.requestFocus()
-                Alert(Alert.AlertType.INFORMATION).apply {
-                    headerText = "Entry successfully removed"
-                    contentText =
-                        "The entry was successfully deleted. If you don't save the vault, the delete entry will reappear on next login. Upon saving the vault, the entry cannot be restored."
-                }.showAndWait()
-            }
-        }
-    }
-
     @FXML
     fun initialize() {
         logoutButton.setOnAction { router.showLogin() }
         logoutButton.graphic = MaterialIconView(MaterialIcon.EXIT_TO_APP).apply { fill = Paint.valueOf(Colors.GRAY_DARK)}
         entriesPane.isCollapsible = false
-
-        /*Platform.runLater {
-            println("PRINT")
-            val background = logoutButton.getBackground()
-            if (background != null) {
-                var i = 0
-                for (fill in background.getFills()) {
-                    val insets: Insets? = fill.getInsets()
-                    println("BackgroundFill " + i + ": " + insets)
-                    i++
-                }
-            }
-        } */
 
         // inject filter view
         loadFilterView()
@@ -293,13 +252,8 @@ class MainController(private val router: Router, private val user: UiProfile) {
         entriesList.cellFactory = EntryListCellFactory(entriesList)
         //textOverrun = OverrunStyle.ELLIPSIS
         //maxWidth= ti.width
-        entriesList.addEventFilter(MOUSE_CLICKED) { click ->
-            println("In list filter")
-            click.consume()
-        }
         entriesList.selectionModel.selectedItemProperty().addListener { _, _, newValue ->
-            println("Selected $newValue")
-            loadItemView(newValue)
+            loadAssociationView(newValue)
         }
 
         exportVaultButton.setOnAction {
@@ -324,15 +278,35 @@ class MainController(private val router: Router, private val user: UiProfile) {
             fill = Paint.valueOf(Colors.BLUE)
             size = "22px"
         }
+        saveVaultButton.disableProperty().bind(user.isDirty.not())
 
         directoryChooserButton.setOnAction { onChooseProfileLocation() }
         Platform.runLater {
             if(filtered.isEmpty()) {
-                loadItemView(null)
+                loadAssociationView(null)
             } else {
                 entriesList.selectionModel.selectFirst()
             }
             entriesList.requestFocus()
+
+            associationViewContainer.scene.window.setOnCloseRequest {
+                if(user.isDirty.value) {
+                    val closeAnyway = ButtonType("Close anyway", ButtonBar.ButtonData.OK_DONE)
+                    val cancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
+                    val confirm = Alert(
+                        Alert.AlertType.WARNING,
+                        "You have unsaved changes in your vault which will be lost if you exit without saving, do you really want to close this window without saving first? If no, press \"Cancel\" and then press \"Save vault to disk\".",
+                        cancel, closeAnyway
+                    ).apply {
+                        (dialogPane.lookupButton(closeAnyway) as Button).isDefaultButton = false
+                        (dialogPane.lookupButton(cancel) as Button).isDefaultButton = true
+                        headerText = "Do you really want to close this window?"
+                    }.showAndWait()
+                    if(confirm.isPresent && confirm.get() != closeAnyway) {
+                        it.consume()
+                    }
+                }
+            }
         }
         listviewPlaceholderLabel.textProperty().bind(listViewPlaceholder)
     }

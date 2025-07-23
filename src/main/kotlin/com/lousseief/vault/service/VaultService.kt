@@ -28,11 +28,12 @@ object VaultService {
     up to ... error is displayed and we must add special args for it to work */
     val jsonMapper: Gson = GsonBuilder().registerTypeAdapter(Instant::class.java, InstantAdapter()).create()
 
-    fun encryptVault(encryptionKey: ByteArray, vault: Vault): Pair<String, String> {
+    fun encryptVault(encryptionKey: ByteArray, vault: Vault, iv: String? = null): Pair<String, String> {
         val plainString = jsonMapper.toJson(vault)
         return CbcCrypto.encrypt(
             Conversion.UTF8ToBytes(plainString),
-            encryptionKey
+            encryptionKey,
+            iv?.let { Conversion.Base64ToBytes(it) }
         )
             .let { (cipherBytes, ivBytes) ->
                 Pair(Conversion.bytesToBase64(ivBytes), Conversion.bytesToBase64(cipherBytes))

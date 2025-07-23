@@ -1,7 +1,6 @@
 package com.lousseief.vault.model.ui
 
 import com.lousseief.vault.model.Association
-import com.lousseief.vault.model.Credential
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleStringProperty
@@ -46,9 +45,16 @@ data class UiAssociation(
             comment = comment.value,
         )
     }
-}
 
-data class UiAssociationWithCredentials(
-    val association: UiAssociation,
-    var credentials: List<Credential> = emptyList()
-)
+    fun containsChange(): Boolean {
+        val aP = savedAssociation
+        return aP.mainIdentifier != mainIdentifier.value
+            || aP.category != category.value
+            || aP.comment != comment.value
+            || aP.secondaryIdentifiers.size != secondaryIdentifiers.size
+            || aP.secondaryIdentifiers.zip(secondaryIdentifiers).any { (si1, si2) -> si1 != si2 }
+            || aP.isNeeded != isNeeded.value
+            || aP.isDeactivated != isDeactivated.value
+            || aP.shouldBeDeactivated != shouldBeDeactivated.value
+    }
+}

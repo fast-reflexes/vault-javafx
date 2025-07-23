@@ -28,7 +28,6 @@ object KeyDerivation {
                 OUTPUT_BITS
             )
             val key = skf.generateSecret(spec)
-            println(key.format + " " + key.encoded.size)
             val res = key.encoded
             return PBKDF2Delivery(saltToUse, res)
         } catch (e: NoSuchAlgorithmException) {

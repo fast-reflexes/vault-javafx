@@ -14,10 +14,14 @@ object CbcCrypto: Crypto {
     private const val IV_BITS = 128 // same as block size
     private const val IV_BYTES = IV_BITS / 8
 
+    /**
+     * Encrypt the vault. The same iv may be used again for in-session updates of in-memory encrypted data but when
+     * saving the vault to disk, we should always use a new iv.
+     */
     override fun encrypt(plainTextBytes: ByteArray, keyBytes: ByteArray, ivBytes: ByteArray?): EncryptionDelivery {
         if(keyBytes.size != KEY_BYTES)
             throw CryptoException(CryptoException.CryptoExceptionCause.ILLEGAL_KEY_SIZE)
-        val ivBytesToUse = ByteArray(IV_BYTES).also { CryptoUtils.fillRandom(it) }
+        val ivBytesToUse = ivBytes ?: ByteArray(IV_BYTES).also { CryptoUtils.fillRandom(it) }
         val ivSpec = IvParameterSpec(ivBytesToUse)
         val keySpec = SecretKeySpec(keyBytes, CIPHER)
 

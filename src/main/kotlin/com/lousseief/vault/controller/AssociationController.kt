@@ -37,7 +37,7 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import kotlin.text.equals
 
-class EntryController(val user: UiProfile, val association: UiAssociation, var onDeleteEntry: () -> Unit) {
+class AssociationController(val user: UiProfile, val association: UiAssociation, var onDeleteEntry: () -> Unit) {
 
     // fields
 
@@ -169,9 +169,7 @@ class EntryController(val user: UiProfile, val association: UiAssociation, var o
 
     private fun setupCredentialsButton() {
         credentialsButton.setOnAction {
-            println("OPENING CREDENTIALS")
             user.passwordRequiredAction()?.let { password ->
-                println("EXECUTIONG CREDENTIALS OPENING")
                 val vault = user.accessVault(password)
                 val credentials = (vault.second[association.mainIdentifier.value]?.credentials ?: emptyList()).toMutableList()
                 val uiCredentials = credentials.map(UiCredential::fromCredentials)

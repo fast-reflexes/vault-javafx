@@ -27,10 +27,7 @@ import javafx.scene.layout.VBox
 import javafx.scene.paint.Paint
 import javafx.scene.text.TextAlignment
 
-class SettingsDialogController(
-    val user: UiProfile,
-    val evaluator: (String, String) -> Unit
-) {
+class SettingsDialogController(val user: UiProfile) {
 
     companion object {
         const val STRING_LENGTH_MAX = 100
@@ -133,23 +130,6 @@ class SettingsDialogController(
         }
         readyDialog.headerText = "Profile settings"
         readyDialog.graphic = icon
-        readyDialog.dialogPane.apply {
-            lookupButton(okButton).apply {
-                addEventFilter(ActionEvent.ACTION) {
-                        event ->
-                    try {
-                        //evaluator(oldPasswordProperty.value, passwordProperty.value)
-                    }
-                    catch(e: Exception) {
-                        event.consume()
-                        errorProperty.set(e.message)
-                        readyDialog.dialogPane.scene.window.sizeToScene()
-                    }
-                }
-                //disableProperty().bind(isIncomplete)
-            }
-
-        }
 
         Platform.runLater{
             errorProperty.addListener { _, _, newValue ->

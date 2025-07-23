@@ -229,18 +229,18 @@ class CredentialsController(
                     if(credentialsAreAltered(initialCredentials, credentials)) {
                         val closeAnyway = ButtonType("Close anyway", ButtonBar.ButtonData.OK_DONE)
                         val cancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
-                        Alert(
-                            Alert.AlertType.CONFIRMATION,
+                        val confirm = Alert(
+                            Alert.AlertType.WARNING,
                             "You have unsaved changes in these credentials, do you really want to close this window without saving first? If no, press \"Cancel\" and then press \"Save\".",
                             cancel, closeAnyway
                         ).apply {
                             (dialogPane.lookupButton(closeAnyway) as Button).isDefaultButton = false
-                            (dialogPane.lookupButton(cancel) as Button).apply {
-                                isDefaultButton = true
-                                addEventFilter(ActionEvent.ACTION) { _ -> it.consume() }
-                            }
+                            (dialogPane.lookupButton(cancel) as Button).isDefaultButton = true
                             headerText = "Do you really want to close this window?"
                         }.showAndWait()
+                        if(confirm.isPresent && confirm.get() != closeAnyway) {
+                            it.consume()
+                        }
                     }
                 }
             }

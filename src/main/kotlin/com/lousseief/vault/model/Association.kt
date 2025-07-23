@@ -82,8 +82,8 @@ data class Association(
     var isNeeded: Boolean = true,
     var shouldBeDeactivated: Boolean = false,
     var isDeactivated: Boolean = false,
-    var category: String? = null,
-    var comment: String? = null,
+    var category: String = "",
+    var comment: String = "",
 ) {
 
     override fun toString() =
