@@ -3,6 +3,7 @@ package com.lousseief.vault.controller.dialog
 import com.lousseief.vault.crypto.CryptoUtils
 import com.lousseief.vault.crypto.CryptoUtils.getCharPoolContent
 import com.lousseief.vault.utils.Colors
+import com.lousseief.vault.utils.initializeSpinner
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
 import javafx.application.Platform
@@ -20,14 +21,12 @@ import javafx.scene.control.Dialog
 import javafx.scene.control.DialogPane
 import javafx.scene.control.Label
 import javafx.scene.control.Spinner
-import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.control.TextField
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Paint
 import javafx.scene.text.TextAlignment
-import javafx.util.StringConverter
 
 class AddPasswordDialogController(
     val defaultPasswordLength: Int,
@@ -55,7 +54,7 @@ class AddPasswordDialogController(
     private lateinit var stringField: TextField
 
     @FXML
-    private lateinit var intSpinner: Spinner<Number>
+    private lateinit var intSpinner: Spinner<Int>
 
     @FXML
     private lateinit var lowerCaseCheckbox: CheckBox
@@ -84,7 +83,6 @@ class AddPasswordDialogController(
     @FXML
     fun initialize() {
         stringField.textProperty().bindBidirectional(generatedStringProperty)
-        stringLengthProperty.bind(intSpinner.valueProperty())
         lowerCaseCheckbox.selectedProperty().bindBidirectional(lowerCaseProperty)
         upperCaseCheckbox.selectedProperty().bindBidirectional(upperCaseProperty)
         numbersCheckbox.selectedProperty().bindBidirectional(numbersProperty)
@@ -92,36 +90,7 @@ class AddPasswordDialogController(
         ButtonBar.setButtonUniformSize(dialogPane.lookupButton(cancelButton), false)
         ButtonBar.setButtonUniformSize(dialogPane.lookupButton(okButton), false)
 
-        val factory = intSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory
-        factory.max = STRING_LENGTH_MAX
-        factory.min = STRING_LENGTH_MIN
-        factory.value = defaultPasswordLength
-        intSpinner.isEditable = true
-        intSpinner.getValueFactory().converter = object : StringConverter<Number?>() {
-
-            override fun toString(value: Number?): String =
-                value?.toInt()?.toString() ?: "0"
-
-            override fun fromString(value: String?): Number =
-                (value
-                    ?.let {
-                        try {
-                            Integer.parseInt(value.trim())
-                        } catch(e: Exception) { null }
-                    }
-                    ?.let {
-                        when {
-                            it > STRING_LENGTH_MAX -> STRING_LENGTH_MAX
-                            it < STRING_LENGTH_MIN -> STRING_LENGTH_MIN
-                            else -> it
-                        }
-                    }
-                    ?: stringLengthProperty.value)
-                    .also {
-                        intSpinner.editor.text = toString(it)
-                    }
-
-        }
+        initializeSpinner(stringLengthProperty, intSpinner, STRING_LENGTH_MAX, STRING_LENGTH_MIN)
 
         generatePasswordButton.setOnAction {
             generatedStringProperty.set(
@@ -172,7 +141,7 @@ class AddPasswordDialogController(
                 }
             }
         }
-        readyDialog.dialogPane.scene.stylesheets.add("/styles.css")
+        readyDialog.dialogPane.scene.stylesheets.add("/styles/styles.css")
 
         Platform.runLater {
             errorProperty.addListener { _, _, newValue ->

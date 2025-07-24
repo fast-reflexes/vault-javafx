@@ -1,7 +1,6 @@
 package com.lousseief.vault.model.ui
 
 import com.lousseief.vault.dialog.PasswordConfirmDialog
-import com.lousseief.vault.model.UiProfile
 import com.lousseief.vault.service.VerificationService
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty

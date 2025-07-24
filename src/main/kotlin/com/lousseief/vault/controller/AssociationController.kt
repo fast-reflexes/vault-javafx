@@ -1,9 +1,9 @@
 package com.lousseief.vault.controller
 
 import com.lousseief.vault.dialog.SingleStringInputDialog
-import com.lousseief.vault.list.EntryCategoryButtonCell
-import com.lousseief.vault.list.EntryCategoryListCellFactory
-import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.list.AssociationCategoryButtonCell
+import com.lousseief.vault.list.AssociationCategoryListCellFactory
+import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
 import com.lousseief.vault.model.ui.UiCredential
 import com.lousseief.vault.utils.Colors
@@ -37,7 +37,7 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import kotlin.text.equals
 
-class AssociationController(val user: UiProfile, val association: UiAssociation, var onDeleteEntry: () -> Unit) {
+class AssociationController(val user: UiProfile, val association: UiAssociation, var onDeleteAssociation: () -> Unit) {
 
     // fields
 
@@ -88,7 +88,7 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
     private lateinit var credentialsButton: Button
 
     @FXML
-    private lateinit var deleteEntryButton: Button
+    private lateinit var deleteAssociationButton: Button
 
     @FXML
     private lateinit var addSecondaryIdentifierButton: Button
@@ -99,13 +99,16 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
     @FXML
     private lateinit var newCategoryButton: Button
 
+    @FXML
+    private lateinit var updateMainIdentifierButton: Button
+
     private val headerProperty = Bindings.createStringBinding(
         {
             val currentMainIdentifier = association.mainIdentifier.value
             if(currentMainIdentifier.isNotEmpty()) {
-                "Entry: $currentMainIdentifier"
+                "Association: $currentMainIdentifier"
             } else {
-                "Entry: (unnamed entry)"
+                "Association: (unnamed association)"
             }
         },
         association.mainIdentifier
@@ -187,15 +190,15 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
                 )
                 val credentialsView: Parent = loader.load()
                 stage.scene = Scene(credentialsView)
-                stage.scene.stylesheets.add("/styles.css")
+                stage.scene.stylesheets.add("/styles/styles.css")
                 stage.title = "Credentials"
                 stage.isResizable = false
                 stage.initModality(Modality.WINDOW_MODAL)
                 stage.initOwner((it.source as Node).scene.window)
                 stage.maxWidth = 330.0
                 stage.minWidth = 330.0
-                stage.maxHeight = 607.0
-                stage.minHeight = 607.0
+                stage.maxHeight = 614.0
+                stage.minHeight = 614.0
                 stage.showAndWait()
                 /*val credentialsSet = controller.passwordRequiredAction(setCredentialsHandler)
                 if(credentialsSet) {
@@ -211,6 +214,29 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
             }
         }
         credentialsButton.graphic = FontAwesomeIconView(FontAwesomeIcon.KEY).apply { fill = Paint.valueOf(Colors.GOLD)}
+    }
+
+    private fun setupUpdateMainIdentifierButton() {
+        updateMainIdentifierButton.setOnAction {
+            val updatedMainIdentifier = SingleStringInputDialog(
+                "Update main identifier",
+                "Enter a new name for your main identifier",
+                { input: String?, _: ActionEvent ->
+                    if (input.isNullOrEmpty())
+                        throw Exception("Empty main identifier not allowed, please try again.")
+                    else if (user.associations.values.any { it.mainIdentifier.value.equals(input, true) })
+                        throw Exception("Main identifier already exists, main identifiers must be unique within a profile.")
+                }
+            ).showAndWait()
+            if (updatedMainIdentifier.isPresent) {
+                association.mainIdentifier.set(updatedMainIdentifier.get())
+                user.orderedAssociations.sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value) }
+            }
+        }
+        addSecondaryIdentifierButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
+            size = "16px"
+            fill = Paint.valueOf(Colors.GREEN)
+        }
     }
 
     private fun setupAddSecondIdentifierButton() {
@@ -239,10 +265,13 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
     @FXML
     fun initialize() {
         header.textProperty().bind(headerProperty)
+
         setupAddSecondIdentifierButton()
         setupRemoveSecondIdentifierButton()
         setupNewCategoryButton()
         setupCredentialsButton()
+        setupUpdateMainIdentifierButton()
+
         mainIdentifier.textProperty().bindBidirectional(association.mainIdentifier)
         secondaryIdentifiers.items = association.secondaryIdentifiers
         category.valueProperty().bindBidirectional(association.category)
@@ -258,19 +287,19 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
         leftSideButtonPane.columnConstraints.add(0, ColumnConstraints().apply { percentWidth = 50.0 })
         leftSideButtonPane.columnConstraints.add(1, ColumnConstraints().apply { percentWidth = 50.0 })
         category.itemsProperty().bind(categories)
-        category.cellFactory = EntryCategoryListCellFactory()
-        category.buttonCell = EntryCategoryButtonCell()
+        category.cellFactory = AssociationCategoryListCellFactory()
+        category.buttonCell = AssociationCategoryButtonCell()
         category.placeholder = Label("No categories so far")
         //category.promptText = "Select category"
         category.selectionModel.selectFirst()
 
-        deleteEntryButton.graphic = FontAwesomeIconView(FontAwesomeIcon.TRASH).apply {
+        deleteAssociationButton.graphic = FontAwesomeIconView(FontAwesomeIcon.TRASH).apply {
             size = "20px"
             fill = Paint.valueOf("white")
         }
-        deleteEntryButton.setOnAction {
-            println("Delete entry")
-            onDeleteEntry()
+        deleteAssociationButton.setOnAction {
+            println("Delete association")
+            onDeleteAssociation()
 
         }
     }

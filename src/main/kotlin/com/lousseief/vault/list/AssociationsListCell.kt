@@ -7,7 +7,7 @@ import javafx.scene.control.ListView
 import javafx.scene.layout.StackPane
 import javafx.util.Callback
 
-class EntryListCell : ListCell<UiAssociation>() {
+class AssociationsListCell : ListCell<UiAssociation>() {
 
     private val label = Label()
     private val pane: StackPane = StackPane()
@@ -27,7 +27,7 @@ class EntryListCell : ListCell<UiAssociation>() {
             isDisable = true
         } else {
             if(item !== null) {
-                label.text = if (item.mainIdentifier.value === "") "(unnamed entry)" else item.mainIdentifier.value
+                label.text = if (item.mainIdentifier.value === "") "(unnamed association)" else item.mainIdentifier.value
                 graphic = pane
                 isDisable = false
                 style = "-fx-opacity: 1.0"
@@ -37,8 +37,8 @@ class EntryListCell : ListCell<UiAssociation>() {
 
 }
 
-class EntryListCellFactory(val lv: ListView<UiAssociation>) : Callback<ListView<UiAssociation>, ListCell<UiAssociation>> {
+class AssociationsListCellFactory(val lv: ListView<UiAssociation>) : Callback<ListView<UiAssociation>, ListCell<UiAssociation>> {
 
     override fun call(arg0: ListView<UiAssociation>): ListCell<UiAssociation> =
-        EntryListCell()
+        AssociationsListCell()
 }

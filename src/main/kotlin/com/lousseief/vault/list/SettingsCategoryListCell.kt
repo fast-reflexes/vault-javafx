@@ -10,7 +10,7 @@ class SettingsCategoryListCell(val usedCategories: Map<String, Int>) : ListCell<
     fun updateItem(item: String?, empty: Boolean) {
         super.updateItem(item, empty)
         if (item !== null && item in usedCategories) {
-            text = "$item (used for ${usedCategories[item]} entries)"
+            text = "$item (used for ${usedCategories[item]} associations)"
             isDisable = true
             style = "-fx-opacity: 0.7"
         } else {

@@ -41,7 +41,7 @@ class InternalException(message: InternalExceptionCause, val e: Throwable? = nul
         FILE_EXISTS("The .vault file already exists and the overwrite flag was not set to true"),
         USERNAME_TO_REMOVE_NOT_FOUND("The user tried to remove a user name that doesn't exist"),
         USERNAME_TO_REMOVE_ZERO_OR_LESS("The user tried to remove a user name that was listed as having zero or less occurrences."),
-        MISSING_IDENTIFIER("The requested entry could not be found"),
+        MISSING_IDENTIFIER("The requested association could not be found"),
         UNEXPECTED_CRYPTO_SIZE("An internal cryptographic token was not of expected size"),
         IMPLICIT_OVERWRITE("Can't write to an existing .vault file without permission to overwrite")
     }

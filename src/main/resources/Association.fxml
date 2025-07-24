@@ -35,7 +35,17 @@
             >
                 <VBox spacing="5">
                     <Label text="Main identifier" />
-                    <TextField HBox.hgrow="ALWAYS" fx:id="mainIdentifier"/>
+                    <HBox spacing="10">
+                        <TextField
+                            HBox.hgrow="ALWAYS"
+                            maxWidth="Infinity"
+                            fx:id="mainIdentifier"
+                            editable="false"
+                            mouseTransparent="false"
+                            focusTraversable="false"
+                        />
+                        <Button text="Update main identifier" fx:id="updateMainIdentifierButton" />
+                    </HBox>
                 </VBox>
                 <VBox
                     spacing="10"
@@ -148,8 +158,8 @@
         <Button text="Credentials" fx:id="credentialsButton" styleClass="big-button" />
         <Region HBox.hgrow="ALWAYS" maxWidth="Infinity" />
         <Button
-            text="Delete entry"
-            fx:id="deleteEntryButton"
+            text="Delete association"
+            fx:id="deleteAssociationButton"
             styleClass="delete-button,big-button"
         />
     </HBox>

@@ -6,16 +6,18 @@ Current versions used are JavaFX 24.0.2 and Java 23 with Gradle 8.14.3 and Kotli
 
 ## Documentation:
 
-Vault is an offline desktop application used to manage memberships of different kind, be it subscriptions, usernames and 
-passwords or any other similar use cases. To do this, it uses the concept of **associations** and **credentials**. 
+Vault is an offline desktop application used to manage memberships of different kind, be it subscriptions, usernames, 
+codes and passwords or any other similar use cases. To do this, it uses the concept of **associations** and 
+**credentials**. 
 
 ### Associations
 
+An association is a main identifier (e.g. name or reference) associated with an amount of secret and non-secret data.
 An association has a main identifier and an arbitrary number of secondary identifiers. The main identifier is the principal
-name of the association and can be the name of a website or a service. The secondary identifiers are alternative names
-that an entry may be found under, for example the same password is used for both `Amazon.com` and `Prime Video`, then
-`Amazon.com` might be the main identifier and `Prime video` may be a secondary identifier (or vice versa). The main 
-identifier must be unique whereas alternative identifiers may overlap.
+name of the association and can be the name of a website or a service or anything else. The secondary identifiers are 
+alternative names that an association may be found under, for example the same password is used for both `Amazon.com` and 
+`Prime Video`, then`Amazon.com` might be the main identifier and `Prime video` may be a secondary identifier 
+(or vice versa). The main identifier must be unique whereas alternative identifiers may overlap.
 
 An association also may belong to a category and have a comment attached to it. Three flags indicate whether the
 association is currently needed, whether it should be deactivated or whether it already has been deactivated (unused
@@ -200,6 +202,13 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 ## TODO
 
 ### Backlog:
+* Investigate odd error with manual flag in UiProfile and restore to previous state
+* Think about if sorting of orderedAssociations should be done in listener instead
+* Lägg in fix för att ändra iterations
+* Lägg in fix och koll för när man sparar och sen tar bort något (credentials ska bli som innan man lagt till)
+* Lägg in så att när man sparar så ersätts profile med en ny och flaggor resettas
+
+* Frågar fortfarnade om ok att stänga fönster på loginrutan när man gjort "CLose anyway" utan att spara
 * Fixa så att man får en property som avgör om man behöver spara eller ej och styr så att man inte kan stänga vissa saker utan varning gäller huvudfönstret främst
 * kolla att stängning med kryss och cancel ger samma resultat ( påmminner när något är osparat etc...)
 * How to deal with errors? e.g-. when a mainidentifiers already exists?
@@ -219,6 +228,7 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * hantera last updated i credentials (och i entry?)
 * ändra button text på en del ställen till "Quit anyways" eller "Cose anyways" istället för "Ok"
 * hur görs översättning till ascii om fel bytes används? Säkert
+* Lägg till pointer cursor på alla knappar
 
 ### Inbox (to do MAYBE at some later point)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)

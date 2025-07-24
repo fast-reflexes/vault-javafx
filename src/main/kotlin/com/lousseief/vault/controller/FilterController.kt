@@ -99,7 +99,7 @@ class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
         comboBox.selectionModel.selectFirst()
     }
 
-    private fun entrySatisfiesBooleanFilters(it: UiAssociation): Boolean {
+    private fun associationSatisfiesBooleanFilters(it: UiAssociation): Boolean {
         return(
             ((isNeeded.get() == "Yes" && it.isNeeded.value) || (isNeeded.get() == "No" && !it.isNeeded.value) || (isNeeded.get() == "")) &&
             ((isDeactivated.get() == "Yes" && it.isDeactivated.value) || (isDeactivated.get() == "No" && !it.isDeactivated.value) || (isDeactivated.get() == "")) &&
@@ -107,7 +107,7 @@ class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
         )
     }
 
-    private fun entrySatisfiesKeywordFilter(it: UiAssociation): Boolean {
+    private fun associationSatisfiesKeywordFilter(it: UiAssociation): Boolean {
         if(keyword.value.isNullOrEmpty()) {
             return true
         } else {
@@ -134,7 +134,7 @@ class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
         if (useFilter.value) {
             try {
                 onFilter {
-                    val shouldBeShown = entrySatisfiesBooleanFilters(it) && entrySatisfiesKeywordFilter(it)
+                    val shouldBeShown = associationSatisfiesBooleanFilters(it) && associationSatisfiesKeywordFilter(it)
                     shouldBeShown
                 }
             }

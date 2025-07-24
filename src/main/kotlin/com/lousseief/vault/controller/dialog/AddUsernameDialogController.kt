@@ -2,7 +2,7 @@ package com.lousseief.vault.controller.dialog
 
 import com.lousseief.vault.list.UsernameListCellFactory
 import com.lousseief.vault.list.UsernameListCell
-import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiCredential
 import javafx.application.Platform
 import javafx.beans.binding.Bindings

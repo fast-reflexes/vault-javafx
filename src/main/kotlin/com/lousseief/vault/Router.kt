@@ -4,7 +4,7 @@ import com.lousseief.vault.controller.LoginController
 import com.lousseief.vault.controller.MainController
 import com.lousseief.vault.controller.RegisterController
 import com.lousseief.vault.dialog.ChooseProfilesLocationDialog
-import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.service.FileService
 import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.setupStage
@@ -28,7 +28,7 @@ class Router : Application() {
         stage.scene = scene
         stage.title = "Vault"
         scene.fill = Color.valueOf(Colors.GRAY)
-        scene.stylesheets.add("/styles.css")
+        scene.stylesheets.add("/styles/styles.css")
         stage.show()
         showLogin()
         val systemIsSetup = FileService.setupSystemSettings()
@@ -37,7 +37,7 @@ class Router : Application() {
                 .showAndWait()
             if(directory.isPresent && directory.get().isNotEmpty()) {
                 Alert(Alert.AlertType.CONFIRMATION).apply {
-                    title = "Location added"
+                    title = "Success"
                     headerText = "Location added"
                     contentText = "Successfully set the profiles location to '${directory.get()}'"
                 }.showAndWait()

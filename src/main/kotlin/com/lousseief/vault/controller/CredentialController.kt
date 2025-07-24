@@ -2,7 +2,8 @@ package com.lousseief.vault.controller
 
 import com.lousseief.vault.dialog.AddPasswordDialog
 import com.lousseief.vault.dialog.AddUsernameDialog
-import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.dialog.Dialogs
+import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiCredential
 import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.copySelectionToClipboard
@@ -16,10 +17,7 @@ import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.scene.control.Alert
 import javafx.scene.control.Button
-import javafx.scene.control.ButtonBar
-import javafx.scene.control.ButtonType
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.control.ListView
@@ -132,25 +130,20 @@ class CredentialController(
     }
 
     fun onDeleteUsername() {
-        val deleteButtonType = ButtonType("Delete login name", ButtonBar.ButtonData.OK_DONE)
-        val deleteConfirmation = Alert(Alert.AlertType.WARNING).apply {
-            headerText = "Confirm delete"
-            contentText = "Are you sure you want to delete this login name?"
-            dialogPane.buttonTypes.add(ButtonType.CANCEL)
-            dialogPane.buttonTypes.remove(ButtonType.OK)
-            dialogPane.buttonTypes.add(deleteButtonType)
-            dialogPane
-                .lookupButton(deleteButtonType)
-                .addEventFilter(ActionEvent.ACTION) {
-                    if(identity.isNotNull.value && identity.isNotEmpty.value) {
-                        user.removeUsername(identity.get())
-                        credential.identities.value.remove(identity.value)
-                        credential.lastUpdated.set(Instant.now())
-                        associatedUsernamesList.selectionModel.select(null)
-                    }
-                }
+        val delete = Dialogs.openConfirmSensitiveOperationDialog(
+            "Delete login name",
+            null,
+            "Confirm delete",
+            "Are you sure you want to delete this login name?"
+        )
+        if(delete) {
+            if(identity.isNotNull.value && identity.isNotEmpty.value) {
+                user.removeUsername(identity.get())
+                credential.identities.value.remove(identity.value)
+                credential.lastUpdated.set(Instant.now())
+                associatedUsernamesList.selectionModel.select(null)
+            }
         }
-        deleteConfirmation.showAndWait()
     }
 
     private fun addPasswordFieldWithPassword() {

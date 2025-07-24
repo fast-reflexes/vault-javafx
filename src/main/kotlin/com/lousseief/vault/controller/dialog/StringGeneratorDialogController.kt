@@ -27,7 +27,7 @@ import javafx.scene.control.Spinner
 import javafx.scene.control.TextField
 import javafx.scene.paint.Paint
 
-class StringGeneratorDialogController(val defaultPasswordLength: Int) {
+class StringGeneratorDialogController(defaultPasswordLength: Int) {
 
     companion object {
         const val STRING_LENGTH_MAX = 100
@@ -78,7 +78,6 @@ class StringGeneratorDialogController(val defaultPasswordLength: Int) {
     @FXML
     fun initialize() {
         stringField.textProperty().bind(generatedStringProperty)
-        stringLengthProperty.bind(intSpinner.valueProperty())
         lowerCaseCheckbox.selectedProperty().bindBidirectional(lowerCaseProperty)
         upperCaseCheckbox.selectedProperty().bindBidirectional(upperCaseProperty)
         numbersCheckbox.selectedProperty().bindBidirectional(numbersProperty)
@@ -131,6 +130,6 @@ class StringGeneratorDialogController(val defaultPasswordLength: Int) {
         readyDialog.graphic = icon
         readyDialog.setOnCloseRequest { readyDialog.close() }
 
-        readyDialog.dialogPane.scene.stylesheets.add("/styles.css")
+        readyDialog.dialogPane.scene.stylesheets.add("/styles/styles.css")
     }
 }

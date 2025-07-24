@@ -1,20 +1,23 @@
-package com.lousseief.vault.model
+package com.lousseief.vault.model.ui
 
 import com.lousseief.vault.crypto.Conversion
 import com.lousseief.vault.crypto.Hmac
 import com.lousseief.vault.exception.InternalException
-import com.lousseief.vault.model.ui.UiAssociation
-import com.lousseief.vault.model.ui.UiPasswordData
-import com.lousseief.vault.model.ui.UiSettings
+import com.lousseief.vault.model.Association
+import com.lousseief.vault.model.AssociationWithCredentials
+import com.lousseief.vault.model.Credential
+import com.lousseief.vault.model.MutableVault
+import com.lousseief.vault.model.Profile
+import com.lousseief.vault.model.Settings
+import com.lousseief.vault.model.Vault
 import com.lousseief.vault.service.*
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleMapProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
+import javafx.collections.ListChangeListener
 import javafx.collections.ObservableList
-import kotlin.apply
-import kotlin.collections.sortWith
 
 class UiProfile(
     val savedProfile: Profile,
@@ -28,7 +31,7 @@ class UiProfile(
     var settings: UiSettings,
     var userNames: SimpleMapProperty<String, Int> = SimpleMapProperty(FXCollections.observableHashMap()),
     val associations: SimpleMapProperty<String, UiAssociation> = SimpleMapProperty(FXCollections.observableHashMap()),
-    val mappedEntries: ObservableList<UiAssociation>,
+    val orderedAssociations: ObservableList<UiAssociation>,
     val passwordData: UiPasswordData,
 ) {
 
@@ -58,7 +61,7 @@ class UiProfile(
                 ),
                 associations = associations,
                 passwordData = UiPasswordData(),
-                mappedEntries = FXCollections.observableList<UiAssociation>(
+                orderedAssociations = FXCollections.observableList<UiAssociation>(
                 mutableListOf(),
                 { assoc -> arrayOf(
                     assoc.mainIdentifier,
@@ -72,6 +75,13 @@ class UiProfile(
                 ).apply {
                     addAll(associations.value.values)
                     sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value) }
+                    addListener(ListChangeListener {
+                        // TODO maybe trigger sorting here instead of doing it manually from places
+                        println("hej")
+                        /*if (c.next()) {
+                                                println(c.getFrom())
+                                            }*/
+                    })
                 }
             )
             profile.setPassword(password)
@@ -81,8 +91,11 @@ class UiProfile(
 
     val nonObservablePropertyChanged = SimpleBooleanProperty(false)
     val isDirty = Bindings.createBooleanBinding(
-        { containsChange() || nonObservablePropertyChanged.value },
-        associations, nonObservablePropertyChanged, settings.isDirty, mappedEntries
+        {
+            println("Triggered reevaluation of dirty flag in UiProfile")
+            containsChange() || nonObservablePropertyChanged.value
+        },
+        associations, nonObservablePropertyChanged, settings.isDirty, orderedAssociations
     )
 
     fun containsChange(): Boolean {
@@ -192,7 +205,7 @@ class UiProfile(
                             val (nextIv, nextCipherText) = VaultService.encryptVault(
                                 encryptionKeyBytesToUse,
                                 vault,
-                                if(requireNewIv) null else iv
+                                if (requireNewIv) null else iv
                             )
                             iv = nextIv
                             encryptedData = nextCipherText
@@ -207,7 +220,21 @@ class UiProfile(
                             println()
                             println("OLD")
                             println(savedProfile.encryptedData)
+                            println("IV differs: ${savedProfile.iv != iv}")
+                            println("Verification hash differs: ${savedProfile.verificationHash != verificationHash}")
+                            println("Verification salt differs: ${savedProfile.verificationSalt != verificationSalt}")
+                            println("Encryption salt differs: ${savedProfile.keyMaterialSalt != keyMaterialSalt}")
+                            println("Encrypted data differs: ${savedProfile.encryptedData != encryptedData}")
+                            // TODO investigate why this doesn't trigger binding without manually checking it
+                            //println("Manual flag set: ${nonObservablePropertyChanged.value}") // needed why?
+                            /*println("Checksum differs: ${savedProfile.checkSum != checkSum}")
+                            associations.forEach { (identifier, association) ->
+                                if (association.containsChange()) {
+                                    println("Association witbh identifier $identifier contains a change")
+                                }
+                            }*/
                             nonObservablePropertyChanged.set(containsChange())
+                            //println("Manual flag set (after): ${nonObservablePropertyChanged.value}")
                         }
                         vault
                     }

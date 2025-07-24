@@ -1,9 +1,10 @@
 package com.lousseief.vault.controller
 
 import com.lousseief.vault.dialog.AddPasswordDialog
+import com.lousseief.vault.dialog.Dialogs
 import com.lousseief.vault.model.Credential
 import javafx.collections.ObservableList
-import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
 import com.lousseief.vault.model.ui.UiCredential
 import com.lousseief.vault.utils.Colors
@@ -24,8 +25,6 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
-import javafx.scene.control.ButtonBar
-import javafx.scene.control.ButtonType
 import javafx.scene.control.Label
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
@@ -63,6 +62,9 @@ class CredentialsController(
     @FXML
     private lateinit var currentCredentialLabel: Label
 
+    @FXML
+    private lateinit var headerHolder: VBox
+
     private val currentCredentialProperty = SimpleIntegerProperty(-1)
 
     private val currentCredentialLabelText = Bindings.createStringBinding(
@@ -81,7 +83,7 @@ class CredentialsController(
     )
 
     private fun setCredential(credentialIndex: Int?) {
-        val toAdd = if(credentialIndex != null) {
+        if(credentialIndex != null) {
             val loader = FXMLLoader(javaClass.getResource("/Credential.fxml"))
             loader.setController(
                 CredentialController(
@@ -96,7 +98,7 @@ class CredentialsController(
             currentCredentialProperty.value = credentialIndex
         } else {
             credentialHolder.children.clear()
-            credentialHolder.children.add(Label("You have no credentials yet for this entry"))
+            credentialHolder.children.add(Label("You have no credentials yet for this association"))
             currentCredentialProperty.value = -1
         }
     }
@@ -125,32 +127,26 @@ class CredentialsController(
     }
 
     private fun onDeleteCredential(credentialIndex: Int) {
-        val deleteButtonType = ButtonType("Delete credential", ButtonBar.ButtonData.OK_DONE)
-        val deleteCredentialDialog = Alert(Alert.AlertType.WARNING).apply {
-            headerText = "Confirm delete"
-            contentText = "Are you sure you want to delete this login credential?"
-            dialogPane.buttonTypes.add(ButtonType.CANCEL)
-            dialogPane.buttonTypes.remove(ButtonType.OK)
-            dialogPane.buttonTypes.add(deleteButtonType)
-            dialogPane
-                .lookupButton(deleteButtonType)
-                .addEventFilter(ActionEvent.ACTION) {
-                    credentials[credentialIndex].identities.value.forEach {
-                        user.removeUsername(it)
-                    }
-                    credentials.removeAt(credentialIndex)
-                }
-        }
-        val res = deleteCredentialDialog.showAndWait()
-        if(res.isPresent && res.get() === deleteButtonType) {
+        val proceed = Dialogs.openConfirmSensitiveOperationDialog(
+            "Delete credential",
+            null,
+            "Confirm delete",
+            "Are you sure you want to delete this login credential?"
+        )
+        if(proceed) {
+            credentials[credentialIndex].identities.value.forEach {
+                user.removeUsername(it)
+            }
+            credentials.removeAt(credentialIndex)
             if(credentials.isNotEmpty()) {
                 setCredential((credentialIndex - 1).coerceAtLeast(0))
             } else {
                 setCredential(null)
             }
             Alert(Alert.AlertType.INFORMATION).apply {
+                title = "Success"
                 headerText = "Credential successfully removed"
-                contentText = "The credential was successfully deleted from your entry. If you don't save the vault, the delete credential will reappear on next login. Upon saving the vault, the credential cannot be restored."
+                contentText = "The credential was successfully deleted from your association. If you don't save the vault, the delete credential will reappear on next login. Upon saving the vault, the credential cannot be restored."
             }.showAndWait()
         }
     }
@@ -190,6 +186,10 @@ class CredentialsController(
 
     @FXML
     fun initialize() {
+        headerHolder.children.addFirst(MaterialDesignIconView(MaterialDesignIcon.INCOGNITO).apply {
+            size = "40px"
+            fill = Paint.valueOf("black")
+        })
         leftButton.graphic = FontAwesomeIconView(FontAwesomeIcon.CHEVRON_LEFT)
         leftButton.disableProperty().bind(disableLeftArrow)
         leftButton.setOnAction { onClickLeft() }
@@ -197,12 +197,12 @@ class CredentialsController(
         rightButton.disableProperty().bind(disableRightArrow)
         rightButton.setOnAction { onClickRight() }
         currentCredentialLabel.textProperty().bind(currentCredentialLabelText)
-        headerText.text = "Credentials for entry\n" + (association.mainIdentifier.value.ifEmpty { null } ?: "(unnamed entry)")
+        headerText.text = "Credentials for association\n" + (association.mainIdentifier.value.ifEmpty { null } ?: "(unnamed association)")
 
         if(credentials.isNotEmpty()) {
             setCredential(0)
         } else {
-            credentialHolder.children.add(Label("You have no credentials yet for this entry"))
+            credentialHolder.children.add(Label("You have no credentials yet for this association"))
         }
 
         addCredentialButton.setOnAction { onAddCredential() }
@@ -227,18 +227,13 @@ class CredentialsController(
                 addEventFilter(KeyEvent.KEY_PRESSED, ::keyListener)
                 window.setOnCloseRequest {
                     if(credentialsAreAltered(initialCredentials, credentials)) {
-                        val closeAnyway = ButtonType("Close anyway", ButtonBar.ButtonData.OK_DONE)
-                        val cancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
-                        val confirm = Alert(
-                            Alert.AlertType.WARNING,
-                            "You have unsaved changes in these credentials, do you really want to close this window without saving first? If no, press \"Cancel\" and then press \"Save\".",
-                            cancel, closeAnyway
-                        ).apply {
-                            (dialogPane.lookupButton(closeAnyway) as Button).isDefaultButton = false
-                            (dialogPane.lookupButton(cancel) as Button).isDefaultButton = true
-                            headerText = "Do you really want to close this window?"
-                        }.showAndWait()
-                        if(confirm.isPresent && confirm.get() != closeAnyway) {
+                        val proceed = Dialogs.openConfirmSensitiveOperationDialog(
+                            "Close anyway",
+                            null,
+                            "Do you really want to close this window?",
+                            "You have unsaved changes in these credentials, do you really want to close this window without saving first? If no, press \"Cancel\" and then press \"Save\"."
+                        )
+                        if(!proceed) {
                             it.consume()
                         }
                     }

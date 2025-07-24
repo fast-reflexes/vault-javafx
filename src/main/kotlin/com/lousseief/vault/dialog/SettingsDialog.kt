@@ -1,7 +1,7 @@
 package com.lousseief.vault.dialog
 
 import com.lousseief.vault.controller.dialog.SettingsDialogController
-import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.model.ui.UiProfile
 import javafx.fxml.FXMLLoader
 import javafx.scene.control.*
 

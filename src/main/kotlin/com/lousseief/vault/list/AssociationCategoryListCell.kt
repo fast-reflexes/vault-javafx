@@ -4,7 +4,7 @@ import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.util.Callback
 
-class EntryCategoryButtonCell : ListCell<String?>() {
+class AssociationCategoryButtonCell : ListCell<String?>() {
 
     override
     fun updateItem(item: String?, empty: Boolean) {
@@ -21,7 +21,7 @@ class EntryCategoryButtonCell : ListCell<String?>() {
     }
 }
 
-class EntryCategoryListCell : ListCell<String?>() {
+class AssociationCategoryListCell : ListCell<String?>() {
 
     override
     fun updateItem(item: String?, empty: Boolean) {
@@ -38,9 +38,9 @@ class EntryCategoryListCell : ListCell<String?>() {
     }
 }
 
-class EntryCategoryListCellFactory : Callback<ListView<String?>, ListCell<String?>> {
+class AssociationCategoryListCellFactory : Callback<ListView<String?>, ListCell<String?>> {
 
     override
     fun call(arg0: ListView<String?>): ListCell<String?> =
-        EntryCategoryListCell()
+        AssociationCategoryListCell()
 }

@@ -28,7 +28,7 @@
 
 .top-banner {
   -fx-padding: 10;
-  -fx-background-image: url(bg.png);
+  -fx-background-image: url(../images/bg.png);
   -fx-background-position: center bottom;
   -fx-background-repeat: no-repeat;
   -fx-background-size: 100%;
@@ -37,13 +37,13 @@
   -fx-border-style: solid;
 }
 
-.create-entry-button {
+.create-association-button {
   -fx-color: rgba(62, 155, 10, 1.0);
   -fx-cursor: hand;
   -fx-text-fill: white;
 }
 
-.create-entry-button:hover {
+.create-association-button:hover {
   -fx-color: rgba(62, 155, 10, 0.5);
 }
 

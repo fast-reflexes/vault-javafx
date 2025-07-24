@@ -2,7 +2,7 @@ package com.lousseief.vault.controller
 
 import com.lousseief.vault.Router
 import com.lousseief.vault.exception.AuthenticationException
-import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.service.FileService
 import com.lousseief.vault.service.UserService
 import javafx.application.Platform
@@ -35,6 +35,7 @@ class LoginController(private val router: Router) {
     private fun attemptLogin() {
         if (!FileService.userExists(username.value)) {
             Alert(Alert.AlertType.ERROR).apply {
+                title = "Something went wrong"
                 headerText = "Username or password invalid"
                 contentText = "The username or password was invalid, please try again"
             }.showAndWait()
@@ -62,6 +63,7 @@ class LoginController(private val router: Router) {
             }
             catch(e: AuthenticationException) {
                 Alert(Alert.AlertType.ERROR).apply {
+                    title = "Something went wrong"
                     headerText = "Login failed"
                     contentText = e.message
                 }.showAndWait()

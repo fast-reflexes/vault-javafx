@@ -1,7 +1,7 @@
 package com.lousseief.vault.dialog
 
 import com.lousseief.vault.controller.dialog.AddUsernameDialogController
-import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiCredential
 import javafx.event.ActionEvent
 import javafx.fxml.FXMLLoader

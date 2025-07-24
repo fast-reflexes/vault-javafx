@@ -5,11 +5,15 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml">
     <top>
-        <HBox styleClass="top-banner" spacing="10">
-            <Label text="Vault - securing your passwords" style="-fx-font-size: 20; -fx-text-fill: white; -fx-outline: 2; -fx-font-weight: 700" />
+        <HBox alignment="CENTER" styleClass="top-banner" style="-fx-padding: 0">
+            <HBox VBox.vgrow="ALWAYS" alignment="CENTER" maxHeight="Infinity" style="-fx-background-color: linear-gradient(from 0% 50% to 100% 50%, rgba(50, 50, 50, 0.75), transparent); -fx-padding: 0 120 0 10">
+                <Label text="Vault - securing your passwords" style="-fx-font-size: 28; -fx-text-fill: white; -fx-outline: 2; -fx-font-weight: 500; -fx-font-family: 'Bitcount Prop Single Roman Medium'" fx:id="productName" />
+            </HBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Change vault file directory" styleClass="header-button" HBox.hgrow="NEVER" fx:id="directoryChooserButton"/>
-            <Button text="Logout" styleClass="header-button" HBox.hgrow="NEVER" VBox.vgrow="NEVER" fx:id="logoutButton" />
+            <HBox VBox.vgrow="ALWAYS" maxHeight="Infinity" style="-fx-padding: 10" spacing="10">
+                <Button text="Change vault file directory" styleClass="header-button" HBox.hgrow="NEVER" fx:id="directoryChooserButton"/>
+                <Button text="Logout" styleClass="header-button" HBox.hgrow="NEVER" VBox.vgrow="NEVER" fx:id="logoutButton" />
+            </HBox>
         </HBox>
     </top>
     <center>
@@ -31,19 +35,19 @@
                     maxHeight="Infinity"
                     HBox.hgrow="ALWAYS"
                     VBox.vgrow="ALWAYS"
-                    fx:id="entriesPane"
-                    text="Vault entries"
+                    fx:id="associationsPane"
+                    text="Vault associations"
                 >
-                    <ListView fx:id="entriesList" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" maxHeight="Infinity" maxWidth="Infinity">
+                    <ListView fx:id="associationsList" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" maxHeight="Infinity" maxWidth="Infinity">
                         <placeholder>
                             <Label textAlignment="CENTER" wrapText="true" fx:id="listviewPlaceholderLabel" />
                         </placeholder>
                     </ListView>
                 </TitledPane>
                 <Button
-                    text="Create new entry"
+                    text="Create new association"
                     fx:id="addAssociationButton"
-                    styleClass="create-entry-button,big-button"
+                    styleClass="create-association-button,big-button"
                     maxWidth="Infinity"
                     HBox.hgrow="ALWAYS"
                     VBox.vgrow="NEVER"
@@ -57,7 +61,7 @@
                 style="-fx-padding: 10; -fx-background-color: #aaaaaa; -fx-border-width: 0"
             >
                 <VBox
-                    style="-fx-background-color: #eeeeee"
+                    style="-fx-background-color: #eeeeee; -fx-background-radius: 6"
                     minWidth="896"
                     HBox.hgrow="ALWAYS"
                     VBox.vgrow="ALWAYS"

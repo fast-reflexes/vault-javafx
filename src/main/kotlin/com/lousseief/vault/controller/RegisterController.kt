@@ -50,15 +50,17 @@ class RegisterController(private val router: Router) {
             }
             UserService.createUser(username.value, password.value)
             Alert(Alert.AlertType.INFORMATION).apply {
+                title = "Success"
                 headerText = "User added"
                 contentText = "The user was successfully added! Please go ahead and login!"
             }.showAndWait()
             router.showLogin()
         } catch (e: Exception) {
             Alert(Alert.AlertType.ERROR).apply {
+                title = "Something went wrong"
                 headerText = "User registration failed"
                 contentText = e.message
-            }
+            }.showAndWait()
         }
 
         /*val plainText =

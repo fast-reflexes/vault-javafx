@@ -14,7 +14,7 @@
         <VBox maxWidth="Infinity" spacing="8" HBox.hgrow="ALWAYS" fx:id="verticalHolder">
             <VBox maxWidth="Infinity" spacing="15" HBox.hgrow="ALWAYS">
                 <VBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="Infinity" alignment="CENTER_LEFT">
-                    <Label text="Categories (you may only delete categories without entries):"/>
+                    <Label text="Categories (you may only delete categories without associations):"/>
                     <ListView
                         prefWidth="200"
                         minWidth="200"

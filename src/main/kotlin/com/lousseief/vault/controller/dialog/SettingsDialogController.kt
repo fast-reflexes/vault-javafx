@@ -2,7 +2,7 @@ package com.lousseief.vault.controller.dialog
 
 import com.lousseief.vault.dialog.SingleStringInputDialog
 import com.lousseief.vault.list.SettingsCategoryListCellFactory
-import com.lousseief.vault.model.UiProfile
+import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.initializeSpinner
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
@@ -97,7 +97,7 @@ class SettingsDialogController(val user: UiProfile) {
         removeCategoryButton.disableProperty().bind(selectedCategory.isNull)
         removeCategoryButton.setOnAction {
             if(selectedCategory.value in categories) {
-                throw Error("Category has entries bound to it")
+                throw Error("Category has associations bound to it")
             }
             user.settings.categories.remove(selectedCategory.value)
         }

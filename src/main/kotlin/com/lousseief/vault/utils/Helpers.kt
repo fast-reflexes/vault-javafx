@@ -23,6 +23,8 @@ fun initializeSpinner(property: SimpleIntegerProperty, spinner: Spinner<Int>, ma
     val factory = spinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory
     factory.max = max
     factory.min = min
+    /* must set factory value BEFORE binding because otherwise the spinner will overwrite the property with its initial
+    factory value */
     factory.value = property.value
     spinner.isEditable = true
     property.bind(spinner.valueProperty())
