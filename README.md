@@ -252,20 +252,8 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 ## TODO
 
 ### Backlog:
-* kolla att stängning med kryss och cancel ger samma resultat ( påmminner när något är osparat etc...)
-
-* Kolla igenom att allt är likadant överallt och så och att vi har kontroll på alla lägen
-* Kolla på gamla koden som inspiration för om jag glömt ngt
-* gå igenom allt och om jag verkligen gör saker i rätt ordning
-
-* Sätt allt inom Platform.runLater i initialize som rör bindings och listeners
-* Samma ska fortsätta vara selected även om man filtrerar, helst ska man selecta null om den som var selectad inte lägre är kvar
-* hantera last updated i credentials (och i entry?)
-* ändra button text på en del ställen till "Quit anyways" eller "Cose anyways" istället för "Ok"
-* hur görs översättning till ascii om fel bytes används? Säkert
-* Kolla om det finns några TODOs i koden
-* Kolla igenom null assertions (!!)
-* Flytta initialize till UiProfile och ta bort den samt accessVault från Profile
+* Kolla utkommenterad text
+* Pakettera med jpackager, dokumentera, langa upp i windows ich test lösning med dropbox
 
 ### Inbox (to do MAYBE at some later point)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
@@ -274,6 +262,11 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * Remove default Java menu (and content) from the application
 * Use Java modules and add module-info.java to perhaps get rid of error when starting with jar
 * Fixa ny ikon till jaren
-* Röda knappar i en del dialoger där man ska bekräfta delete
+* Switch to red buttons in some dialogs where you confirm delete are confirmed
 * Add logging via some central utility and frequently used logger library (dependency)
-
+* Perhaps use last updated flag in the association as well (not only in credential?)
+* How is translations to ASCII done if wrong bytes are used? Is it sure? (not sure what this question is about?)
+* Unify the terminology for the parameter used to keep the vault open, perhaps the term vaultOpeningTimeMinutes can be
+used?
+* Out everything in Platform.runLater instead of initialize that concerns bindings and listeners (especially if we see odd
+timing issues, however, we must only add layout-related code in runLater, not heavy other stuff)

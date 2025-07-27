@@ -120,9 +120,8 @@ object FileService {
             buffer.appendLine("\tPassword active time: ${vault.first.savePasswordForMinutes}")
             buffer.appendLine("\tCategories: ${vault.first.categories.ifEmpty { null }?.joinToString(",") ?: "no categories"}")
             buffer.appendLine("Data:")
-            vault.second.keys.forEach {
-                val assoc = vault.second[it]!!
-                buffer.appendLine("\t$it:")
+            vault.second.entries.forEach { (key, assoc) ->
+                buffer.appendLine("\t$key:")
                 buffer.appendLine("\t\tMain identifier: ${assoc.association.mainIdentifier}")
                 buffer.appendLine("\t\tSecondary identifier(s): ${assoc.association.secondaryIdentifiers.ifEmpty { null }?.joinToString(", ") ?: "(none)" } ")
                 assoc.credentials.forEach {

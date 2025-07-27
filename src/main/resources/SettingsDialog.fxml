@@ -58,6 +58,6 @@
 
     </content>
     <buttonTypes>
-        <ButtonType text="Done" fx:id="okButton" buttonData="OK_DONE"/>
+        <ButtonType text="Save" fx:id="okButton" buttonData="OK_DONE"/>
     </buttonTypes>
 </DialogPane>

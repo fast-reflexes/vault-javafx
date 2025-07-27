@@ -1,11 +1,10 @@
 package com.lousseief.vault.model.ui
 
-import com.lousseief.vault.crypto.Conversion
-import com.lousseief.vault.crypto.Hmac
 import com.lousseief.vault.exception.InternalException
 import com.lousseief.vault.model.Association
 import com.lousseief.vault.model.AssociationWithCredentials
 import com.lousseief.vault.model.Credential
+import com.lousseief.vault.model.IProfile
 import com.lousseief.vault.model.MutableVault
 import com.lousseief.vault.model.Profile
 import com.lousseief.vault.model.Settings
@@ -24,18 +23,25 @@ import kotlin.collections.set
 class UiProfile(
     var savedProfile: Profile,
     val name: SimpleStringProperty,
-    var keyMaterialSalt: String,
-    var verificationSalt: String,
-    var verificationHash: String,
-    var iv: String,
-    var encryptedData: String,
-    var checkSum: String = "",
+    keyMaterialSalt: String,
+    verificationSalt: String,
+    verificationHash: String,
+    iv: String,
+    encryptedData: String,
+    checkSum: String = "",
     val settings: UiSettings,
     var userNames: SimpleMapProperty<String, Int>,
     val associations: SimpleMapProperty<String, UiAssociation>,
     val orderedAssociations: ObservableList<UiAssociation>,
     val persistedAssociations: MutableMap<String, Association>,
     val passwordData: UiPasswordData,
+): IProfile(
+   keyMaterialSalt,
+    verificationSalt,
+    verificationHash,
+    iv,
+    encryptedData,
+    checkSum
 ) {
 
     companion object {
@@ -63,7 +69,7 @@ class UiProfile(
                     FXCollections.observableHashMap<String, Int>().apply { putAll(userNames) }
                 ),
                 associations = associations,
-                persistedAssociations = inputAssociations, // TODO how to deal with problem when we remove an assoc and then reinstate it?
+                persistedAssociations = inputAssociations,
                 passwordData = UiPasswordData(),
                 orderedAssociations = FXCollections.observableList<UiAssociation>(
                 mutableListOf(),
@@ -86,7 +92,7 @@ class UiProfile(
             return profile
         }
 
-        const val DEBUG = true
+        const val DEBUG = false
     }
 
     val isDirty = SimpleBooleanProperty(false)
@@ -145,6 +151,16 @@ class UiProfile(
         isDirty.set(isCurrentlyDirty)
     }
 
+    fun accessVault(
+        password: String,
+        vaultManipulation: ((vault: MutableVault) -> Vault)? = null,
+        encrypt: Boolean = false,
+        updatedPassword: String = password,
+        requireNewIv: Boolean = false
+    ): Vault {
+        return accessVault(password, vaultManipulation, encrypt, updatedPassword, requireNewIv, ::reevaluateDirtyFlag)
+    }
+
     fun setPassword(nextPassword: String?) {
         if(nextPassword === null) {
             passwordData.cancelSavedMasterPassword()
@@ -153,13 +169,6 @@ class UiProfile(
             passwordData.resetSavedMasterPassword(nextPassword, settings.savePasswordForMinutes.value)
         }
     }
-
-    fun toContentString(): String =
-        "${keyMaterialSalt}\n${verificationSalt}\n${verificationHash}\n${iv}\n${encryptedData}"
-
-
-    override fun toString(): String =
-        "${toContentString()}\n${checkSum}"
 
     fun passwordRequiredAction(requireFreshPassword: Boolean = false): String? {
         return passwordData.passwordRequiredAction(this, settings.savePasswordForMinutes.value, requireFreshPassword)
@@ -219,78 +228,21 @@ class UiProfile(
         orderedAssociations.sortInPlaceByMainIdentifier()
     }
 
-    fun accessVault(
-        password: String,
-        vaultManipulation: ((vault: MutableVault) -> Vault)? = null,
-        encrypt: Boolean = false,
-        updatedPassword: String = password,
-        requireNewIv: Boolean = false,
-    ): Vault {
-        return VerificationService.authorize(
-            password, keyMaterialSalt, verificationHash, verificationSalt
-        )
-            .let {
-                Pair(it.sliceArray(0 until 32), it.sliceArray(32 until 64))
-            }
-            .also { (_, hMacKeyBytes) ->
-                VerificationService.verify(hMacKeyBytes, toContentString(), checkSum)
-            }
-            .let { (encryptionKeyBytes, hMacKeyBytes) ->
-                VaultService.decryptVault(encryptedData, iv, encryptionKeyBytes)
-                    .let { if (vaultManipulation !== null) vaultManipulation(it) else it }
-                    .let { vault ->
-                        if (encrypt) {
-                            var encryptionKeyBytesToUse = encryptionKeyBytes
-                            var hmacKeyBytesToUse = hMacKeyBytes
-                            if (password != updatedPassword) {
-                                val (
-                                    updatedSaltBytes,
-                                    updatedHashBytes,
-                                    updatedHashSalt,
-                                    updatedEncryptionKeyBytes,
-                                    updatedHmacKeyBytes
-                                ) = UserService.createKeyMaterial(updatedPassword)
-                                keyMaterialSalt = Conversion.bytesToBase64(updatedSaltBytes)
-                                verificationHash = Conversion.bytesToBase64(updatedHashBytes)
-                                verificationSalt = Conversion.bytesToBase64(updatedHashSalt)
-                                encryptionKeyBytesToUse = updatedEncryptionKeyBytes
-                                hmacKeyBytesToUse = updatedHmacKeyBytes
-                            }
-                            val (nextIv, nextCipherText) = VaultService.encryptVault(
-                                encryptionKeyBytesToUse,
-                                vault,
-                                if (requireNewIv) null else iv
-                            )
-                            iv = nextIv
-                            encryptedData = nextCipherText
-                            checkSum = Conversion.bytesToBase64(
-                                Hmac.generateMac(
-                                    Conversion.UTF8ToBytes(toContentString()),
-                                    hmacKeyBytesToUse
-                                )
-                            )
-                            reevaluateDirtyFlag()
-                        }
-                        vault
-                    }
-            }
-    }
-
     fun addUsername(newUserName: String) {
-        if (userNames.containsKey(newUserName))
-            userNames[newUserName] = userNames[newUserName]!!.plus(1)
-        else
-            userNames[newUserName] = 1
+        val nextValue = userNames[newUserName]?.let { it + 1 } ?: 1
+        userNames[newUserName] = nextValue
     }
 
     fun removeUsername(userNameToRemove: String) {
-        if(!userNames.containsKey(userNameToRemove))
-            throw InternalException(InternalException.InternalExceptionCause.USERNAME_TO_REMOVE_NOT_FOUND)
-        if(userNames[userNameToRemove]!! <= 0)
+        val currentValue = userNames[userNameToRemove]
+            ?: throw InternalException(InternalException.InternalExceptionCause.USERNAME_TO_REMOVE_NOT_FOUND)
+        if(currentValue <= 0)
             throw InternalException(InternalException.InternalExceptionCause.USERNAME_TO_REMOVE_ZERO_OR_LESS)
-        userNames[userNameToRemove] = userNames[userNameToRemove]!!.minus(1)
-        if(userNames[userNameToRemove]!!.compareTo(0) == 0)
+        val nextValue = currentValue - 1
+        userNames[userNameToRemove] = nextValue
+        if(nextValue == 0) {
             userNames.remove(userNameToRemove)
+        }
     }
 
     fun getCredentials(savedIdentifier: String, password: String): Pair<List<Credential>, List<UiCredential>> {

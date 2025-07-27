@@ -47,19 +47,6 @@ class LoginController(private val router: Router) {
                 val (associations, settings, userNames) = loggedInUser.initialize(password.value)
                 val uiProfile = UiProfile.fromProfile(loggedInUser, associations, settings, userNames, password.value)
                 router.showMain(uiProfile)
-                //controller.setUser(loggedInUser, associations, password.value)
-                //replaceWith(
-                //find<MainView>(),
-                //centerOnScreen = true,
-                //sizeToScene = true
-                //transition = ViewTransition.Flip(500.millis)
-                //)
-                /*val b = Association()
-                b.mainIdentifier = "elias"
-                val str = Gson().toJson(b, Association::class.java)
-                println(str)
-                val c = Gson().fromJson(str, Association::class.java)
-                println(c.mainIdentifier)*/
             }
             catch(e: AuthenticationException) {
                 Alert(Alert.AlertType.ERROR).apply {

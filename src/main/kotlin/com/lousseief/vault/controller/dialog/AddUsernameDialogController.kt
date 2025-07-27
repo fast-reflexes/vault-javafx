@@ -28,7 +28,7 @@ class AddUsernameDialogController(
     private val errorProperty = SimpleStringProperty("")
     private val usernameProperty = SimpleStringProperty("")
 
-    private val existingUsernames = FXCollections.observableArrayList(listOf("") + user.userNames.keys)
+    private val existingUsernames = FXCollections.observableArrayList(listOf("") + user.userNames.keys.sorted())
 
     @FXML
     private lateinit var mainHolder: GridPane
