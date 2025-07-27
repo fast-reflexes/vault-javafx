@@ -11,7 +11,7 @@ import javafx.scene.control.*
  *  * time when the vault is open after having entered the password
  *  * manage categories
  */
-class SettingsDialog(user: UiProfile): Dialog<Unit>() {
+class SettingsDialog(user: UiProfile): Dialog<Int>() {
 
     init {
         val loader = FXMLLoader(javaClass.getResource("/SettingsDialog.fxml"))

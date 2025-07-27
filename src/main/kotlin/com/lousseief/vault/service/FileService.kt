@@ -95,8 +95,10 @@ object FileService {
     fun writeVaultFile(username: String, userData: String, overwrite: Boolean) {
         try {
             assert(overwrite || !userExists(username))
-            val userFile = File("../" + username + FILE_SUFFIX)
-            userFile.writeBytes(Conversion.UTF8ToBytes(userData))
+            getCurrentProfilesLocation().let {
+                val userFile = File("$it/$username$FILE_SUFFIX")
+                userFile.writeBytes(Conversion.UTF8ToBytes(userData))
+            }
         }
         catch(e: AssertionError) {
             throw InternalException(InternalException.InternalExceptionCause.FILE_EXISTS, e)
@@ -108,7 +110,7 @@ object FileService {
 
     fun writeExportFile(username: String, vault: Vault): String {
         try {
-            val filename = "../${username}_export_${Instant.now()}.txt"
+            val filename = "./${username}_export_${Instant.now()}.txt"
             val userFile = File(filename)
             val buffer = StringBuffer()
             buffer.appendLine("VAULT EXPORT ${Instant.now()}")
@@ -119,7 +121,7 @@ object FileService {
             buffer.appendLine("\tCategories: ${vault.first.categories.ifEmpty { null }?.joinToString(",") ?: "no categories"}")
             buffer.appendLine("Data:")
             vault.second.keys.forEach {
-                val assoc = vault.second.get(it)!!
+                val assoc = vault.second[it]!!
                 buffer.appendLine("\t$it:")
                 buffer.appendLine("\t\tMain identifier: ${assoc.association.mainIdentifier}")
                 buffer.appendLine("\t\tSecondary identifier(s): ${assoc.association.secondaryIdentifiers.ifEmpty { null }?.joinToString(", ") ?: "(none)" } ")

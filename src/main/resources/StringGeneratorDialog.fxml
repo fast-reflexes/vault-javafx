@@ -53,6 +53,6 @@
         <!-- cancel_close is for order, if we use different types, we have no control of the order of the buttons -->
         <ButtonType text="Copy string to clipboard" fx:id="copyButton" buttonData="CANCEL_CLOSE"/>
         <ButtonType text="Generate string" fx:id="generateButton" buttonData="CANCEL_CLOSE"/>
-        <ButtonType text="Close" fx:id="closeButton" buttonData="CANCEL_CLOSE" />
+        <ButtonType text="Close" fx:id="closeButton" buttonData="OK_DONE" />
     </buttonTypes>
 </DialogPane>

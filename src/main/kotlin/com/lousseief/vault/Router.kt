@@ -36,7 +36,7 @@ class Router : Application() {
             val directory = ChooseProfilesLocationDialog(true)
                 .showAndWait()
             if(directory.isPresent && directory.get().isNotEmpty()) {
-                Alert(Alert.AlertType.CONFIRMATION).apply {
+                Alert(Alert.AlertType.INFORMATION).apply {
                     title = "Success"
                     headerText = "Location added"
                     contentText = "Successfully set the profiles location to '${directory.get()}'"

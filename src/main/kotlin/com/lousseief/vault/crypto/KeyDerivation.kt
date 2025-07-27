@@ -9,7 +9,7 @@ object KeyDerivation {
 
     private const val OUTPUT_BITS = 512
     private const val OUTPUT_BYTES = OUTPUT_BITS / 8
-    private const val ITERATIONS = 10000 // should be 210000
+    private const val ITERATIONS = 210000 // should be 210000
     private const val SALT_BITS = 512
     private const val SALT_BYTES = SALT_BITS / 8
 

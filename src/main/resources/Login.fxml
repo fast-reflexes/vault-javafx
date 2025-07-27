@@ -27,7 +27,7 @@
             <Label text="Password" HBox.hgrow="NEVER" style="-fx-padding: 0 10 0 0" />
             <PasswordField fx:id="passwordField" />
         </HBox>
-        <Button text="Log in" HBox.hgrow="ALWAYS" maxWidth="Infinity" fx:id="loginButton" />
+        <Button styleClass="button" text="Log in" HBox.hgrow="ALWAYS" maxWidth="Infinity" fx:id="loginButton" />
     </VBox>
     <Hyperlink HBox.hgrow="NEVER" VBox.vgrow="NEVER" text="Register" fx:id="registerLink" />
 </StackPane>

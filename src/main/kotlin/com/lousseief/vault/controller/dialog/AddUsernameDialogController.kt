@@ -4,13 +4,13 @@ import com.lousseief.vault.list.UsernameListCellFactory
 import com.lousseief.vault.list.UsernameListCell
 import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiCredential
+import com.lousseief.vault.utils.setupErrorMessageHandling
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.geometry.Pos
 import javafx.scene.control.ButtonType
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Dialog
@@ -18,10 +18,7 @@ import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
-import javafx.scene.text.TextAlignment
 
 class AddUsernameDialogController(
     val user: UiProfile,
@@ -99,28 +96,12 @@ class AddUsernameDialogController(
         }
 
         Platform.runLater {
-            errorProperty.addListener { _, _, newValue ->
-                if(newValue.isNullOrEmpty()) {
-                    if(verticalHolder.children.size > 1) {
-                        (1..verticalHolder.children.size - 1).forEach { verticalHolder.children.removeAt(it) }
-                    }
-                } else {
-                    if(verticalHolder.children.size == 1) {
-                        verticalHolder.children.add(
-                            Label(errorProperty.value).apply {
-                                HBox.setHgrow(this, Priority.ALWAYS)
-                                VBox.setVgrow(this, Priority.ALWAYS)
-                                maxHeight = Double.MAX_VALUE
-                                textAlignment = TextAlignment.RIGHT
-                                style="-fx-text-fill: red"
-                                alignment = Pos.CENTER_RIGHT
-                                isWrapText = true
-                                maxWidth = readyDialog.dialogPane.width // or usernameField.width
-                            }
-                        )
-                    }
-                }
-            }
+            setupErrorMessageHandling(
+                errorProperty,
+                readyDialog.dialogPane.width,
+                verticalHolder,
+                1
+            )
             usernameField.requestFocus()
         }
     }

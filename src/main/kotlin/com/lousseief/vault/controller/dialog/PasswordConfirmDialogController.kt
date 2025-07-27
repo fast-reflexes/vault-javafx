@@ -1,18 +1,15 @@
 package com.lousseief.vault.controller.dialog
 
+import com.lousseief.vault.utils.setupErrorMessageHandling
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.geometry.Pos
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Dialog
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
-import javafx.scene.text.TextAlignment
 
 class PasswordConfirmDialogController(val evaluator: (String, ActionEvent) -> Unit) {
 
@@ -69,28 +66,12 @@ class PasswordConfirmDialogController(val evaluator: (String, ActionEvent) -> Un
         }
 
         Platform.runLater {
-            errorProperty.addListener { _, _, newValue ->
-                if(newValue.isNullOrEmpty()) {
-                    if(verticalHolder.children.size > 1) {
-                        (1..verticalHolder.children.size - 1).forEach { verticalHolder.children.removeAt(it) }
-                    }
-                } else {
-                    if(verticalHolder.children.size == 1) {
-                        verticalHolder.children.add(
-                            Label(errorProperty.value).apply {
-                                HBox.setHgrow(this, Priority.ALWAYS)
-                                VBox.setVgrow(this, Priority.ALWAYS)
-                                maxHeight = Double.MAX_VALUE
-                                textAlignment = TextAlignment.RIGHT
-                                style="-fx-text-fill: red"
-                                alignment = Pos.CENTER_RIGHT
-                                isWrapText = true
-                                maxWidth = readyDialog.dialogPane.width
-                            }
-                        )
-                    }
-                }
-            }
+            setupErrorMessageHandling(
+                errorProperty,
+                readyDialog.dialogPane.width,
+                verticalHolder,
+                1
+            )
             passwordField.requestFocus()
         }
     }

@@ -7,7 +7,7 @@ import javafx.beans.property.SimpleListProperty
 import javafx.collections.FXCollections
 
 data class UiSettings(
-    val savedSettings: Settings,
+    var savedSettings: Settings,
     var passwordLength: SimpleIntegerProperty = SimpleIntegerProperty(20),
     var categories: SimpleListProperty<String> = SimpleListProperty<String>(),
     var savePasswordForMinutes: SimpleIntegerProperty = SimpleIntegerProperty(2)
@@ -36,6 +36,15 @@ data class UiSettings(
             categories = categories.value,
             savePasswordForMinutes = savePasswordForMinutes.value,
         )
+    }
+
+    fun addCategory(newCategory: String) {
+        categories.add(newCategory)
+        categories.sort()
+    }
+
+    fun removeCategory(category: String) {
+        categories.remove(category)
     }
 
     private fun containsChange(): Boolean {

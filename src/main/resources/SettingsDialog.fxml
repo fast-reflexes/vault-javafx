@@ -32,6 +32,7 @@
                             fx:id="removeCategoryButton"
                             HBox.hgrow="ALWAYS"
                             maxWidth="Infinity"
+                            styleClass="button"
                         />
                         <Button
                             GridPane.rowIndex="0"
@@ -40,6 +41,7 @@
                             fx:id="newCategoryButton"
                             HBox.hgrow="ALWAYS"
                             maxWidth="Infinity"
+                            styleClass="button"
                         />
                     </GridPane>
                 </VBox>

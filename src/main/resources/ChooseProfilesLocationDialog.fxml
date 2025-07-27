@@ -18,7 +18,12 @@
             <VBox spacing="15" HBox.hgrow="NEVER" maxWidth="400">
                 <Label fx:id="infoLabel" wrapText="true" />
                 <VBox spacing="5" HBox.hgrow="NEVER" maxWidth="400" alignment="CENTER_RIGHT">
-                    <Button text="Click to select profiles directory" fx:id="directoryChooserButton" HBox.hgrow="ALWAYS"/>
+                    <Button
+                        text="Click to select profiles directory"
+                        fx:id="directoryChooserButton"
+                        HBox.hgrow="ALWAYS"
+                        styleClass="button"
+                    />
                 </VBox>
                 <TextFlow>
                     <Text text="Selected: -" fx:id="selectedLabel" />

@@ -61,6 +61,10 @@ class ChangeMasterPasswordDialogController(val evaluator: (String, String) -> Un
                 passwordField.requestFocus()
                 throw Exception("Empty password is not allowed.")
             }
+            passwordProperty.value == oldPasswordProperty.value -> {
+                passwordField.requestFocus()
+                throw Exception("Old and new password are the same.")
+            }
             else -> {
                 oldPasswordField.requestFocus()
                 oldPasswordField.selectAll()
@@ -106,7 +110,7 @@ class ChangeMasterPasswordDialogController(val evaluator: (String, String) -> Un
 
         }
 
-        Platform.runLater{
+        Platform.runLater {
             errorProperty.addListener { _, _, newValue ->
                 if(newValue.isNullOrEmpty()) {
                     if(verticalHolder.children.size > 1) {

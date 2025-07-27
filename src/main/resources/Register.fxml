@@ -32,7 +32,7 @@
             <Label text="Password repetition" HBox.hgrow="NEVER" style="-fx-padding: 0 10 0 0" />
             <PasswordField fx:id="passwordRepetitionField" />
         </HBox>
-        <Button text="Log in" HBox.hgrow="ALWAYS" maxWidth="Infinity" fx:id="registerButton" />
+        <Button styleClass="button" text="Log in" HBox.hgrow="ALWAYS" maxWidth="Infinity" fx:id="registerButton" />
     </VBox>
     <Hyperlink HBox.hgrow="NEVER" VBox.vgrow="NEVER" text="Login" fx:id="loginLink">
     </Hyperlink>

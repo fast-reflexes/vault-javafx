@@ -5,14 +5,14 @@ import com.lousseief.vault.list.SettingsCategoryListCellFactory
 import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.initializeSpinner
+import com.lousseief.vault.utils.setupErrorMessageHandling
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
 import javafx.application.Platform
-import javafx.beans.binding.Bindings
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Dialog
@@ -21,11 +21,8 @@ import javafx.scene.control.ListView
 import javafx.scene.control.Spinner
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Paint
-import javafx.scene.text.TextAlignment
 
 class SettingsDialogController(val user: UiProfile) {
 
@@ -34,13 +31,9 @@ class SettingsDialogController(val user: UiProfile) {
         const val STRING_LENGTH_MIN = 1
     }
 
+    private val savePasswordForMinutesProperty = SimpleIntegerProperty(user.settings.savePasswordForMinutes.value)
     private val errorProperty = SimpleStringProperty("")
     private val selectedCategory = SimpleStringProperty()
-
-    private val hasError = Bindings.createBooleanBinding(
-        { !errorProperty.value.isEmpty() },
-        errorProperty
-    )
 
     @FXML
     private lateinit var okButton: ButtonType
@@ -84,7 +77,7 @@ class SettingsDialogController(val user: UiProfile) {
                 }
             ).showAndWait()
             if (newCat.isPresent) {
-                user.settings.categories.value.add(newCat.get())
+                user.settings.addCategory(newCat.get())
             }
         }
         newCategoryButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
@@ -99,7 +92,7 @@ class SettingsDialogController(val user: UiProfile) {
             if(selectedCategory.value in categories) {
                 throw Error("Category has associations bound to it")
             }
-            user.settings.categories.remove(selectedCategory.value)
+            user.settings.removeCategory(selectedCategory.value)
         }
         removeCategoryButton.graphic = MaterialDesignIconView(MaterialDesignIcon.MINUS_CIRCLE).apply {
             size = "16px"
@@ -115,7 +108,7 @@ class SettingsDialogController(val user: UiProfile) {
         selectedCategory.bind(categoriesView.selectionModel.selectedItemProperty())
 
         initializeSpinner(user.settings.passwordLength, passwordLengthSpinner, STRING_LENGTH_MAX, STRING_LENGTH_MIN)
-        initializeSpinner(user.settings.savePasswordForMinutes, dedupeTimeSpinner, 30, 0)
+        initializeSpinner(savePasswordForMinutesProperty, dedupeTimeSpinner, 30, 0)
 
         setupNewCategoryButton()
         setupRemoveCategoryButton()
@@ -124,36 +117,23 @@ class SettingsDialogController(val user: UiProfile) {
         categoryButtonsPane.columnConstraints.add(1, ColumnConstraints().apply { percentWidth = 50.0 })
     }
 
-    fun finalize(readyDialog: Dialog<Unit>) {
+    fun finalize(readyDialog: Dialog<Int>) {
         val icon = Label().apply {
             styleClass.addAll("alert", "confirmation", "dialog-pane")
         }
         readyDialog.headerText = "Profile settings"
         readyDialog.graphic = icon
+        readyDialog.setResultConverter {
+            savePasswordForMinutesProperty.value
+        }
 
         Platform.runLater{
-            errorProperty.addListener { _, _, newValue ->
-                if(newValue.isNullOrEmpty()) {
-                    if(verticalHolder.children.size > 1) {
-                        (1..verticalHolder.children.size - 1).forEach { verticalHolder.children.removeAt(it) }
-                    }
-                } else {
-                    if(verticalHolder.children.size == 1) {
-                        verticalHolder.children.add(
-                            Label(errorProperty.value).apply {
-                                HBox.setHgrow(this, Priority.ALWAYS)
-                                VBox.setVgrow(this, Priority.ALWAYS)
-                                maxHeight = Double.MAX_VALUE
-                                textAlignment = TextAlignment.RIGHT
-                                style="-fx-text-fill: red"
-                                alignment = Pos.CENTER_RIGHT
-                                isWrapText = true
-                                maxWidth = readyDialog.dialogPane.width
-                            }
-                        )
-                    }
-                }
-            }
+            setupErrorMessageHandling(
+                errorProperty,
+                readyDialog.dialogPane.width,
+                verticalHolder,
+                1
+            )
         }
     }
 

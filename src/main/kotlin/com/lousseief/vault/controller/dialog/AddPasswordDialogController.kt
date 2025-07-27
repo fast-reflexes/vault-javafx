@@ -4,6 +4,7 @@ import com.lousseief.vault.crypto.CryptoUtils
 import com.lousseief.vault.crypto.CryptoUtils.getCharPoolContent
 import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.initializeSpinner
+import com.lousseief.vault.utils.setupErrorMessageHandling
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView
 import javafx.application.Platform
@@ -12,7 +13,6 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
@@ -22,11 +22,8 @@ import javafx.scene.control.DialogPane
 import javafx.scene.control.Label
 import javafx.scene.control.Spinner
 import javafx.scene.control.TextField
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Paint
-import javafx.scene.text.TextAlignment
 
 class AddPasswordDialogController(
     val defaultPasswordLength: Int,
@@ -144,28 +141,12 @@ class AddPasswordDialogController(
         readyDialog.dialogPane.scene.stylesheets.add("/styles/styles.css")
 
         Platform.runLater {
-            errorProperty.addListener { _, _, newValue ->
-                if(newValue.isNullOrEmpty()) {
-                    if(verticalHolder.children.size > 2) {
-                        (2..verticalHolder.children.size - 1).forEach { verticalHolder.children.removeAt(it) }
-                    }
-                } else {
-                    if(verticalHolder.children.size == 1) {
-                        verticalHolder.children.add(
-                            Label(errorProperty.value).apply {
-                                HBox.setHgrow(this, Priority.ALWAYS)
-                                VBox.setVgrow(this, Priority.ALWAYS)
-                                maxHeight = Double.MAX_VALUE
-                                textAlignment = TextAlignment.RIGHT
-                                style="-fx-text-fill: red"
-                                alignment = Pos.CENTER_RIGHT
-                                isWrapText = true
-                                maxWidth = readyDialog.dialogPane.width // or stringField.width
-                            }
-                        )
-                    }
-                }
-            }
+            setupErrorMessageHandling(
+                errorProperty,
+                readyDialog.dialogPane.width,
+                verticalHolder,
+                2
+            )
             stringField.requestFocus()
         }
 

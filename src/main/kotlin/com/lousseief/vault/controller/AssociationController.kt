@@ -20,6 +20,7 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.Scene
+import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
@@ -161,7 +162,8 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
                 }
             ).showAndWait()
             if (newCat.isPresent) {
-                user.settings.categories.value.add(newCat.get())
+                user.settings.addCategory(newCat.get())
+                association.category.set(newCat.get())
             }
         }
         newCategoryButton.graphic = MaterialDesignIconView(MaterialDesignIcon.CREATION).apply {
@@ -173,15 +175,16 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
     private fun setupCredentialsButton() {
         credentialsButton.setOnAction {
             user.passwordRequiredAction()?.let { password ->
-                val vault = user.accessVault(password)
-                val credentials = (vault.second[association.mainIdentifier.value]?.credentials ?: emptyList()).toMutableList()
-                val uiCredentials = credentials.map(UiCredential::fromCredentials)
+                val (credentials, uiCredentials) = user.getCredentials(
+                    association.mainIdentifier.value,
+                    password
+                )
                 val stage = Stage()
                 val loader = FXMLLoader(javaClass.getResource("/Credentials.fxml"))
                 loader.setController(
                     CredentialsController(
                         user,
-                        association.savedAssociation.mainIdentifier,
+                        association.mainIdentifier.value,
                         association,
                         FXCollections.observableArrayList(uiCredentials),
                         credentials,
@@ -224,13 +227,27 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
                 { input: String?, _: ActionEvent ->
                     if (input.isNullOrEmpty())
                         throw Exception("Empty main identifier not allowed, please try again.")
+                    else if (association.mainIdentifier.value == input)
+                        throw Exception("The new identifier is the same as the old")
                     else if (user.associations.values.any { it.mainIdentifier.value.equals(input, true) })
                         throw Exception("Main identifier already exists, main identifiers must be unique within a profile.")
-                }
+                },
+                association.mainIdentifier.value
             ).showAndWait()
             if (updatedMainIdentifier.isPresent) {
-                association.mainIdentifier.set(updatedMainIdentifier.get())
-                user.orderedAssociations.sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value) }
+                val password = user.passwordRequiredAction()
+                if(password != null) {
+                    val oldMainIdentifier = association.mainIdentifier.value
+                    val newMainIdentifier = updatedMainIdentifier.get()
+                    user.updateAssociationMainIdentifier(oldMainIdentifier, newMainIdentifier, password)
+                } else {
+                    Alert(Alert.AlertType.ERROR).apply {
+                        title = "Action cancelled"
+                        headerText = "Association was not renamed"
+                        contentText =
+                            "The attempt to update the main identifier failed because the vault password was not provided."
+                    }.showAndWait()
+                }
             }
         }
         addSecondaryIdentifierButton.graphic = MaterialDesignIconView(MaterialDesignIcon.PLUS_CIRCLE).apply {
@@ -266,11 +283,11 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
     fun initialize() {
         header.textProperty().bind(headerProperty)
 
+        setupUpdateMainIdentifierButton()
         setupAddSecondIdentifierButton()
         setupRemoveSecondIdentifierButton()
         setupNewCategoryButton()
         setupCredentialsButton()
-        setupUpdateMainIdentifierButton()
 
         mainIdentifier.textProperty().bindBidirectional(association.mainIdentifier)
         secondaryIdentifiers.items = association.secondaryIdentifiers

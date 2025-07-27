@@ -7,7 +7,6 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 
 data class UiAssociation(
-    val savedAssociation: Association,
     var mainIdentifier: SimpleStringProperty,
     var secondaryIdentifiers: SimpleListProperty<String>  = SimpleListProperty<String>(),
     var isNeeded: SimpleBooleanProperty = SimpleBooleanProperty(true),
@@ -21,7 +20,6 @@ data class UiAssociation(
 
         fun fromAssociation(association: Association): UiAssociation {
             return UiAssociation(
-                savedAssociation = association,
                 mainIdentifier = SimpleStringProperty(association.mainIdentifier),
                 secondaryIdentifiers = SimpleListProperty(FXCollections.observableArrayList(association.secondaryIdentifiers)),
                 isNeeded = SimpleBooleanProperty(association.isNeeded),
@@ -46,8 +44,11 @@ data class UiAssociation(
         )
     }
 
-    fun containsChange(): Boolean {
-        val aP = savedAssociation
+    fun containsChange(originalAssociation: Association?): Boolean {
+        if(originalAssociation == null) {
+            return true // new association that didn't exist before
+        }
+        val aP = originalAssociation
         return aP.mainIdentifier != mainIdentifier.value
             || aP.category != category.value
             || aP.comment != comment.value

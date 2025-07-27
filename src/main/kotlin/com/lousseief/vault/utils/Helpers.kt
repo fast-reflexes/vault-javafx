@@ -1,10 +1,19 @@
 package com.lousseief.vault.utils
 
+import com.lousseief.vault.model.ui.UiAssociation
 import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleStringProperty
+import javafx.collections.ObservableList
+import javafx.geometry.Pos
+import javafx.scene.control.Label
 import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.input.Clipboard
 import javafx.scene.input.ClipboardContent
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
+import javafx.scene.text.TextAlignment
 import javafx.stage.Stage
 import javafx.util.StringConverter
 import java.time.Instant
@@ -83,4 +92,39 @@ fun setupStage(stage: Stage, fixedMax: Boolean = false) {
         stage.maxWidth = Double.MAX_VALUE
         stage.maxHeight = Double.MAX_VALUE
     }
+}
+
+fun setupErrorMessageHandling(
+    errorProperty: SimpleStringProperty,
+    allowedMaxWidth: Double,
+    container: VBox,
+    defaultNumberOfChildren: Int
+) {
+    errorProperty.addListener { _, _, newValue ->
+        if(newValue.isNullOrEmpty()) {
+            if(container.children.size > defaultNumberOfChildren) {
+                (defaultNumberOfChildren..container.children.size - 1).forEach { container.children.removeAt(it) }
+            }
+        } else {
+            if(container.children.size == defaultNumberOfChildren) {
+                container.children.add(
+                    Label(errorProperty.value).apply {
+                        HBox.setHgrow(this, Priority.ALWAYS)
+                        VBox.setVgrow(this, Priority.ALWAYS)
+                        maxHeight = Double.MAX_VALUE
+                        textAlignment = TextAlignment.RIGHT
+                        style="-fx-text-fill: red"
+                        alignment = Pos.CENTER_RIGHT
+                        isWrapText = true
+                        maxWidth = allowedMaxWidth
+                    }
+                )
+            }
+        }
+    }
+
+}
+
+fun ObservableList<UiAssociation>.sortInPlaceByMainIdentifier() {
+    sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value) }
 }

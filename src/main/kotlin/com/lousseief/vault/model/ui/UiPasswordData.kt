@@ -24,17 +24,24 @@ data class UiPasswordData(
     }
 
     fun resetSavedMasterPassword(nextPassword: String, passwordDedupingTimeMinutes: Int) {
-        savedMasterPassword = nextPassword
-        savedPasswordExpiry.set(Instant.now().plusMillis(passwordDedupingTimeMinutes * 60 * 1000L))
-        savedPasswordResetter?.cancel()
-        savedPasswordResetter =  Timer(false)
-            .schedule(passwordDedupingTimeMinutes * 60 * 1000L) {
-                Platform.runLater {
-                    println("reset!")
-                    savedMasterPassword = null
-                    savedPasswordExpiry.set(null)
+        synchronized(this) {
+            savedMasterPassword = nextPassword
+            val expirationMillis = passwordDedupingTimeMinutes * 60 * 1000L
+            val expirationTime = Instant.now().plusMillis(expirationMillis)
+            savedPasswordExpiry.set(expirationTime)
+            savedPasswordResetter?.cancel()
+            savedPasswordResetter = Timer(false)
+                .schedule(expirationMillis) {
+                    Platform.runLater {
+                        println("reset!")
+                        savedMasterPassword = null
+                        savedPasswordExpiry.set(null)
+                    }
                 }
+            if(passwordDedupingTimeMinutes == 0) {
+                cancelSavedMasterPassword()
             }
+        }
     }
 
     fun passwordRequiredAction(user: UiProfile, passwordDedupingTimeMinutes: Int, requireFreshPassword: Boolean = false): String? {
@@ -45,7 +52,7 @@ data class UiPasswordData(
         }
         else {
             savedMasterPassword = null
-            val result = PasswordConfirmDialog() { password: String, event: ActionEvent ->
+            val result = PasswordConfirmDialog { password: String, event: ActionEvent ->
                 // below will throw if password is wrong
                 VerificationService.authorize(password, user.keyMaterialSalt, user.verificationHash, user.verificationSalt)
                 resetSavedMasterPassword(password, passwordDedupingTimeMinutes)

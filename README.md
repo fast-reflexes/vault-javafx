@@ -143,7 +143,7 @@ it across sessions.
 Changes to data structures in memory are triggered by:
 
 * Updating profile settings (add or remove categories, changing default password length, changing vault opening time)
-* Updating existing associations (credentials not included)
+* Updating existing associations (main identifier and credentials not included)
 
 #### Encrypted data changes in memory
 
@@ -151,13 +151,42 @@ Changes to encrypted data in memory are triggered by:
 
 * Changing vault master password
 * Adding, removing or updating credentials
-* Adding or removing an association
+* Adding or removing associations or updating the main identifier of an association
 
 #### Vault file changes
 
 Vault file changes are only triggered by one action:
 
 * Clicking `Save to vault to disk` buttons
+
+#### Summary
+
+The encrypted data in memory exits because we don't want to store the data in plaintext in memory. However, we don't 
+want to reencrypt that data all the time when small changes are made to associations. Therefore we only do this for
+select cases. The association data in memory is both a map from string (main identifier) to association as well as
+an ordered list of associations (ordered by main identifier). The ordered list must be manually updated whenever
+we need to add or remove associations from the map (e.g. this does not trigger an update of the ordered list) but
+the map and the list contain the same association objects.
+
+When associations are added or removed or when a main identifier is updated, the map in memory is updated. The encrypted 
+data is updated as well on these occasions. When we manipulate credentials, we manipulate the encrypted data stored in 
+memory as well. So if a vault has been updated in some ways, the current encrypted data thus reflects everything from 
+none to all of these changes, typically only a few of them.
+
+To be able to determine if a user has saved the current state of the vault or not, we also need a way of comparing the
+current state with the state of the persisted data. This is done by, upon login and when we persist to disk, saving 
+data from the persisted file. We can then easily at any time compare the current state and say if it's the same as
+the persisted one or not. To avoid randomness altering data which is not in essence different, we use the same IV
+(initialization vector) when updating the encrypted data in session but when we persist it to disk, we make sure to
+use a new IV.
+
+All in all, the cleartext data structures in memory reflect the current state of the vault. Some data are not in these
+structures and they reside in the encrypted data stored in memory. The encrypted data can be decrypted and read from
+when needed. The encrypted data is also updated in-session in select cases. Upon login and persisting data to file,
+the structures from the file are stored in such a way so that we may compare the current state of the vault to the 
+persisted state at any time to determine whether the user needs to save or not. The encrypted data in memory is thus
+a partially updated vault with a state between the in-memory cleartext data structures ans the persisted state on file.
+The file holds the stored state of the vault.
 
 ## Knowledge
 		
@@ -185,6 +214,27 @@ and search for that, for example Font Awesome 4.7.0
 * Some attributes are not the same as the ones used in HTML, for example, the button color is set with `-fx-color` 
 instead and one should NOT use `-fx-background-color` because then focus behaviours are messed up as well.
 
+### Buttons
+
+Buttons may be **default** or **cancel** buttons (or none). A default button is blueish and is clicked when hitting enter
+and a cancel button has no special appearance but is clicked when hitting the escape button. This applies if no other
+button tries to do the same in the same scene. Note that a third button can be the focused button, e.g. that is not the
+same as being a default button. Normally, button types which are `OK` or `OK_DONE` are default buttons and `CANCEL` or
+`CANCEL_CLOSE` are cancel buttons. This can also be set manually in the code.
+
+### Observable properties
+
+Remember that observables support LAZY evaluation and if so, they will not trigger reevaluation as expected. For example,
+if an observable is added as a dependency to a binding, the evaluation of the binding will NOT necessarily be retriggered
+just because the observable changes value. The only way an observable becomes eaglery evaluated is by adding a change 
+listener.
+
+### Miscellanous
+
+* SceneBuilder is a GUI with which you can build JavaFX applications using drag and drop.
+* Don't nest dialogs, it's SUPPOSED to work but it's better to chain dialogs instead, closing the first before opening 
+the second and I HAVE experienced that the application hangs without any error message. when nesting dialogs.
+
 ### Questions
 
 None currently
@@ -202,23 +252,8 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 ## TODO
 
 ### Backlog:
-* Investigate odd error with manual flag in UiProfile and restore to previous state
-* Think about if sorting of orderedAssociations should be done in listener instead
-* Lägg in fix för att ändra iterations
-* Lägg in fix och koll för när man sparar och sen tar bort något (credentials ska bli som innan man lagt till)
-* Lägg in så att när man sparar så ersätts profile med en ny och flaggor resettas
-
-* Frågar fortfarnade om ok att stänga fönster på loginrutan när man gjort "CLose anyway" utan att spara
-* Fixa så att man får en property som avgör om man behöver spara eller ej och styr så att man inte kan stänga vissa saker utan varning gäller huvudfönstret främst
 * kolla att stängning med kryss och cancel ger samma resultat ( påmminner när något är osparat etc...)
-* How to deal with errors? e.g-. when a mainidentifiers already exists?
-* Fix delete entry
-* Testa hur det blir när man byter mainidentifier på ett entry och sen sparar och sen gör vissa saker igen.. hmmm
-* Sortera om entries om man döper om main identifier.. eller förbjud att döpa om hmmm
-* Hur ändra iterations i PBKDF?
 
-* Write in readme about how this software is supposed to be used
-* Write in readme about WHEN and HOW things are saved and make sure this is correct
 * Kolla igenom att allt är likadant överallt och så och att vi har kontroll på alla lägen
 * Kolla på gamla koden som inspiration för om jag glömt ngt
 * gå igenom allt och om jag verkligen gör saker i rätt ordning
@@ -228,7 +263,9 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * hantera last updated i credentials (och i entry?)
 * ändra button text på en del ställen till "Quit anyways" eller "Cose anyways" istället för "Ok"
 * hur görs översättning till ascii om fel bytes används? Säkert
-* Lägg till pointer cursor på alla knappar
+* Kolla om det finns några TODOs i koden
+* Kolla igenom null assertions (!!)
+* Flytta initialize till UiProfile och ta bort den samt accessVault från Profile
 
 ### Inbox (to do MAYBE at some later point)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
@@ -238,4 +275,5 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * Use Java modules and add module-info.java to perhaps get rid of error when starting with jar
 * Fixa ny ikon till jaren
 * Röda knappar i en del dialoger där man ska bekräfta delete
+* Add logging via some central utility and frequently used logger library (dependency)
 

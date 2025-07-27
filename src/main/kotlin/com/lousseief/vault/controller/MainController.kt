@@ -81,6 +81,9 @@ class MainController(private val router: Router, private val user: UiProfile) {
     @FXML
     private lateinit var productName: Label
 
+    @FXML
+    private lateinit var loggedInUserLabel: Label
+
     private val filtered = FilteredList(user.orderedAssociations)
     private val nextLoginTimeProperty = Bindings.createStringBinding(
         { "Current entered password valid for further operations until: ${user.passwordData.savedPasswordExpiry.value?.let { timeToStringDateTime(it) } ?: "expired" }" },
@@ -121,7 +124,7 @@ class MainController(private val router: Router, private val user: UiProfile) {
     private fun loadAssociationView(association: UiAssociation?) {
         if(association != null) {
             val loader = FXMLLoader(javaClass.getResource("/Association.fxml"))
-            loader.setController(AssociationController(user, association, { onDeleteAssociation(association.savedAssociation.mainIdentifier) }))
+            loader.setController(AssociationController(user, association, { onDeleteAssociation(association.mainIdentifier.value) }))
             val associationView: Parent = loader.load()
             associationViewContainer.children.removeIf { true }
             associationViewContainer.children.add(associationView)
@@ -160,14 +163,20 @@ class MainController(private val router: Router, private val user: UiProfile) {
             ).showAndWait()
             if (newAssociation.isPresent) {
                 val newIdentifier = newAssociation.get()
-                user.passwordRequiredAction()?.let { password ->
+                val password = user.passwordRequiredAction()
+                if(password !== null) {
                     user.addAssociation(newIdentifier, password)
+                    val index = filtered.indexOfFirst { it.mainIdentifier.value == newIdentifier }
+                    associationsList.selectionModel.select(index)
+                    associationsList.requestFocus()
+                } else {
+                    Alert(Alert.AlertType.ERROR).apply {
+                        title = "Action cancelled"
+                        headerText = "Association was not added"
+                        contentText =
+                            "The attempt to add an association failed because the vault password was not provided."
+                    }.showAndWait()
                 }
-                user.orderedAssociations.add(user.associations[newIdentifier])
-                user.orderedAssociations.sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value) }
-                val index = filtered.indexOfFirst { it.mainIdentifier.value == newIdentifier }
-                associationsList.selectionModel.select(index)
-                associationsList.requestFocus()
             }
         }
         addAssociationButton.graphic = MaterialDesignIconView(MaterialDesignIcon.SHAPE_SQUARE_PLUS).apply {
@@ -184,18 +193,25 @@ class MainController(private val router: Router, private val user: UiProfile) {
             "Are you sure you want to delete this association?"
         )
         if(delete) {
-            user.passwordRequiredAction()?.let { password ->
+            val password = user.passwordRequiredAction()
+            if(password != null) {
                 user.removeAssociation(savedMainIdentifier, password)
+                associationsList.selectionModel.clearSelection()
+                associationsList.requestFocus()
+                Alert(Alert.AlertType.INFORMATION).apply {
+                    title = "Success"
+                    headerText = "Association successfully removed"
+                    contentText =
+                        "The association was successfully deleted. If you don't save the vault, the delete association will reappear on next login. Upon saving the vault, the association cannot be restored."
+                }.showAndWait()
+            } else {
+                Alert(Alert.AlertType.ERROR).apply {
+                    title = "Action cancelled"
+                    headerText = "Association was not removed"
+                    contentText =
+                        "The attempt to delete the association failed because the vault password was not provided."
+                }.showAndWait()
             }
-            user.orderedAssociations.removeIf { it.mainIdentifier.value == savedMainIdentifier }
-            associationsList.selectionModel.clearSelection()
-            associationsList.requestFocus()
-            Alert(Alert.AlertType.INFORMATION).apply {
-                title = "Success"
-                headerText = "Association successfully removed"
-                contentText =
-                    "The association was successfully deleted. If you don't save the vault, the delete association will reappear on next login. Upon saving the vault, the association cannot be restored."
-            }.showAndWait()
         }
     }
 
@@ -216,7 +232,26 @@ class MainController(private val router: Router, private val user: UiProfile) {
 
     private fun setupSettingsDialogButton() {
         settingsButton.setOnAction {
-            SettingsDialog(user).showAndWait()
+            val result = SettingsDialog(user).showAndWait()
+            val setPasswordDedupingTimeMinutes = result.get()
+            if(setPasswordDedupingTimeMinutes != user.settings.savePasswordForMinutes.value) {
+                val previousSetting = user.settings.savePasswordForMinutes.value
+                // update before password call since otherwise pw mechanism, will use old value for password storage
+                user.settings.savePasswordForMinutes.set(setPasswordDedupingTimeMinutes)
+                val password = user.passwordRequiredAction(true)
+                if(password !== null) {
+                    user.settings.savePasswordForMinutes.set(setPasswordDedupingTimeMinutes)
+                } else {
+                    // restore old setting
+                    user.settings.savePasswordForMinutes.set(previousSetting)
+                    Alert(Alert.AlertType.ERROR).apply {
+                        title = "Action cancelled"
+                        headerText = "Password deduping time was not updated"
+                        contentText =
+                            "The attempt to update the password deduping time failed because the vault password was not provided."
+                    }.showAndWait()
+                }
+            }
         }
         settingsButton.graphic = FontAwesomeIconView(FontAwesomeIcon.COG).apply {
             fill = Paint.valueOf(Colors.GRAY_DARK)
@@ -239,12 +274,17 @@ class MainController(private val router: Router, private val user: UiProfile) {
 
     private fun onTerminateSession(isCloseWindowRequest: Boolean): Boolean {
         if(user.isDirty.value) {
-            return Dialogs.openConfirmSensitiveOperationDialog(
+            val proceed = Dialogs.openConfirmSensitiveOperationDialog(
                 "Close anyway",
                 null,
                 if(isCloseWindowRequest) "Do you really want to close this window?" else "Do you really want to end this session?",
                 "You have unsaved changes in your vault which will be lost if you exit without saving, do you really want to ${if(isCloseWindowRequest) "close this window" else "end this session"} without saving first? If no, press \"Cancel\" and then press \"Save vault to disk\"."
             )
+            if(proceed) {
+                // detach event handler
+                associationViewContainer.scene.window.onCloseRequest = null
+            }
+            return proceed
         }
         return true
     }
@@ -252,6 +292,7 @@ class MainController(private val router: Router, private val user: UiProfile) {
     @FXML
     fun initialize() {
         productName.font = Font.BitCount
+        loggedInUserLabel.text = "Logged in as '${user.name.value}'"
         logoutButton.setOnAction {
             val proceed = onTerminateSession(false)
             if (proceed) {
@@ -279,30 +320,35 @@ class MainController(private val router: Router, private val user: UiProfile) {
             loadAssociationView(newValue)
         }
 
-        exportVaultButton.setOnAction {
-            user.passwordRequiredAction(true)?.let { password ->
-                val vault = user.accessVault(password)
-                val exportFilename = user.export(vault)
-                Alert(Alert.AlertType.INFORMATION).apply {
-                    title = "Success"
-                    headerText = "Vault successfully exported"
-                    contentText = "The vault was successfully exported to file '$exportFilename'"
-                }.showAndWait()
+        exportVaultButton.apply {
+            setOnAction {
+                user.passwordRequiredAction(true)?.let { password ->
+                    val vault = user.accessVault(password)
+                    val exportFilename = user.export(vault)
+                    Alert(Alert.AlertType.INFORMATION).apply {
+                        title = "Success"
+                        headerText = "Vault successfully exported"
+                        contentText = "The vault was successfully exported to file '$exportFilename'"
+                    }.showAndWait()
+                }
+            }
+            graphic = MaterialIconView(MaterialIcon.IMPORT_EXPORT).apply {
+                fill = Paint.valueOf(Colors.BLUE)
+                size = "20px"
             }
         }
-        exportVaultButton.graphic = MaterialIconView(MaterialIcon.IMPORT_EXPORT).apply {
-            fill = Paint.valueOf(Colors.BLUE)
-            size = "20px"
+
+        saveVaultButton.apply {
+            setOnAction {
+                user.save()
+            }
+            graphic = MaterialIconView(MaterialIcon.SAVE).apply {
+                fill = Paint.valueOf(Colors.BLUE)
+                size = "22px"
+            }
+            disableProperty().bind(user.isDirty.not())
         }
 
-        saveVaultButton.setOnAction {
-            user.save()
-        }
-        saveVaultButton.graphic = MaterialIconView(MaterialIcon.SAVE).apply {
-            fill = Paint.valueOf(Colors.BLUE)
-            size = "22px"
-        }
-        saveVaultButton.disableProperty().bind(user.isDirty.not())
 
         directoryChooserButton.setOnAction { onChooseProfileLocation() }
         Platform.runLater {

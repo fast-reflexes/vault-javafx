@@ -10,9 +10,10 @@
                 <Label text="Vault - securing your passwords" style="-fx-font-size: 28; -fx-text-fill: white; -fx-outline: 2; -fx-font-weight: 500; -fx-font-family: 'Bitcount Prop Single Roman Medium'" fx:id="productName" />
             </HBox>
             <Region HBox.hgrow="ALWAYS" />
-            <HBox VBox.vgrow="ALWAYS" maxHeight="Infinity" style="-fx-padding: 10" spacing="10">
-                <Button text="Change vault file directory" styleClass="header-button" HBox.hgrow="NEVER" fx:id="directoryChooserButton"/>
-                <Button text="Logout" styleClass="header-button" HBox.hgrow="NEVER" VBox.vgrow="NEVER" fx:id="logoutButton" />
+            <HBox VBox.vgrow="ALWAYS" alignment="CENTER" maxHeight="Infinity" style="-fx-padding: 10" spacing="10">
+                <Label fx:id="loggedInUserLabel" style="-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 14px; -fx-padding: 0 8 0 0"/>
+                <Button text="Change vault file directory" styleClass="header-button,button" HBox.hgrow="NEVER" fx:id="directoryChooserButton"/>
+                <Button text="Logout" styleClass="header-button,button" HBox.hgrow="NEVER" VBox.vgrow="NEVER" fx:id="logoutButton" />
             </HBox>
         </HBox>
     </top>
@@ -47,7 +48,7 @@
                 <Button
                     text="Create new association"
                     fx:id="addAssociationButton"
-                    styleClass="create-association-button,big-button"
+                    styleClass="create-association-button,big-button,button"
                     maxWidth="Infinity"
                     HBox.hgrow="ALWAYS"
                     VBox.vgrow="NEVER"
@@ -83,13 +84,13 @@
             spacing="10"
             alignment="CENTER_RIGHT"
         >
-            <Button text="Profile settings" fx:id="settingsButton" styleClass="big-button" />
-            <Button text="Change master password" fx:id="changeMasterPasswordButton" styleClass="big-button" />
-            <Button text="String generator" fx:id="stringGeneratorButton" styleClass="big-button" />
+            <Button text="Profile settings" fx:id="settingsButton" styleClass="big-button,button" />
+            <Button text="Change master password" fx:id="changeMasterPasswordButton" styleClass="big-button,button" />
+            <Button text="String generator" fx:id="stringGeneratorButton" styleClass="big-button,button" />
             <Label fx:id="nextLoginTimeLabel" />
             <Region HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-            <Button text="Export vault" fx:id="exportVaultButton" styleClass="big-button" />
-            <Button text="Save vault to disk" fx:id="saveVaultButton" styleClass="big-button" />
+            <Button text="Export vault" fx:id="exportVaultButton" styleClass="big-button,button" />
+            <Button text="Save vault to disk" fx:id="saveVaultButton" styleClass="big-button,button" />
         </HBox>
     </bottom>
 </BorderPane>

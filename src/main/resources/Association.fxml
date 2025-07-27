@@ -44,7 +44,7 @@
                             mouseTransparent="false"
                             focusTraversable="false"
                         />
-                        <Button text="Update main identifier" fx:id="updateMainIdentifierButton" />
+                        <Button styleClass="button" text="Update main identifier" fx:id="updateMainIdentifierButton" />
                     </HBox>
                 </VBox>
                 <VBox
@@ -84,6 +84,7 @@
                             fx:id="removeSecondaryIdentifierButton"
                             textAlignment="CENTER"
                             alignment="CENTER"
+                            styleClass="button"
                         />
                         <Button
                             GridPane.rowIndex="0"
@@ -95,6 +96,7 @@
                             fx:id="addSecondaryIdentifierButton"
                             textAlignment="CENTER"
                             alignment="CENTER"
+                            styleClass="button"
                         />
                     </GridPane>
                     <HBox
@@ -119,6 +121,7 @@
                             maxWidth="120"
                             minWidth="120"
                             alignment="CENTER"
+                            styleClass="button"
                         />
                     </HBox>
                 </VBox>
@@ -155,12 +158,12 @@
         </padding>
     </Separator>
     <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10">
-        <Button text="Credentials" fx:id="credentialsButton" styleClass="big-button" />
+        <Button text="Credentials" fx:id="credentialsButton" styleClass="big-button,button" />
         <Region HBox.hgrow="ALWAYS" maxWidth="Infinity" />
         <Button
             text="Delete association"
             fx:id="deleteAssociationButton"
-            styleClass="delete-button,big-button"
+            styleClass="delete-button,big-button,button"
         />
     </HBox>
 </VBox>

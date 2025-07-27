@@ -29,7 +29,10 @@ object VaultService {
     val jsonMapper: Gson = GsonBuilder().registerTypeAdapter(Instant::class.java, InstantAdapter()).create()
 
     fun encryptVault(encryptionKey: ByteArray, vault: Vault, iv: String? = null): Pair<String, String> {
-        val plainString = jsonMapper.toJson(vault)
+        /* use sorted map to avoid the encrypted data differing when we just by accident and modifications alter the
+        iteration order of the map (e.g. remove an association which is old and then readding it) */
+        val vaultWithSortedAssociations = vault.first to vault.second.toSortedMap()
+        val plainString = jsonMapper.toJson(vaultWithSortedAssociations)
         return CbcCrypto.encrypt(
             Conversion.UTF8ToBytes(plainString),
             encryptionKey,
