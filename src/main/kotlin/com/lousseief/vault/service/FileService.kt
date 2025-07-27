@@ -14,6 +14,39 @@ object FileService {
     const val FILE_SUFFIX = ".vault"
     private var profilesLocation: String? = null
 
+    fun getSettingsLocation(): String {
+        // Check if the environment variable IS_DEVELOPMENT is set to "true"
+        val isDevelopment = System.getenv("IS_DEVELOPMENT")?.lowercase() == "true"
+        if (isDevelopment) {
+            return "."
+        }
+
+        // Get the OS name
+        val osName = System.getProperty("os.name").lowercase()
+
+        // Check for macOS
+        if (osName.contains("mac")) {
+            // path should be ~/Library/Application Support/Vault/vault.settings
+            val vaultDirPath = System.getProperty("user.home") + "/Library/Application Support/Vault"
+            val vaultDir = File(vaultDirPath)
+            if (!vaultDir.exists()) {
+                val created = vaultDir.mkdirs()
+                if (!created) {
+                    throw IllegalStateException("Failed to create directory: $vaultDirPath")
+                }
+            }
+            return vaultDirPath
+        }
+
+        // Check for Windows
+        if (osName.contains("win")) {
+            return "windows"
+        }
+
+        // If none of the above, throw an exception
+        throw UnsupportedOperationException("Unsupported operating system: $osName")
+    }
+
     fun getCurrentProfilesLocation(): String {
         return profilesLocation ?: throw IllegalStateException("Profiles location must be set")
     }
@@ -22,7 +55,7 @@ object FileService {
     }
 
     fun programSettingsExists(): Boolean {
-        return fileExists(".", "vault.settings")
+        return fileExists(getSettingsLocation(), "vault.settings")
     }
 
     fun fileExists(startDir: String, fileNameToLookFor: String): Boolean {
@@ -63,7 +96,7 @@ object FileService {
             return false
         } else {
             try {
-                val settingsFile = File("./vault.settings")
+                val settingsFile = File("${getSettingsLocation()}/vault.settings")
                 val fileBytes = settingsFile.readBytes()
                 val fileText = Conversion.bytesToUTF8(fileBytes)
                 val parts = fileText.split("\n")
@@ -81,7 +114,7 @@ object FileService {
     fun writeSystemSettingsFile(inputProfilesLocation: String) {
         profilesLocation = inputProfilesLocation
         try {
-            val settingsFile = File("./vault.settings")
+            val settingsFile = File("${getSettingsLocation()}/vault.settings")
             settingsFile.writeBytes(Conversion.UTF8ToBytes(inputProfilesLocation))
         }
         catch(e: AssertionError) {
@@ -108,9 +141,9 @@ object FileService {
         }
     }
 
-    fun writeExportFile(username: String, vault: Vault): String {
+    fun writeExportFile(username: String, directoryPath: String, vault: Vault): String {
         try {
-            val filename = "./${username}_export_${Instant.now()}.txt"
+            val filename = "$directoryPath/${username}_export_${Instant.now()}.txt"
             val userFile = File(filename)
             val buffer = StringBuffer()
             buffer.appendLine("VAULT EXPORT ${Instant.now()}")

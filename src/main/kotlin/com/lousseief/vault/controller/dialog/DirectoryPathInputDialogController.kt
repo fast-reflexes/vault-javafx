@@ -15,7 +15,7 @@ import javafx.stage.DirectoryChooser
 import javafx.stage.Stage
 import java.io.File
 
-class ChooseProfilesLocationDialogController() {
+class DirectoryPathInputDialogController() {
 
     private val errorProperty = SimpleStringProperty("")
     private val directoryProperty = SimpleStringProperty("")
@@ -38,7 +38,11 @@ class ChooseProfilesLocationDialogController() {
     @FXML
     fun initialize() {}
 
-    fun finalize(readyDialog: Dialog<String?>, isInitialSetup: Boolean) {
+    fun finalize(
+        readyDialog: Dialog<String?>,
+        header: String,
+        description: String
+    ) {
         val directoryChooser = DirectoryChooser()
         directoryChooser.initialDirectory = File(".")
 
@@ -56,20 +60,8 @@ class ChooseProfilesLocationDialogController() {
             styleClass.addAll("alert", "confirmation", "dialog-pane")
         }
         readyDialog.title = "Choose directory"
-        readyDialog.headerText = "Choose which directory you want to store your profiles in"
-        if(isInitialSetup) {
-            infoLabel.text = "It looks like this is the first time you start this application, for the application to work, it must know " +
-                "where it should store profile data. Please click the button and point out where profile data should be " +
-                "stored. This location can be changed later should it be needed.\n\nIf you ever experience problems with " +
-                "the settings file, simply delete the file name vault.settings and then this dialog will prompt you when you " +
-                "start the app the next time."
-        } else {
-            infoLabel.text = "It looks like you want to change the location where profiles are stored. To do this without " +
-                "causing any problems in using this app, do it in the following way. First save any work and log out and " +
-                "close the app. Then restart it and without doing any changes, update the profiles location. Then immediately " +
-                "log out and close the app without doing any work. Now, copy your profiles (if you want to) from the previous " +
-                "location to the new. After this, you are ready to start using Vault with your new profiles location."
-        }
+        readyDialog.headerText = header
+        infoLabel.text = description
         readyDialog.graphic = icon
         readyDialog.setResultConverter { type: ButtonType? ->
             // button type if null when closing with cross since no cancel button exists in the dialog

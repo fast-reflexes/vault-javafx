@@ -21,7 +21,7 @@ kotlin {
 
 
 group = "com.lousseief"
-version = "1.0-SNAPSHOT"
+version = "1.0"
 
 repositories {
     mavenCentral()
@@ -60,7 +60,6 @@ tasks.register<Jar>("fatJar") {
         put("Implementation-Title", "Vault fat jar")
         put("Implementation-Version", version)
         put("Main-Class", "com.lousseief.vault.MainKt")
-        put("Application-Default-JVM-Args", "--add-opens=java.base/java.time=ALL-UNNAMED")
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(sourceSets.main.get().output)

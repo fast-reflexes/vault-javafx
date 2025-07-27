@@ -1,6 +1,7 @@
 # Vault - registration, subscription and password organiser
 
-Rewritten with only JavaFX instead of the initial project which used TornadoFX which is now deprecated.
+Rewritten with only JavaFX instead of the initial project which used TornadoFX which is now deprecated. Most core 
+functionality has almost not been touched (e.g. crypto classes).
 
 Current versions used are JavaFX 24.0.2 and Java 23 with Gradle 8.14.3 and Kotlin plugin 2.2.0.
 
@@ -39,9 +40,15 @@ except for when a particular credential is being edited.
   gammal fil (med en tidigare IV) och låta en användare använda den igen (varvid 2 olika krypteringar med samma IV / Nonce
   kan erhållas vilket breakar hela confifentialityn. Dessutom skulle jag även MED GCM beöva köra en HMAC på hela den
   sparade fieln för at se att inte anat har förändrats.. Dena mac innehåller även ciphertexten vilket ger en
-  Encryot-then-MAC-skydd till CBCn... Detta är tillräckligt varför den extra autenticering som GCM bringar till tablen
-  är onödig. an hade kunnat använda en randomiserad IV för GCM (är ok med 128 bitar) men återigen finns det ingen vinst
+  Encrypt-then-MAC-skydd till CBCn... Detta är tillräckligt varför den extra autenticering som GCM bringar till tablen
+  är onödig. Man hade kunnat använda en randomiserad IV för GCM (är ok med 128 bitar) men återigen finns det ingen vinst
   med det.. GCM är fett men i detta fall är CBC bättre).
+
+### Setup
+
+Vault uses two different locations; the location of the system settings and the location of profiles. The latter is set
+manually when you start Vault for the first time. The former is set to the current directory if the env var
+`IS_DEVELOPMENT` is set to `true`, otherwise it uses os information to determine what path to use.
 
 ### Usage
 
@@ -85,6 +92,16 @@ To run fat jar, execute `java -jar <JAR>>`
 
 An error is displayed on started due to that this project does not use Java modules and thus, this project is an unnamed
 module. This can be ignored.
+
+## Build
+
+Build on a Mac computer with Java 23 installed:
+
+jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type dmg
+
+For Windows, build on a Windows computer with
+
+jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type exe
 
 ## Technical documentation
 
@@ -259,8 +276,11 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 ## TODO
 
 ### Backlog:
-* Kolla utkommenterad text
-* Pakettera med jpackager, dokumentera, langa upp i windows ich test lösning med dropbox
+
+***NOTHING atm*** 
+
+* Make sure that references to the old scene is lost how to?
+* Bygg i Windows också
 
 ### Inbox (to do MAYBE at some later point)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)

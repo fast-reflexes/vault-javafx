@@ -2,7 +2,7 @@ package com.lousseief.vault.controller
 
 import com.lousseief.vault.Router
 import com.lousseief.vault.dialog.ChangeMasterPasswordDialog
-import com.lousseief.vault.dialog.ChooseProfilesLocationDialog
+import com.lousseief.vault.dialog.DirectoryPathInputDialog
 import com.lousseief.vault.dialog.Dialogs
 import com.lousseief.vault.dialog.SettingsDialog
 import com.lousseief.vault.dialog.SingleStringInputDialog
@@ -260,7 +260,14 @@ class MainController(private val router: Router, private val user: UiProfile) {
     }
 
     private fun onChooseProfileLocation() {
-        val directory = ChooseProfilesLocationDialog(false)
+        val directory = DirectoryPathInputDialog(
+            "Choose which directory you want to store your profiles in",
+            "It looks like you want to change the location where profiles are stored. To do this without " +
+            "causing any problems in using this app, do it in the following way. First save any work and log out and " +
+            "close the app. Then restart it and without doing any changes, update the profiles location. Then immediately " +
+            "log out and close the app without doing any work. Now, copy your profiles (if you want to) from the previous " +
+            "location to the new. After this, you are ready to start using Vault with your new profiles location."
+        )
             .showAndWait()
         if(directory.isPresent && directory.get().isNotEmpty() && directory.get() != FileService.getCurrentProfilesLocation()) {
             Alert(Alert.AlertType.INFORMATION).apply {
@@ -322,15 +329,29 @@ class MainController(private val router: Router, private val user: UiProfile) {
 
         exportVaultButton.apply {
             setOnAction {
-                user.passwordRequiredAction(true)?.let { password ->
-                    val vault = user.accessVault(password)
-                    val exportFilename = user.export(vault)
-                    Alert(Alert.AlertType.INFORMATION).apply {
-                        title = "Success"
-                        headerText = "Vault successfully exported"
-                        contentText = "The vault was successfully exported to file '$exportFilename'"
-                    }.showAndWait()
+                val password = user.passwordRequiredAction(true)
+                if(password !== null) {
+                    val exportPath = DirectoryPathInputDialog(
+                        "Choose export directory",
+                        "Please select the directory to which you wish to export your vault"
+                    ).showAndWait()
+                    if(exportPath.isPresent && exportPath.get().isNotEmpty()) {
+                        val vault = user.accessVault(password)
+                        val exportFilename = user.export(exportPath.get(), vault)
+                        Alert(Alert.AlertType.INFORMATION).apply {
+                            title = "Success"
+                            headerText = "Vault successfully exported"
+                            contentText = "The vault was successfully exported to file '$exportFilename'"
+                        }.showAndWait()
+                    } else {
+                        Alert(Alert.AlertType.ERROR).apply {
+                            title = "Action cancelled"
+                            headerText = "Vault not exported"
+                            contentText = "The vault was not exported since no directory for the export was provided"
+                        }.showAndWait()
+                    }
                 }
+
             }
             graphic = MaterialIconView(MaterialIcon.IMPORT_EXPORT).apply {
                 fill = Paint.valueOf(Colors.BLUE)

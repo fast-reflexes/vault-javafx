@@ -19,7 +19,7 @@
                 <Label fx:id="infoLabel" wrapText="true" />
                 <VBox spacing="5" HBox.hgrow="NEVER" maxWidth="400" alignment="CENTER_RIGHT">
                     <Button
-                        text="Click to select profiles directory"
+                        text="Click to select directory"
                         fx:id="directoryChooserButton"
                         HBox.hgrow="ALWAYS"
                         styleClass="button"

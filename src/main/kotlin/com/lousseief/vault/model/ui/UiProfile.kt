@@ -259,8 +259,8 @@ class UiProfile(
         reevaluateDirtyFlag()
     }
 
-    fun export(vault: Vault): String {
-        return FileService.writeExportFile(this.name.value, vault)
+    fun export(directoryPath: String, vault: Vault): String {
+        return FileService.writeExportFile(this.name.value, directoryPath, vault)
     }
 
     private fun persistUpdatedInMemoryAssociationsToEncryptedDataBeforePersistingVaultToDisk() {

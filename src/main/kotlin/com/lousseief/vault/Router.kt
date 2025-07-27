@@ -3,7 +3,7 @@ package com.lousseief.vault
 import com.lousseief.vault.controller.LoginController
 import com.lousseief.vault.controller.MainController
 import com.lousseief.vault.controller.RegisterController
-import com.lousseief.vault.dialog.ChooseProfilesLocationDialog
+import com.lousseief.vault.dialog.DirectoryPathInputDialog
 import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.service.FileService
 import com.lousseief.vault.utils.Colors
@@ -33,7 +33,14 @@ class Router : Application() {
         showLogin()
         val systemIsSetup = FileService.setupSystemSettings()
         if(!systemIsSetup) {
-            val directory = ChooseProfilesLocationDialog(true)
+            val directory = DirectoryPathInputDialog(
+                "Choose which directory you want to store your profiles in",
+        "It looks like this is the first time you start this application, for the application to work, it must know " +
+                "where it should store profile data. Please click the button and point out where profile data should be " +
+                "stored. This location can be changed later should it be needed.\n\nIf you ever experience problems with " +
+                "the settings file, simply delete the file name vault.settings and then this dialog will prompt you when you " +
+                "start the app the next time."
+            )
                 .showAndWait()
             if(directory.isPresent && directory.get().isNotEmpty()) {
                 Alert(Alert.AlertType.INFORMATION).apply {

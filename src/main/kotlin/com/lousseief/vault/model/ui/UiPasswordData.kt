@@ -30,7 +30,8 @@ data class UiPasswordData(
             val expirationTime = Instant.now().plusMillis(expirationMillis)
             savedPasswordExpiry.set(expirationTime)
             savedPasswordResetter?.cancel()
-            savedPasswordResetter = Timer(false)
+            // if not daemon thread, then the application will not stop until this timer has fired
+            savedPasswordResetter = Timer(true)
                 .schedule(expirationMillis) {
                     Platform.runLater {
                         println("reset!")
