@@ -127,13 +127,6 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
         selectedSecondIdentifier
     )
 
-    /*private val setCredentialsHandler = {
-            password: String, _: ActionEvent? ->
-        val credentials = user.getCredentials(originalMainIdentifier.value, password)
-        credentialsController.setCredentials(credentials)
-        credentialsController.setUserNames(controller.user!!.userNames)
-    }*/
-
 
     private fun setupRemoveSecondIdentifierButton() {
         removeSecondaryIdentifierButton.disableProperty().bind(!isSecondIdentifierSelected)
@@ -202,17 +195,6 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
                 stage.maxHeight = 614.0
                 stage.minHeight = 614.0
                 stage.showAndWait()
-                /*val credentialsSet = controller.passwordRequiredAction(setCredentialsHandler)
-                if(credentialsSet) {
-                    // credentialsController loaded and ready
-                    find<CredentialsView>(mapOf(CredentialsView::mainIdentifier to originalMainIdentifier))
-                        .openModal(
-                            block = true,
-                            resizable = false
-                        )
-                    if(credentialsController.credentialsSaved) // signal that saving the entire vault is now possible
-                        controller.altered.set(true)
-                }*/
             }
         }
         credentialsButton.graphic = FontAwesomeIconView(FontAwesomeIcon.KEY).apply { fill = Paint.valueOf(Colors.GOLD)}

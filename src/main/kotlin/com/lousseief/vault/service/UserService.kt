@@ -13,31 +13,6 @@ object UserService {
 
     fun loadUser(userName: String): Profile =
         FileService.readFile(userName)
-        /*with(FileService.readFile(userName)) {
-            this
-                ?.let {
-                    VerificationService.authorize(this, password)
-                        ?.let { VaultService.decryptVault(this, it) }
-                }
-                ?.also { (settings, associations) ->
-                    this.settings = settings
-                    this.associations = associations.mapValues { it.value.association }.toMutableMap()
-                }
-            return this
-        }*/
-
-    /*val user: Profile? = FileService.readFile(userName)
-    if (user !== null) {
-        val encrytionKey = authorize(user, password)
-        val delivery = accessVault(user, password)
-        if (delivery !== null) {
-            val (settings, associations) = delivery
-            user.settings = settings
-            user.associations = associations.mapValues { it.value.association }.toMutableMap()
-            return user
-        }
-    }
-    return null*/
 
     fun createKeyMaterial(masterPassword: String): VerificationData {
         val (saltBytes, keyMaterialBytes) = KeyDerivation.deriveKey(masterPassword)

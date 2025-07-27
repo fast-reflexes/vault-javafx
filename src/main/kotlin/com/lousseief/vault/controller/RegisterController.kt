@@ -62,41 +62,7 @@ class RegisterController(private val router: Router) {
                 contentText = e.message
             }.showAndWait()
         }
-
-        /*val plainText =
-            "${ConversionService.bytesToBase64(saltBytes)}\n" +
-            "${ConversionService.bytesToBase64(hashSaltBytes)}\n" +
-            "${ConversionService.bytesToBase64(hashBytes)}"
-        println(plainText.length)
-        val enc = AES256Service.encrypt(passwordBytes, ConversionService.AsciiToBytes(plainText))
-        if(enc !== null) {
-            val (cipherBytes, ivBytes) = enc
-            val cipherText = ConversionService.bytesToBase64(cipherBytes)
-            println(cipherText)
-            val plainBytes = AES256Service.decrypt(
-                passwordBytes,
-                ivBytes,
-                ConversionService.Base64ToBytes(cipherText)
-            )
-            if (plainBytes !== null) {
-                val decText = ConversionService.bytesToAscii(plainBytes)
-                val div = decText.split("\n");
-                println(div.size)
-                val decSalt = div[0]
-                val decHashSalt = div[1]
-                val decHash = div[2]
-                val (verSalt, verPw) = PBKDF2Service.deriveKey(password.value, ConversionService.Base64ToBytes(decSalt))
-                val (verHashsalt, verHash) = PBKDF2Service.deriveKey(ConversionService.bytesToAscii(verPw), ConversionService.Base64ToBytes(decHashSalt))
-                println(ConversionService.bytesToBase64(verHash))
-                println(decHash)
-
-            }
-        }*/
-
-        //println(ConversionService.bytesToISO88591(p))
-        //File("../elias.txt").forEachLine { l -> println(l) }
         println("Name is: " + username.get() + " " + password.get())
-        //replaceWith<MainView>()
     }
 
     @FXML

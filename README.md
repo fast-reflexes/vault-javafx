@@ -88,6 +88,13 @@ module. This can be ignored.
 
 ## Technical documentation
 
+### Domain classes
+
+Domain classes that are not prefixed with `Ui` are the "regular" domain classes that are general Kotlin / Java objects
+and which map 1:1 to the actual data that is persisted. Corresponding classes prefixed with `Ui` are ui versions of the
+same classes where most properties are replaced with JavaFX property observables and sometimes data is duplicated in
+multiple forms for convenience.
+
 ### Format and function
 
 A `.vault` file contains 6 rows of data: `keyMaterialSalt`, `verificationSalt`, `verificationHash`, `iv`, 
@@ -263,7 +270,7 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * Use Java modules and add module-info.java to perhaps get rid of error when starting with jar
 * Fixa ny ikon till jaren
 * Switch to red buttons in some dialogs where you confirm delete are confirmed
-* Add logging via some central utility and frequently used logger library (dependency)
+* Add logging via some central utility and frequently used logger library (dependency) and remove println's
 * Perhaps use last updated flag in the association as well (not only in credential?)
 * How is translations to ASCII done if wrong bytes are used? Is it sure? (not sure what this question is about?)
 * Unify the terminology for the parameter used to keep the vault open, perhaps the term vaultOpeningTimeMinutes can be
