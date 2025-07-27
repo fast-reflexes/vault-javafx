@@ -5,7 +5,6 @@ import com.lousseief.vault.list.AssociationCategoryButtonCell
 import com.lousseief.vault.list.AssociationCategoryListCellFactory
 import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
-import com.lousseief.vault.model.ui.UiCredential
 import com.lousseief.vault.utils.Colors
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
