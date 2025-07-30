@@ -5,6 +5,12 @@ functionality has almost not been touched (e.g. crypto classes).
 
 Current versions used are JavaFX 24.0.2 and Java 23 with Gradle 8.14.3 and Kotlin plugin 2.2.0.
 
+#### Main and credentials views
+<div align="center" style="display: flex; gap: 8px; justify-content: space-between" width="100%">
+  <img align="center" style="border: 4px solid lightgray" src="main_screen.png" width="75%">
+  <img align="center" style="border: 4px solid lightgray" src="credentials_screen.png" width="22%">
+</div>
+
 ## Documentation:
 
 Vault is an offline desktop application used to manage memberships of different kind, be it subscriptions, usernames, 
@@ -319,6 +325,11 @@ not to set min and max heights but instead set `resizeable = false` on the windo
 * SceneBuilder is a GUI with which you can build JavaFX applications using drag and drop.
 * Don't nest dialogs, it's SUPPOSED to work but it's better to chain dialogs instead, closing the first before opening 
 the second and I HAVE experienced that the application hangs without any error message. when nesting dialogs.
+* When double-clicking the window on Mac, a certain zoom-operation takes place which is different from just resizing
+the window an equal amount. This zoom does not always reset to initial level when done again with JavaFX. This is a known
+unsolved bug and it gets especially ugly when doing it when you're logged in and then logging out, then the login screen
+appears at the bottom instead of in the middle (since the screen is full but the login window only occupies a small 
+part of it).
 
 ### Questions
 
@@ -342,7 +353,6 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 
 * document how to do it on windows and mac
 * verify button orders
-* kolla hur det här med att dubbelklicka på macruta funkar (går inte att förminska igen)
 * Make sur einstaller terminates as it should on Windows.
 * Make sure appdata folder is working as intended
 * Doueble-check Wix name and version and add to docs above
@@ -368,3 +378,4 @@ timing issues, however, we must only add layout-related code in runLater, not he
   * Odd things might happen when we log in again as another user (not likely and not yet seen but MIGHT happen I assume 
     if the data is still in memory or something).
 * Add support for Linux
+* Fix issue described previously about double-clicking the window in Mac (zoom function) which is a bug in JavaFX.
