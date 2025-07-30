@@ -90,6 +90,13 @@ The vault can be exported to a cleartext text file in case you want to store you
 other than Vault. As said, this operation always requires your password and storing passwords in cleartext obviously
 implies a certain risk which you must be aware of.
 
+## Develop
+
+1. Source an env file which sets the env var `IS_DEVELOPMENT=true`.
+2. Set the right Java version (23) with SDK Man.
+3. Reload Gradle project in UI if the build file looks odd.
+4. Have fun developing!
+
 ## Run
 
 To run during development, execute `./gradlew run`
