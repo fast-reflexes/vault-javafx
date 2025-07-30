@@ -1,7 +1,7 @@
 # Vault - registration, subscription and password organiser
 
-Rewritten with only JavaFX instead of the initial project which used TornadoFX which is now deprecated. Most core 
-functionality has almost not been touched (e.g. crypto classes).
+Rewritten with only JavaFX instead of the initial project (https://github.com/fast-reflexes/Vault) which used TornadoFX 
+which is now deprecated. Most core functionality has almost not been touched (e.g. crypto classes).
 
 Current versions used are JavaFX 24.0.2 and Java 23 with Gradle 8.14.3 and Kotlin plugin 2.2.0.
 
@@ -105,6 +105,7 @@ module. This can be ignored.
 
 ## Build
 
+### Mac
 Vault can currently be build for Mac and Windows. The built jar file needs to include JavaFX libraries and thus we build
 a so-called **fat** jar (with all dependencies included as opposed to a thin jar which you have to link dependencies
 to when running it). We then use `jpackage` (a tool included in all Java JDK's after 14) to create an installer.
@@ -132,6 +133,21 @@ look for `libs/<JAR>` for the job to create an installer. This command results i
 any other `dmg` image on Mac; mount it, drag the program to the applications folder, unmount it and now you can start 
 Vault using any means. To customize the icon, special use of `jpackage` is needed.
 
+#### Step list
+1. Verify that the unsuffixed dependency of JavaFX is commented out in the Gradle build file.
+2. Make sure that build file is synced so that the correct dependencies are downloaded.
+3. Build the fat jar using `./gradlew fatJar`
+4. Test the jar if you want to using `java -jar <JAR>`
+5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type dmg`
+6. Copy the `Vault.dmg` file onto the desktop
+7. Double-click it and drag the program icon to the left to the applications folder to ther right, confirm overwrite if
+a previous version of Vault was already installed.
+8. Eject the mounted `.dmg` image.
+9. Delete the `.dmg` file.
+10. Done
+
+### Windows
+
 For Windows, it is slightly more complicated. First of all we must make sure to build a jar with the Windows-specific
 version of JavaFX. After that, some extra care must be given to Vault for it to appear as we want on Windows. For example
 some widths may differ or transitions between scenes may be ugly. Test it with `java -jar <JAR>` until you're happy.
@@ -140,12 +156,12 @@ At this point the `jpackage` command may fail:
     jpackage --input ./ --name Vault --main-jar vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type exe
 
 On Windows we need to install some kind of utility called Wix. Some people say we might have to have .Net platform installed
-too but this was not necessary in my case. Wix, however, is a big buggy and has problems with odd paths and filenames.
-Therefore, create a NEW directory and put ONLY the jar in this directory. Then enter that directory and execute the above
-command. Then we will have simple path and file names and the almost empty input folder will not cause any problems
-(it seems Wix will process ALL the content of the input folder even if it's not related to the build and therefore ANY
-file with an odd filename will cause a problem). Note also that `jpackage` is not automatically added to the `PATH` env
-var so this has to be done manually.
+too but this was not necessary in my case. Wix Toolset (v. 3.14 was used at the time of this writing), however, it is a 
+bit buggy and has problems with odd paths and filenames. Therefore, create a NEW directory and put ONLY the jar in this 
+directory. Then enter that directory and execute the above command. Then we will have simple path and file names and 
+the almost empty input folder will not cause any problems (it seems Wix will process ALL the content of the input folder 
+even if it's not related to the build and therefore ANY file with an odd filename will cause a problem). Note also that 
+`jpackage` is not automatically added to the `PATH` env var so this has to be done manually.
 
 No matter if we create an `exe` or an `msi`, the installation will hopefully proceed without problems but it will end
 silently so it's easy to believe the program has not been installed. Make sure the installer has finished (by attempting
@@ -154,6 +170,19 @@ a new folder for `Vault` has been created. Create a shortcut to the app and plac
 
 Some particular adaptations to Windows had to be done; some cosmetic ones but also for example where the settings file 
 should be stored.
+
+#### Step list
+1. Verify that the JavaFX dependency suffixed with `:win` of JavaFX is commented out in the Gradle build file.
+2. Make sure that build file is synced so that the correct dependencies are downloaded.
+3. Build the fat jar using `./gradlew fatJar`
+4. Copy the jar to a Windows computer with Java JDK 23 or higher installed.
+5. Test the jar if you want to using `java -jar <JAR>`
+6. Move the jar to a separate folder on the Windows computer, for example `build` on the desktop.
+6. Move into the folder mentioned in previous step and run: `jpackage --input ./ --name Vault --main-jar vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type exe`
+7. Uninstall previous version of Vault via `Add or remove programs`.
+8. Double-click the created `Vault.exe` file and let the program install.
+9. Delete the `Vault.exe` installer, if it complains about being used, kill the program `Installer of Vault`.
+10. Done
 
 ## Technical documentation
 
@@ -334,6 +363,9 @@ the window an equal amount. This zoom does not always reset to initial level whe
 unsolved bug and it gets especially ugly when doing it when you're logged in and then logging out, then the login screen
 appears at the bottom instead of in the middle (since the screen is full but the login window only occupies a small 
 part of it).
+* Mac and Windows uses opposite button order; on Mac, dialogs have the OK button furthest to the right and Cancel
+buttons to the left of it whereas on Windows, the Ok button is always furtherst to the left and the other buttons
+are to the right of it.
 
 ### Questions
 
@@ -354,12 +386,6 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 ### Backlog:
 
 ***NOTHING atm***
-
-* document how to do it on windows and mac
-* verify button orders
-* Make sur einstaller terminates as it should on Windows.
-* Make sure appdata folder is working as intended
-* Doueble-check Wix name and version and add to docs above
 
 ### Inbox (to do MAYBE at some later point)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
@@ -383,3 +409,4 @@ timing issues, however, we must only add layout-related code in runLater, not he
     if the data is still in memory or something).
 * Add support for Linux
 * Fix issue described previously about double-clicking the window in Mac (zoom function) which is a bug in JavaFX.
+* Investigate and fix the issue with the Windows installer hanging despite Vault being properly installed.
