@@ -5,10 +5,14 @@ functionality has almost not been touched (e.g. crypto classes).
 
 Current versions used are JavaFX 24.0.2 and Java 23 with Gradle 8.14.3 and Kotlin plugin 2.2.0.
 
-#### Main and credentials views
-<div align="center" style="display: flex; gap: 8px; justify-content: space-between" width="100%">
-  <img align="center" style="border: 4px solid lightgray" src="main_screen.png" width="75%">
-  <img align="center" style="border: 4px solid lightgray" src="credentials_screen.png" width="22%">
+#### Main view
+<div align="center" width="100%">
+  <img align="center" style="border: 4px solid lightgray" src="main_screen.png" width="100%">
+</div>
+
+#### Credentials view
+<div align="center" width="100%">
+  <img align="center" style="border: 4px solid lightgray" src="credentials_screen.png" width="30%">
 </div>
 
 ## Documentation:
