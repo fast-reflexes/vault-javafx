@@ -54,7 +54,7 @@ class RegisterController(private val router: Router) {
                 headerText = "User added"
                 contentText = "The user was successfully added! Please go ahead and login!"
             }.showAndWait()
-            router.showLogin()
+            router.showLogin(false)
         } catch (e: Exception) {
             Alert(Alert.AlertType.ERROR).apply {
                 title = "Something went wrong"
@@ -75,7 +75,7 @@ class RegisterController(private val router: Router) {
             password.bind(passwordField.textProperty())
             passwordRepetition.bind(passwordRepetitionField.textProperty())
 
-            loginLink.setOnAction { router.showLogin() }
+            loginLink.setOnAction { router.showLogin(false) }
             usernameField.addEventFilter(KeyEvent.KEY_PRESSED) { event ->
                 if(event.code.equals(KeyCode.ENTER) && username.isNotEmpty.value)
                     passwordField.requestFocus()

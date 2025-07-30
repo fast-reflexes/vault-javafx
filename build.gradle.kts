@@ -39,7 +39,12 @@ dependencies {
     implementation("de.jensd:fontawesomefx-octicons:4.3.0-9.1.2")
     implementation("de.jensd:fontawesomefx-icons525:4.2.0-9.1.2")
     implementation("de.jensd:fontawesomefx-weathericons:2.0.10-9.1.2")
+
+    // for running on and compiling for mac
     implementation("org.openjfx:javafx-graphics:24.0.2")
+
+    // for compiling the windows jar
+    //implementation("org.openjfx:javafx-graphics:24.0.2:win")
     implementation("org.controlsfx:controlsfx:9.0.0")
     implementation("commons-codec:commons-codec:1.18.0")
 

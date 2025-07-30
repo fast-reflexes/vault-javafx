@@ -6,6 +6,7 @@ import com.lousseief.vault.list.AssociationCategoryListCellFactory
 import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
 import com.lousseief.vault.utils.Colors
+import com.lousseief.vault.utils.OSPlatform
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
@@ -172,6 +173,8 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
                     password
                 )
                 val stage = Stage()
+                stage.hide()
+                stage.isResizable = true
                 val loader = FXMLLoader(javaClass.getResource("/Credentials.fxml"))
                 loader.setController(
                     CredentialsController(
@@ -190,10 +193,22 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
                 stage.isResizable = false
                 stage.initModality(Modality.WINDOW_MODAL)
                 stage.initOwner((it.source as Node).scene.window)
-                stage.maxWidth = 330.0
-                stage.minWidth = 330.0
-                stage.maxHeight = 614.0
-                stage.minHeight = 614.0
+                stage.centerOnScreen()
+                if(OSPlatform.isMac) {
+                    stage.maxWidth = 330.0
+                    stage.minWidth = 330.0
+                    stage.maxHeight = 614.0
+                    stage.minHeight = 614.0
+                    stage.isResizable = false
+                } else if(OSPlatform.isWindows) {
+                    stage.maxWidth = 346.0
+                    stage.minWidth = 346.0
+                    stage.maxHeight = 625.0
+                    stage.minHeight = 625.0
+                    stage.isResizable = false
+                } else {
+                    throw UnsupportedOperationException("Unsupported operating system: ${OSPlatform.os}")
+                }
                 stage.showAndWait()
             }
         }

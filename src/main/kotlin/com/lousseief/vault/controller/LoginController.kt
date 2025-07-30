@@ -69,7 +69,7 @@ class LoginController(private val router: Router) {
             username.bind(usernameField.textProperty())
             password.bind(passwordField.textProperty())
 
-            registerLink.setOnAction { router.showRegister() }
+            registerLink.setOnAction { router.showRegister(false) }
             usernameField.addEventFilter(KeyEvent.KEY_PRESSED) { event ->
                 if (event.code.equals(KeyCode.ENTER) && username.isNotEmpty.value)
                     passwordField.requestFocus()

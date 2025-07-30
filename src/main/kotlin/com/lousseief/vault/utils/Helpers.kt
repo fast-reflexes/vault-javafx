@@ -1,6 +1,7 @@
 package com.lousseief.vault.utils
 
 import com.lousseief.vault.model.ui.UiAssociation
+import javafx.application.Platform
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
@@ -77,20 +78,17 @@ fun timeToStringDateTime(time: Instant?): String =
         ?: "-"
 
 fun setupStage(stage: Stage, fixedMax: Boolean = false) {
+    stage.isResizable = true
     stage.minWidth = 0.0
     stage.minHeight = 0.0
     stage.maxWidth = Double.MAX_VALUE
     stage.maxHeight = Double.MAX_VALUE
     stage.sizeToScene()
     stage.centerOnScreen()
-    stage.minWidth = stage.width
-    stage.minHeight = stage.height
-    if(fixedMax) {
-        stage.maxWidth = stage.width
-        stage.maxHeight = stage.height
-    } else {
-        stage.maxWidth = Double.MAX_VALUE
-        stage.maxHeight = Double.MAX_VALUE
+    Platform.runLater {
+        stage.minWidth = stage.width
+        stage.minHeight = stage.height
+        stage.isResizable = !fixedMax
     }
 }
 

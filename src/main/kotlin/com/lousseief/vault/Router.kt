@@ -22,6 +22,7 @@ class Router : Application() {
     private lateinit var stage: Stage
 
     override fun start(stage: Stage) {
+        stage.hide()
         root = StackPane()
         this.stage = stage
         val scene = Scene(root)
@@ -29,7 +30,6 @@ class Router : Application() {
         stage.title = "Vault"
         scene.fill = Color.valueOf(Colors.GRAY)
         scene.stylesheets.add("/styles/styles.css")
-        stage.show()
         showLogin()
         val systemIsSetup = FileService.setupSystemSettings()
         if(!systemIsSetup) {
@@ -61,29 +61,48 @@ class Router : Application() {
 
     }
 
-    fun showLogin() {
+    fun showLogin(resize: Boolean = true) {
+        if(resize) {
+            stage.hide()
+        }
         val loader = FXMLLoader(javaClass.getResource("/Login.fxml"))
         loader.setController(LoginController(this))
         val view: Parent = loader.load()
         root.children.setAll(view)
-        setupStage(stage, true)
-
+        if(resize) {
+            setupStage(stage, true)
+        } else {
+            stage.sizeToScene()
+        }
+        stage.show()
     }
 
-    fun showRegister() {
+    fun showRegister(resize: Boolean = true) {
+        if(resize) {
+            stage.hide()
+        }
         val loader = FXMLLoader(javaClass.getResource("/Register.fxml"))
         loader.setController(RegisterController(this))
         val view: Parent = loader.load()
         root.children.setAll(view)
-        setupStage(stage, true)
+        if(resize) {
+            setupStage(stage, true)
+        } else {
+            stage.sizeToScene()
+        }
+        stage.show()
+
     }
 
     fun showMain(user: UiProfile) {
+        stage.hide()
         val loader = FXMLLoader(javaClass.getResource("/Main.fxml"))
         loader.setController(MainController(this, user))
         val view: Parent = loader.load()
         root.children.setAll(view)
         setupStage(stage)
+        stage.show()
+
     }
 
 }

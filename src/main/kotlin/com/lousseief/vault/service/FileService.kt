@@ -5,6 +5,7 @@ import com.lousseief.vault.exception.FileException
 import com.lousseief.vault.exception.InternalException
 import com.lousseief.vault.model.Profile
 import com.lousseief.vault.model.Vault
+import com.lousseief.vault.utils.OSPlatform
 import java.io.File
 import java.io.IOException
 import java.time.Instant
@@ -21,30 +22,27 @@ object FileService {
             return "."
         }
 
-        // Get the OS name
-        val osName = System.getProperty("os.name").lowercase()
-
-        // Check for macOS
-        if (osName.contains("mac")) {
+        val vaultDirPath = if (OSPlatform.isMac) {
             // path should be ~/Library/Application Support/Vault/vault.settings
-            val vaultDirPath = System.getProperty("user.home") + "/Library/Application Support/Vault"
-            val vaultDir = File(vaultDirPath)
-            if (!vaultDir.exists()) {
-                val created = vaultDir.mkdirs()
-                if (!created) {
-                    throw IllegalStateException("Failed to create directory: $vaultDirPath")
-                }
+            System.getProperty("user.home") + "/Library/Application Support/Vault"
+        } else if (OSPlatform.isWindows) {
+            // path should be %appdata%\Vault\vault.settings
+            val appData = System.getenv("APPDATA")
+                ?: throw IllegalStateException("APPDATA environment variable not set on Windows")
+            "$appData\\Vault"
+        } else {
+            // if none of the above, throw an exception
+            throw UnsupportedOperationException("Unsupported operating system: ${OSPlatform.os}")
+        }
+
+        val vaultDir = File(vaultDirPath)
+        if (!vaultDir.exists()) {
+            val created = vaultDir.mkdirs()
+            if (!created) {
+                throw IllegalStateException("Failed to create directory: $vaultDirPath")
             }
-            return vaultDirPath
         }
-
-        // Check for Windows
-        if (osName.contains("win")) {
-            return "windows"
-        }
-
-        // If none of the above, throw an exception
-        throw UnsupportedOperationException("Unsupported operating system: $osName")
+        return vaultDirPath
     }
 
     fun getCurrentProfilesLocation(): String {

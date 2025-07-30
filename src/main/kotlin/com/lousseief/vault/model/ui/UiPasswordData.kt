@@ -52,7 +52,6 @@ data class UiPasswordData(
             return savedMasterPassword
         }
         else {
-            savedMasterPassword = null
             val result = PasswordConfirmDialog { password: String, event: ActionEvent ->
                 // below will throw if password is wrong
                 VerificationService.authorize(password, user.keyMaterialSalt, user.verificationHash, user.verificationSalt)

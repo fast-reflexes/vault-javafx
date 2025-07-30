@@ -95,13 +95,55 @@ module. This can be ignored.
 
 ## Build
 
-Build on a Mac computer with Java 23 installed:
+Vault can currently be build for Mac and Windows. The built jar file needs to include JavaFX libraries and thus we build
+a so-called **fat** jar (with all dependencies included as opposed to a thin jar which you have to link dependencies
+to when running it). We then use `jpackage` (a tool included in all Java JDK's after 14) to create an installer.
 
-jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type dmg
+Since JavaFX uses low-level OS graphics utilities, we must bundle the specific Windows version of JavaFX when we build
+for Windows. We must thus create fat jars separately for Mac and for Windows using the UN-suffixed version of the
+dependency for Mac (even though one with the `:mac` suffix exists but it doesn't work) and the one suffixed with `:win`
+for Windows.
 
-For Windows, build on a Windows computer with
+Export the fat jar using `./gradlew fatJar`.
 
-jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type exe
+Once the jar is exported, it can be tested in the correct environment using `java -jar <NAME OF JAR>`. Thus should work
+as expected in the environment that we wish to build for.
+
+Once we have the jar, package it into an installer with a Java runtime INCLUDED in the bundle using `jpackage`. 
+Building the jar can be done on any computer as long as the correct dependency for the target platform is included.
+Building the installer needs to be done on the actual platform that we're building for.
+
+Thus, to build on a Mac computer with Java 23 (or later) installed, execute (adjust paths if necessary):
+
+    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type dmg
+
+This will include the input directory `./build/` in the build and then, relative the root of the input directory, it will
+look for `libs/<JAR>` for the job to create an installer. This command results in a `dmg` image which can be used like
+any other `dmg` image on Mac; mount it, drag the program to the applications folder, unmount it and now you can start 
+Vault using any means. To customize the icon, special use of `jpackage` is needed.
+
+For Windows, it is slightly more complicated. First of all we must make sure to build a jar with the Windows-specific
+version of JavaFX. After that, some extra care must be given to Vault for it to appear as we want on Windows. For example
+some widths may differ or transitions between scenes may be ugly. Test it with `java -jar <JAR>` until you're happy.
+At this point the `jpackage` command may fail:
+
+    jpackage --input ./ --name Vault --main-jar vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type exe
+
+On Windows we need to install some kind of utility called Wix. Some people say we might have to have .Net platform installed
+too but this was not necessary in my case. Wix, however, is a big buggy and has problems with odd paths and filenames.
+Therefore, create a NEW directory and put ONLY the jar in this directory. Then enter that directory and execute the above
+command. Then we will have simple path and file names and the almost empty input folder will not cause any problems
+(it seems Wix will process ALL the content of the input folder even if it's not related to the build and therefore ANY
+file with an odd filename will cause a problem). Note also that `jpackage` is not automatically added to the `PATH` env
+var so this has to be done manually.
+
+No matter if we create an `exe` or an `msi`, the installation will hopefully proceed without problems but it will end
+silently so it's easy to believe the program has not been installed. Make sure the installer has finished (by attempting
+to delete it and see if this can be done without error messages) and then check the program directory to verify that
+a new folder for `Vault` has been created. Create a shortcut to the app and place on the desktop and you're good to go.
+
+Some particular adaptations to Windows had to be done; some cosmetic ones but also for example where the settings file 
+should be stored.
 
 ## Technical documentation
 
@@ -253,6 +295,25 @@ if an observable is added as a dependency to a binding, the evaluation of the bi
 just because the observable changes value. The only way an observable becomes eaglery evaluated is by adding a change 
 listener.
 
+### Transitions between scenes
+
+When changing between scenes, there may sometimes be a flickering before the window is resized to its correct size
+(using `.centerOnScreen()` and `.resizeToScene()`). This is noticeable especially on Windows where it's really ugly.
+To solve this, the new strategy is to hide all scenes before they are rendered (using `.hide()`) and then do the layout
+and set min and max heights and so on, then run the auto sizing and THEN show the window. This works fine and solves all
+the problems (makes it look nice even on Windows), but there are a few small caveats:
+
+* When we run `.show()` or `.showAndWait()` on a Window that has been hidden, it will automatically center and size 
+itself to the scene. If we DON'T want this, we must take special action and avoid this procedure (this has been done
+when altering between register and login views since if we have repositioned the window then, it should not be 
+centered again).
+
+* Auto-centering and sizing WILL be deferred to the moment we show the window so some adjustments to different
+width and heigh properties after such a call (`.resizeToScene()`) but before showing the window might have strange
+effects. For example, at one time setting min width and height AFTER such a call would use the values of the OLD scene
+and then the minimums did NOT reflect the new scene's size as intended. The best way to avoid resizeable screens is thus
+not to set min and max heights but instead set `resizeable = false` on the window.
+
 ### Miscellanous
 
 * SceneBuilder is a GUI with which you can build JavaFX applications using drag and drop.
@@ -277,10 +338,14 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 
 ### Backlog:
 
-***NOTHING atm*** 
+***NOTHING atm***
 
-* Make sure that references to the old scene is lost how to?
-* Bygg i Windows också
+* document how to do it on windows and mac
+* verify button orders
+* kolla hur det här med att dubbelklicka på macruta funkar (går inte att förminska igen)
+* Make sur einstaller terminates as it should on Windows.
+* Make sure appdata folder is working as intended
+* Doueble-check Wix name and version and add to docs above
 
 ### Inbox (to do MAYBE at some later point)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
@@ -297,3 +362,9 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 used?
 * Out everything in Platform.runLater instead of initialize that concerns bindings and listeners (especially if we see odd
 timing issues, however, we must only add layout-related code in runLater, not heavy other stuff)
+* Fix nicer icon for the Mac installer / program
+* Make sure that references to the old scene is lost when we log out. How do we do that? Otherwise:
+  * Delicate data can be left in memory
+  * Odd things might happen when we log in again as another user (not likely and not yet seen but MIGHT happen I assume 
+    if the data is still in memory or something).
+* Add support for Linux
