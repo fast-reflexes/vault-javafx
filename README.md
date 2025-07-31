@@ -363,6 +363,8 @@ not to set min and max heights but instead set `resizeable = false` on the windo
 ### Miscellanous
 
 * SceneBuilder is a GUI with which you can build JavaFX applications using drag and drop.
+* ScenicView is a program that can help you view the state of your JavaFX application and how the scene is built (
+https://github.com/JonathanGiles/scenic-view)
 * Don't nest dialogs, it's SUPPOSED to work but it's better to chain dialogs instead, closing the first before opening 
 the second and I HAVE experienced that the application hangs without any error message. when nesting dialogs.
 * When double-clicking the window on Mac, a certain zoom-operation takes place which is different from just resizing
@@ -371,8 +373,11 @@ unsolved bug and it gets especially ugly when doing it when you're logged in and
 appears at the bottom instead of in the middle (since the screen is full but the login window only occupies a small 
 part of it).
 * Mac and Windows uses opposite button order; on Mac, dialogs have the OK button furthest to the right and Cancel
-buttons to the left of it whereas on Windows, the Ok button is always furtherst to the left and the other buttons
+buttons to the left of it whereas on Windows, the Ok button is always furthest to the left and the other buttons
 are to the right of it.
+* The JavaFX application thread is a particular thread that only deals with UI updates. It should not be burdened with
+heavy other tasks (for example when running `Platform.runLater {}`, it runs on the UI thread). See link on concurrency
+for more info.
 
 ### Questions
 
@@ -387,6 +392,12 @@ CharacterEncoder. Detta innebär att i krypteringsavseende är det bra om man se
 hantera allt tänkbart bytesinput som man skickar in, eftersom annars begränsas säkerheten genom att OLIKA bytes mappas 
 till SAMMA karaktär vilket är ofördelaktigt. Kom också ihåg att även tecken som inte SYNS faktiskt ÄR tecken och lagras 
 som sådana i en sträng. Ska strängen användas för I7O av en människa finns det dock såklart en begränsning här.
+
+### Links
+* Set icon to program window: https://stackoverflow.com/questions/53198858/how-to-use-a-fontawesomeiconview-object-as-a-stages-icon
+* Grouping elements using `Group`: https://docs.oracle.com/javase/8/javafx/api/javafx/scene/Group.html
+* Concurrency in JavaFX: https://docs.oracle.com/javafx/2/threads/jfxpub-threads.htm
+* Testing with JavaFX: https://medium.com/information-and-technology/test-driven-development-in-javafx-with-testfx-66a84cd561e0
 
 ## TODO
 
@@ -417,3 +428,5 @@ timing issues, however, we must only add layout-related code in runLater, not he
 * Add support for Linux
 * Fix issue described previously about double-clicking the window in Mac (zoom function) which is a bug in JavaFX.
 * Investigate and fix the issue with the Windows installer hanging despite Vault being properly installed.
+* Set icon to program window (see link)
+* 

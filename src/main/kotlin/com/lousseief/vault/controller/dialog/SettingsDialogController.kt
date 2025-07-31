@@ -119,7 +119,7 @@ class SettingsDialogController(val user: UiProfile) {
 
     fun finalize(readyDialog: Dialog<Int>) {
         val icon = Label().apply {
-            styleClass.addAll("alert", "confirmation", "dialog-pane")
+            styleClass.addAll("alert", "confirmation", "dialog-pane") // can use "error" or "warning" instead of "confirmation" obv
         }
         readyDialog.headerText = "Profile settings"
         readyDialog.graphic = icon
