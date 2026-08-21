@@ -82,6 +82,9 @@ class MainController(private val router: Router, private val user: UiProfile) {
     private lateinit var productName: Label
 
     @FXML
+    private lateinit var productVersion: Label
+
+    @FXML
     private lateinit var loggedInUserLabel: Label
 
     private val filtered = FilteredList(user.orderedAssociations)
@@ -266,7 +269,8 @@ class MainController(private val router: Router, private val user: UiProfile) {
             "causing any problems in using this app, do it in the following way. First save any work and log out and " +
             "close the app. Then restart it and without doing any changes, update the profiles location. Then immediately " +
             "log out and close the app without doing any work. Now, copy your profiles (if you want to) from the previous " +
-            "location to the new. After this, you are ready to start using Vault with your new profiles location."
+            "location to the new. After this, you are ready to start using Vault with your new profiles location.",
+            FileService.getCurrentProfilesLocation()
         )
             .showAndWait()
         if(directory.isPresent && directory.get().isNotEmpty() && directory.get() != FileService.getCurrentProfilesLocation()) {
@@ -299,6 +303,7 @@ class MainController(private val router: Router, private val user: UiProfile) {
     @FXML
     fun initialize() {
         productName.font = Font.BitCount
+        productVersion.font = Font.BitCount
         loggedInUserLabel.text = "Logged in as '${user.name.value}'"
         logoutButton.setOnAction {
             val proceed = onTerminateSession(false)

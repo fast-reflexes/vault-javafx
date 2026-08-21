@@ -124,5 +124,5 @@ fun setupErrorMessageHandling(
 }
 
 fun ObservableList<UiAssociation>.sortInPlaceByMainIdentifier() {
-    sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value) }
+    sortWith { a, b -> a.mainIdentifier.value.compareTo(b.mainIdentifier.value, ignoreCase = true) }
 }

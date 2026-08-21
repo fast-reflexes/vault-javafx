@@ -25,9 +25,12 @@
                         styleClass="button"
                     />
                 </VBox>
-                <TextFlow>
-                    <Text text="Selected: -" fx:id="selectedLabel" />
-                </TextFlow>
+                <VBox>
+                    <TextFlow fx:id="currentDirectoryData" />
+                    <TextFlow>
+                        <Text text="Selected: -" fx:id="selectedLabel" />
+                    </TextFlow>
+                </VBox>
             </VBox>
         </VBox>
 

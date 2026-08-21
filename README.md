@@ -112,6 +112,9 @@ module. This can be ignored.
 
 ## Build
 
+Whenever building, make sure to update the version number in the Gradle file as well as in the app header. Make sure to 
+write release notes as well.
+
 ### Mac
 Vault can currently be build for Mac and Windows. The built jar file needs to include JavaFX libraries and thus we build
 a so-called **fat** jar (with all dependencies included as opposed to a thin jar which you have to link dependencies
@@ -399,11 +402,23 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * Concurrency in JavaFX: https://docs.oracle.com/javafx/2/threads/jfxpub-threads.htm
 * Testing with JavaFX: https://medium.com/information-and-technology/test-driven-development-in-javafx-with-testfx-66a84cd561e0
 
+### Release Notes
+
+#### v. 1.1
+* Add version label
+* Show current location of profiles when trying to update it
+* Sort associations without respect to casing
+
+
 ## TODO
 
 ### Backlog:
-
-***NOTHING atm***
+* Investigate why X works on credentials filter as CANCEL and if this is on purpose
+* Add possibility to cancel by button OR that text shows CLOSE instead of SAVE and that it does the same thing as cancel 
+  when no change has been made
+* When you create your first association and then save it, it gets deselected (?)
+* When in credentials view, when you update a credential and then close the popup you have to press twice on the credentials window close (inherits oncloserequest from parent or something?)
+* Skriv release grej (versioner)
 
 ### Inbox (to do MAYBE at some later point)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
@@ -429,4 +444,3 @@ timing issues, however, we must only add layout-related code in runLater, not he
 * Fix issue described previously about double-clicking the window in Mac (zoom function) which is a bug in JavaFX.
 * Investigate and fix the issue with the Windows installer hanging despite Vault being properly installed.
 * Set icon to program window (see link)
-* 

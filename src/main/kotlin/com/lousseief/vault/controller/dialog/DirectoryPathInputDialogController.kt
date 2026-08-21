@@ -11,6 +11,7 @@ import javafx.scene.control.Dialog
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
+import javafx.scene.text.TextFlow
 import javafx.stage.DirectoryChooser
 import javafx.stage.Stage
 import java.io.File
@@ -36,12 +37,16 @@ class DirectoryPathInputDialogController() {
     private lateinit var selectedLabel: Text
 
     @FXML
+    private lateinit var currentDirectoryData: TextFlow
+
+    @FXML
     fun initialize() {}
 
     fun finalize(
         readyDialog: Dialog<String?>,
         header: String,
-        description: String
+        description: String,
+        currentDirectoryPathInput: String?
     ) {
         val directoryChooser = DirectoryChooser()
         directoryChooser.initialDirectory = File(".")
@@ -56,6 +61,14 @@ class DirectoryPathInputDialogController() {
             }
 
         })
+        if(currentDirectoryPathInput != null) {
+            val currentLabel = Label()
+            currentLabel.text = "Current: '${currentDirectoryPathInput}'"
+            currentDirectoryData.children.addFirst(currentLabel)
+            currentLabel.scene.window.sizeToScene()
+            currentLabel.scene.window.centerOnScreen()
+        }
+
         val icon = Label().apply {
             styleClass.addAll("alert", "confirmation", "dialog-pane")
         }

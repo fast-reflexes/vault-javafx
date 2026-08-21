@@ -6,7 +6,8 @@ import javafx.scene.control.*
 
 class DirectoryPathInputDialog(
     header: String,
-    description: String
+    description: String,
+    currentDirectoryPathInput: String? = null
 ): Dialog<String?>() {
 
     init {
@@ -15,7 +16,7 @@ class DirectoryPathInputDialog(
         loader.setController(controller)
         val chooseProfilesLocationDialog: DialogPane = loader.load()
         dialogPane = chooseProfilesLocationDialog
-        controller.finalize(this, header, description)
+        controller.finalize(this, header, description, currentDirectoryPathInput)
     }
 
 }
