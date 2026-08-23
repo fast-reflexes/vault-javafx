@@ -366,7 +366,17 @@ class MainController(private val router: Router, private val user: UiProfile) {
 
         saveVaultButton.apply {
             setOnAction {
+                /* saving replaces all UiAssociation instances, which can clear the list selection
+                   (observed with a single association); remember the selection by identifier and
+                   restore it afterwards */
+                val selectedIdentifier = associationsList.selectionModel.selectedItem?.mainIdentifier?.value
                 user.save()
+                if(selectedIdentifier !== null) {
+                    val index = filtered.indexOfFirst { it.mainIdentifier.value == selectedIdentifier }
+                    if(index != -1) {
+                        associationsList.selectionModel.select(index)
+                    }
+                }
             }
             graphic = MaterialIconView(MaterialIcon.SAVE).apply {
                 fill = Paint.valueOf(Colors.BLUE)

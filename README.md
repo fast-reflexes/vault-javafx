@@ -147,7 +147,7 @@ Building the installer needs to be done on the actual platform that we're buildi
 
 Thus, to build on a Mac computer with Java 24 (or later) installed, execute (adjust paths if necessary):
 
-    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.1.1-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.1.1 --vendor Lousseief --icon packaging/vault.icns
+    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.1.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.1.2 --vendor Lousseief --icon packaging/vault.icns
 
 This will include the input directory `./build/` in the build and then, relative the root of the input directory, it will
 look for `libs/<JAR>` for the job to create an installer. This command results in a `dmg` image which can be used like
@@ -160,7 +160,7 @@ live in `packaging/`.
 2. Make sure that build file is synced so that the correct dependencies are downloaded.
 3. Build the fat jar using `./gradlew fatJar`
 4. Test the jar if you want to using `java -jar <JAR>`
-5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.1.1-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.1.1 --vendor Lousseief --icon packaging/vault.icns`
+5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.1.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.1.2 --vendor Lousseief --icon packaging/vault.icns`
    (`--icon` gives the app bundle the Vault icon in the Dock, Finder and Launchpad; the icon sources live in `packaging/`)
 6. Copy the `Vault.dmg` file onto the desktop
 7. Double-click it and drag the program icon to the left to the applications folder to ther right, confirm overwrite if
@@ -427,6 +427,9 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * Concurrency in JavaFX: https://docs.oracle.com/javafx/2/threads/jfxpub-threads.htm
 * Testing with JavaFX: https://medium.com/information-and-technology/test-driven-development-in-javafx-with-testfx-66a84cd561e0
 
+### Known bugs
+* When in credentials view, when you update a credential and then close the popup you have to press twice on the credentials window close
+
 ### Release Notes
 
 #### v. 1.1
@@ -438,18 +441,16 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 ## TODO
 
 ### Backlog:
-* Investigate why X works on credentials filter as CANCEL and if this is on purpose
+* Investigate why X works on credentials modal as CANCEL and if this is on purpose
 * Add possibility to cancel by button OR that text shows CLOSE instead of SAVE and that it does the same thing as cancel 
   when no change has been made
-* When you create your first association and then save it, it gets deselected (?)
-* When in credentials view, when you update a credential and then close the popup you have to press twice on the credentials window close (inherits oncloserequest from parent or something?)
+
 * Skriv release grej (versioner)
 * Remove default Java menu (and content) from the application
 * Fixa ny ikon till jaren
 * Fix nicer icon for the Mac installer / program
 * Set icon to program window (see link)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
-* Make filters enabled at all times and show the textinput screen at all times
 * Go through security audit and fix things
 
 ### Inbox (to do MAYBE at some later point)

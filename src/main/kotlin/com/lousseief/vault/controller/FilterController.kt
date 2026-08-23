@@ -4,16 +4,16 @@ import com.lousseief.vault.list.BooleanListButtonCell
 import com.lousseief.vault.list.BooleanListCellFactory
 import com.lousseief.vault.model.ui.UiAssociation
 import javafx.application.Platform
-import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.fxml.FXML
-import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
+import javafx.scene.control.Hyperlink
 import javafx.scene.control.TextField
 import javafx.scene.control.TitledPane
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
+import javafx.scene.layout.VBox
 import java.util.function.Predicate
 
 class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
@@ -40,20 +40,30 @@ class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
     private lateinit var isDeactivatedField: ComboBox<String>
 
     @FXML
-    private lateinit var useFilterCheckbox: CheckBox
+    private lateinit var advancedToggle: Hyperlink
+
+    @FXML
+    private lateinit var advancedBox: VBox
 
     private val searchParameter = SimpleStringProperty("All")
     private val keyword = SimpleStringProperty("")
     private val isNeeded = SimpleStringProperty(null)
     private val shouldBeDeactivated = SimpleStringProperty(null)
     private val isDeactivated = SimpleStringProperty(null)
-    private val useFilter = SimpleBooleanProperty(false)
 
     @FXML
     fun initialize() {
         filterPane.isCollapsible = true
-        filterPane.isExpanded = false
+        filterPane.isExpanded = true
         filterPane.isAnimated = false
+        advancedBox.isVisible = false
+        advancedBox.isManaged = false
+        advancedToggle.setOnAction {
+            val show = !advancedBox.isVisible
+            advancedBox.isVisible = show
+            advancedBox.isManaged = show
+            advancedToggle.text = if(show) "Hide advanced" else "Show advanced"
+        }
         filterBox.prefWidthProperty().bind(filterPane.widthProperty().subtract(38))
         filterBox.maxWidthProperty().bind(filterPane.widthProperty().subtract(38))
         Platform.runLater {
@@ -62,14 +72,12 @@ class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
             isNeeded.bind(isNeededField.valueProperty())
             isDeactivated.bind(isDeactivatedField.valueProperty())
             shouldBeDeactivated.bind(shouldBeDeactivatedField.valueProperty())
-            useFilter.bind(useFilterCheckbox.selectedProperty())
 
             keyword.addListener { _, _, _ -> onFilterChanged() }
             searchParameter.addListener { _, _, _ -> onFilterChanged() }
             isNeeded.addListener { _, _, _ -> onFilterChanged() }
             isDeactivated.addListener { _, _, _ -> onFilterChanged() }
             shouldBeDeactivated.addListener { _, _, _ -> onFilterChanged() }
-            useFilter.addListener { _, _, _ -> onFilterChanged() }
 
             keywordField.addEventFilter(KeyEvent.KEY_PRESSED) { event ->
                 println(keyword.isNotEmpty.value)
@@ -131,18 +139,14 @@ class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
     }
 
     private fun onFilterChanged() {
-        if (useFilter.value) {
-            try {
-                onFilter {
-                    val shouldBeShown = associationSatisfiesBooleanFilters(it) && associationSatisfiesKeywordFilter(it)
-                    shouldBeShown
-                }
+        try {
+            onFilter {
+                val shouldBeShown = associationSatisfiesBooleanFilters(it) && associationSatisfiesKeywordFilter(it)
+                shouldBeShown
             }
-            catch(e: Exception) {
-                e.printStackTrace()
-            }
-        } else {
-            onFilter { true }
+        }
+        catch(e: Exception) {
+            e.printStackTrace()
         }
     }
 }
