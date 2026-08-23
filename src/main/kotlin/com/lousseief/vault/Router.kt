@@ -13,6 +13,7 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Alert
+import javafx.scene.image.Image
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
@@ -28,6 +29,7 @@ class Router : Application() {
         val scene = Scene(root)
         stage.scene = scene
         stage.title = "Vault"
+        stage.icons.add(Image(javaClass.getResourceAsStream("/images/icon.png")))
         scene.fill = Color.valueOf(Colors.GRAY)
         scene.stylesheets.add("/styles/styles.css")
         showLogin()

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- rounded-square app tile -->
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="#2f2f33"/>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="none" stroke="#1b1b1e" stroke-width="8"/>
+  <!-- safe door plate -->
+  <rect x="164" y="164" width="696" height="696" rx="120" fill="#47474d"/>
+  <rect x="164" y="164" width="696" height="696" rx="120" fill="none" stroke="#26262a" stroke-width="10"/>
+  <!-- corner bolts -->
+  <circle cx="264" cy="264" r="26" fill="#8a8a92"/>
+  <circle cx="760" cy="264" r="26" fill="#8a8a92"/>
+  <circle cx="264" cy="760" r="26" fill="#8a8a92"/>
+  <circle cx="760" cy="760" r="26" fill="#8a8a92"/>
+  <!-- dial: outer ring -->
+  <circle cx="512" cy="512" r="220" fill="#debb00"/>
+  <circle cx="512" cy="512" r="220" fill="none" stroke="#a68c00" stroke-width="14"/>
+  <!-- dial: inner face -->
+  <circle cx="512" cy="512" r="150" fill="#2f2f33"/>
+  <!-- dial spokes -->
+  <g stroke="#debb00" stroke-width="44" stroke-linecap="round">
+    <line x1="512" y1="512" x2="512" y2="380"/>
+    <line x1="512" y1="512" x2="398" y2="578"/>
+    <line x1="512" y1="512" x2="626" y2="578"/>
+  </g>
+  <!-- dial hub -->
+  <circle cx="512" cy="512" r="54" fill="#debb00"/>
+  <circle cx="512" cy="512" r="54" fill="none" stroke="#a68c00" stroke-width="10"/>
+  <!-- handle hint: tick marks around the ring -->
+  <g stroke="#2f2f33" stroke-width="16" stroke-linecap="round">
+    <line x1="512" y1="292" x2="512" y2="330"/>
+    <line x1="732" y1="512" x2="694" y2="512"/>
+    <line x1="512" y1="732" x2="512" y2="694"/>
+    <line x1="292" y1="512" x2="330" y2="512"/>
+  </g>
+</svg>

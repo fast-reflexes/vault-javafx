@@ -3,7 +3,7 @@
 Rewritten with only JavaFX instead of the initial project (https://github.com/fast-reflexes/Vault) which used TornadoFX 
 which is now deprecated. Most core functionality has almost not been touched (e.g. crypto classes).
 
-Current versions used are JavaFX 24.0.2 and Java 23 with Gradle 8.14.3 and Kotlin plugin 2.2.0.
+Current versions used are JavaFX 26.0.2 and Java 25 with Gradle 9.7.1 and Kotlin plugin 2.3.0.
 
 #### Main view
 <div align="center" width="100%">
@@ -93,7 +93,7 @@ implies a certain risk which you must be aware of.
 ## Develop
 
 1. Source an env file which sets the env var `IS_DEVELOPMENT=true`.
-2. Set the right Java version (23) with SDK Man.
+2. Set the right Java version (25) with SDK Man.
 3. Reload Gradle project in UI if the build file looks odd.
 4. Have fun developing!
 
@@ -109,6 +109,17 @@ To run fat jar, execute `java -jar <JAR>>`
 
 An error is displayed on started due to that this project does not use Java modules and thus, this project is an unnamed
 module. This can be ignored.
+
+## Test
+
+Tests live in `src/test/kotlin` and use JUnit 4. To run them, execute
+
+```
+./gradlew test
+```
+
+Gradle only reruns tests when something changed; add `--rerun-tasks` to force a full rerun. A browsable
+report is written to `build/reports/tests/test/index.html` after each run.
 
 ## Build
 
@@ -134,21 +145,23 @@ Once we have the jar, package it into an installer with a Java runtime INCLUDED 
 Building the jar can be done on any computer as long as the correct dependency for the target platform is included.
 Building the installer needs to be done on the actual platform that we're building for.
 
-Thus, to build on a Mac computer with Java 23 (or later) installed, execute (adjust paths if necessary):
+Thus, to build on a Mac computer with Java 24 (or later) installed, execute (adjust paths if necessary):
 
-    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type dmg
+    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.1.1-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.1.1 --vendor Lousseief --icon packaging/vault.icns
 
 This will include the input directory `./build/` in the build and then, relative the root of the input directory, it will
 look for `libs/<JAR>` for the job to create an installer. This command results in a `dmg` image which can be used like
 any other `dmg` image on Mac; mount it, drag the program to the applications folder, unmount it and now you can start 
-Vault using any means. To customize the icon, special use of `jpackage` is needed.
+Vault using any means. The `--icon` flag gives the app bundle the Vault icon (Dock, Finder, Launchpad); the icon files
+live in `packaging/`.
 
 #### Step list
 1. Verify that the unsuffixed dependency of JavaFX is commented out in the Gradle build file.
 2. Make sure that build file is synced so that the correct dependencies are downloaded.
 3. Build the fat jar using `./gradlew fatJar`
 4. Test the jar if you want to using `java -jar <JAR>`
-5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type dmg`
+5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.1.1-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.1.1 --vendor Lousseief --icon packaging/vault.icns`
+   (`--icon` gives the app bundle the Vault icon in the Dock, Finder and Launchpad; the icon sources live in `packaging/`)
 6. Copy the `Vault.dmg` file onto the desktop
 7. Double-click it and drag the program icon to the left to the applications folder to ther right, confirm overwrite if
 a previous version of Vault was already installed.
@@ -163,7 +176,7 @@ version of JavaFX. After that, some extra care must be given to Vault for it to 
 some widths may differ or transitions between scenes may be ugly. Test it with `java -jar <JAR>` until you're happy.
 At this point the `jpackage` command may fail:
 
-    jpackage --input ./ --name Vault --main-jar vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type exe
+    jpackage --input ./ --name Vault --main-jar vault-javafx-X.X-fat.jar --main-class com.lousseief.vault.MainKt --type exe
 
 On Windows we need to install some kind of utility called Wix. Some people say we might have to have .Net platform installed
 too but this was not necessary in my case. Wix Toolset (v. 3.14 was used at the time of this writing), however, it is a 
@@ -185,14 +198,26 @@ should be stored.
 1. Verify that the JavaFX dependency suffixed with `:win` of JavaFX is commented out in the Gradle build file.
 2. Make sure that build file is synced so that the correct dependencies are downloaded.
 3. Build the fat jar using `./gradlew fatJar`
-4. Copy the jar to a Windows computer with Java JDK 23 or higher installed.
+4. Copy the jar to a Windows computer with Java JDK 24 or higher installed (required by JavaFX 26).
 5. Test the jar if you want to using `java -jar <JAR>`
-6. Move the jar to a separate folder on the Windows computer, for example `build` on the desktop.
-6. Move into the folder mentioned in previous step and run: `jpackage --input ./ --name Vault --main-jar vault-javafx-1.0-fat.jar --main-class com.lousseief.vault.MainKt --type exe`
-7. Uninstall previous version of Vault via `Add or remove programs`.
-8. Double-click the created `Vault.exe` file and let the program install.
-9. Delete the `Vault.exe` installer, if it complains about being used, kill the program `Installer of Vault`.
-10. Done
+6. Move the jar to a separate folder on the Windows computer, for example `build` on the desktop. The folder must
+   contain ONLY the jar — note that `--input ./` bundles EVERYTHING in the folder into the app, so a leftover
+   `Vault.exe` from a previous run would be packaged into the new installer (doubling its size).
+7. Move into the folder mentioned in previous step and run:
+
+       jpackage --input ./ --dest ../out --name Vault --main-jar vault-javafx-X.X-fat.jar --main-class com.lousseief.vault.MainKt --type exe --app-version X.X --vendor Lousseief --icon vault.ico --win-menu --win-menu-group Vault --win-shortcut --win-upgrade-uuid 6bfea7d0-a283-4620-a6fd-befbf99e0dec
+
+   Copy `packaging/vault.ico` from the repo into the folder first (or point `--icon` at its path).
+   `--win-menu` creates the Start menu entry (without it the app is invisible in the Start menu and in search),
+   `--win-menu-group` + `--vendor` name the Start menu folder (defaults to a folder literally named "Unknown"),
+   `--icon` replaces the default Java icon on the installer/shortcuts, `--win-shortcut` creates a desktop
+   shortcut, `--dest` keeps the installer out of the input folder, and `--win-upgrade-uuid` (keep this GUID
+   unchanged forever) makes new versions upgrade the installed app in place.
+8. Uninstall previous version of Vault via `Add or remove programs` (not needed once installing upgrades built
+   with the same `--win-upgrade-uuid`).
+9. Double-click the created `Vault.exe` file (in the `out` folder) and let the program install.
+10. Delete the `Vault.exe` installer, if it complains about being used, kill the program `Installer of Vault`.
+11. Done
 
 ## Technical documentation
 
@@ -419,14 +444,20 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * When you create your first association and then save it, it gets deselected (?)
 * When in credentials view, when you update a credential and then close the popup you have to press twice on the credentials window close (inherits oncloserequest from parent or something?)
 * Skriv release grej (versioner)
+* Remove default Java menu (and content) from the application
+* Fixa ny ikon till jaren
+* Fix nicer icon for the Mac installer / program
+* Set icon to program window (see link)
+* When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
+* Make filters enabled at all times and show the textinput screen at all times
+* Go through security audit and fix things
 
 ### Inbox (to do MAYBE at some later point)
-* When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
+* When starting before having chosen profile location, there is an ugly error screen shown which indicates that the program couldnt start
+  without profiles location. Would be nices not to show that at all on first startup.
 * Add feature to see stats (or use a different word), for example list usernames and how often they are used
 * Implement coloring of entries that are changed and unsaved in the entries list and also color fields that are changed.
-* Remove default Java menu (and content) from the application
 * Use Java modules and add module-info.java to perhaps get rid of error when starting with jar
-* Fixa ny ikon till jaren
 * Switch to red buttons in some dialogs where you confirm delete are confirmed
 * Add logging via some central utility and frequently used logger library (dependency) and remove println's
 * Perhaps use last updated flag in the association as well (not only in credential?)
@@ -435,7 +466,6 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 used?
 * Out everything in Platform.runLater instead of initialize that concerns bindings and listeners (especially if we see odd
 timing issues, however, we must only add layout-related code in runLater, not heavy other stuff)
-* Fix nicer icon for the Mac installer / program
 * Make sure that references to the old scene is lost when we log out. How do we do that? Otherwise:
   * Delicate data can be left in memory
   * Odd things might happen when we log in again as another user (not likely and not yet seen but MIGHT happen I assume 
@@ -443,4 +473,3 @@ timing issues, however, we must only add layout-related code in runLater, not he
 * Add support for Linux
 * Fix issue described previously about double-clicking the window in Mac (zoom function) which is a bug in JavaFX.
 * Investigate and fix the issue with the Windows installer hanging despite Vault being properly installed.
-* Set icon to program window (see link)

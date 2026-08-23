@@ -1,7 +1,7 @@
 
 plugins {
     java
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.3.0"
     application
     id("org.openjfx.javafxplugin") version "0.1.0"
 }
@@ -10,18 +10,18 @@ javafx {
     // will pull in transitive modules
     modules("javafx.controls", "javafx.fxml") // replace with what you modules need
 
-    version = "24.0.2" // or whatever version you're using
+    version = "26.0.2" // or whatever version you're using
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_23)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25)
     }
 }
 
 
 group = "com.lousseief"
-version = "1.1"
+version = "1.1.1"
 
 repositories {
     mavenCentral()
@@ -41,14 +41,14 @@ dependencies {
     implementation("de.jensd:fontawesomefx-weathericons:2.0.10-9.1.2")
 
     // for running on and compiling for mac
-    implementation("org.openjfx:javafx-graphics:24.0.2")
+    implementation("org.openjfx:javafx-graphics:26.0.2")
 
     // for compiling the windows jar
-    //implementation("org.openjfx:javafx-graphics:24.0.2:win")
+    //implementation("org.openjfx:javafx-graphics:26.0.2:win")
     implementation("org.controlsfx:controlsfx:9.0.0")
     implementation("commons-codec:commons-codec:1.18.0")
 
-    testImplementation("junit", "junit", "4.12")
+    testImplementation("junit:junit:4.13.2")
 }
 
 tasks.jar {
@@ -65,6 +65,9 @@ tasks.register<Jar>("fatJar") {
         put("Implementation-Title", "Vault fat jar")
         put("Implementation-Version", version)
         put("Main-Class", "com.lousseief.vault.MainKt")
+        // in the fat jar JavaFX lives on the classpath (unnamed module); this grants it native access
+        // when run with java -jar, silencing the JDK 24+ restricted-method warning
+        put("Enable-Native-Access", "ALL-UNNAMED")
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(sourceSets.main.get().output)
@@ -77,12 +80,14 @@ tasks.register<Jar>("fatJar") {
 }
 
 configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_23
+    sourceCompatibility = JavaVersion.VERSION_25
 }
 
 application {
     mainClass.set("com.lousseief.vault.MainKt")
     applicationDefaultJvmArgs = listOf(
+        // JavaFX loads native libraries; JDK 24+ warns (and will later refuse) unless granted explicitly
+        "--enable-native-access=javafx.graphics",
         //"--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED", // likely not needed anymore
         //"--add-opens=java.base/java.time=ALL-UNNAMED" // not needed with custom typeadapter for Instant
     )
