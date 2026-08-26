@@ -1,0 +1,22 @@
+
+## v. 1.1
+* Add version label
+* Show current location of profiles when trying to update it
+* Sort associations without respect to casing
+
+### v. 1.1.1
+* Add app icons
+* Bug documentation on double-click on close buttons
+* Update all packages
+* Improve build scripts
+### v. 1.1.2
+* Fix bug where selection on association was lost when saving the first association for a user.
+* Fix so filters are always active and search input always seen
+
+## v. 1.2 - security audit
+* Updated file permissions for vault files, settings' file and exported file (rw-------) including migration
+* Copies in clipboard deleted after X seconds and clipboards are enlightened about content via mime types
+* Usernames restricted to lowercase, numbers, underscore and hyphen
+* Added logging utility (activiated via IS_DEVELOPMENT=true and DEBUG=true)
+* Other minor fixes
+

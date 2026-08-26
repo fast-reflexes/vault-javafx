@@ -8,6 +8,7 @@ import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiAssociation
 import com.lousseief.vault.model.ui.UiCredential
 import com.lousseief.vault.utils.Colors
+import com.lousseief.vault.utils.Log
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon
@@ -219,7 +220,7 @@ class CredentialsController(
                 if(credentialsAreAltered(initialCredentials, credentials)) {
                     user.updateCredentials(initialMainIdentifier, credentials.map { it.toCredential() }, password)
                 } else {
-                    println("Did not need to save credentials")
+                    Log.debug { "Did not need to save credentials" }
                 }
                 onClose()
             }

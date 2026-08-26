@@ -3,6 +3,7 @@ package com.lousseief.vault.controller
 import com.lousseief.vault.list.BooleanListButtonCell
 import com.lousseief.vault.list.BooleanListCellFactory
 import com.lousseief.vault.model.ui.UiAssociation
+import com.lousseief.vault.utils.Log
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -79,8 +80,8 @@ class FilterController(val onFilter: (pred: Predicate<UiAssociation>) -> Unit) {
             isDeactivated.addListener { _, _, _ -> onFilterChanged() }
             shouldBeDeactivated.addListener { _, _, _ -> onFilterChanged() }
 
-            keywordField.addEventFilter(KeyEvent.KEY_PRESSED) { event ->
-                println(keyword.isNotEmpty.value)
+            keywordField.addEventFilter(KeyEvent.KEY_PRESSED) {
+                Log.debug { "Keyword non-empty: ${keyword.isNotEmpty.value}" }
             }
             searchParameterField.items = FXCollections.observableArrayList(
                 listOf(

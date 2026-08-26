@@ -94,7 +94,6 @@ class MainController(private val router: Router, private val user: UiProfile) {
     )
 
     val placeholderFn = Callable {
-        println("Evaluating placeholder!")
         if(filtered.isEmpty() && user.orderedAssociations.isEmpty()) {
             "No associations in table.\n Press \"Create new associations\" to create your first association"
         } else {
@@ -334,29 +333,39 @@ class MainController(private val router: Router, private val user: UiProfile) {
 
         exportVaultButton.apply {
             setOnAction {
-                val password = user.passwordRequiredAction(true)
-                if(password !== null) {
-                    val exportPath = DirectoryPathInputDialog(
-                        "Choose export directory",
-                        "Please select the directory to which you wish to export your vault"
-                    ).showAndWait()
-                    if(exportPath.isPresent && exportPath.get().isNotEmpty()) {
-                        val vault = user.accessVault(password)
-                        val exportFilename = user.export(exportPath.get(), vault)
-                        Alert(Alert.AlertType.INFORMATION).apply {
-                            title = "Success"
-                            headerText = "Vault successfully exported"
-                            contentText = "The vault was successfully exported to file '$exportFilename'"
-                        }.showAndWait()
-                    } else {
-                        Alert(Alert.AlertType.ERROR).apply {
-                            title = "Action cancelled"
-                            headerText = "Vault not exported"
-                            contentText = "The vault was not exported since no directory for the export was provided"
-                        }.showAndWait()
+                val proceed = Dialogs.openConfirmSensitiveOperationDialog(
+                    "Export anyway",
+                    null,
+                    "The export file is NOT encrypted",
+                    "The export is a plain text file containing every password in your vault in " +
+                    "clear text, readable by anyone who opens it. Do not place it in a synced " +
+                    "folder (Dropbox, iCloud, OneDrive) and delete it as soon as you are done " +
+                    "with it. Do you want to continue?"
+                )
+                if(proceed) {
+                    val password = user.passwordRequiredAction(true)
+                    if(password !== null) {
+                        val exportPath = DirectoryPathInputDialog(
+                            "Choose export directory",
+                            "Please select the directory to which you wish to export your vault"
+                        ).showAndWait()
+                        if(exportPath.isPresent && exportPath.get().isNotEmpty()) {
+                            val vault = user.accessVault(password)
+                            val exportFilename = user.export(exportPath.get(), vault)
+                            Alert(Alert.AlertType.INFORMATION).apply {
+                                title = "Success"
+                                headerText = "Vault successfully exported"
+                                contentText = "The vault was successfully exported to file '$exportFilename'"
+                            }.showAndWait()
+                        } else {
+                            Alert(Alert.AlertType.ERROR).apply {
+                                title = "Action cancelled"
+                                headerText = "Vault not exported"
+                                contentText = "The vault was not exported since no directory for the export was provided"
+                            }.showAndWait()
+                        }
                     }
                 }
-
             }
             graphic = MaterialIconView(MaterialIcon.IMPORT_EXPORT).apply {
                 fill = Paint.valueOf(Colors.BLUE)

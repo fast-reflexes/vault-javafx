@@ -8,11 +8,13 @@ import com.lousseief.vault.exception.UserException
 import com.lousseief.vault.model.AssociationWithCredentials
 import com.lousseief.vault.model.Profile
 import com.lousseief.vault.model.Settings
+import com.lousseief.vault.utils.Log
 
 object UserService {
 
-    fun loadUser(userName: String): Profile =
-        FileService.readFile(userName)
+    /** @param validatedAndNormalizedUsername a name already put through FileService.validateUserName. */
+    fun loadUser(validatedAndNormalizedUsername: String): Profile =
+        FileService.readFile(validatedAndNormalizedUsername)
 
     fun createKeyMaterial(masterPassword: String): VerificationData {
         val (saltBytes, keyMaterialBytes) = KeyDerivation.deriveKey(masterPassword)
@@ -28,8 +30,8 @@ object UserService {
         )
     }
 
-    fun createUser(name: String, password: String): Profile {
-        if (FileService.userExists(name))
+    fun createUser(validatedAndNormalizedUsername: String, password: String): Profile {
+        if (FileService.userExists(validatedAndNormalizedUsername))
             throw UserException(UserException.UserExceptionCause.USER_EXISTS)
         val (saltBytes, hashBytes, hashSaltBytes, encryptionKeyBytes, hmacKeyBytes) = createKeyMaterial(password)
 
@@ -38,7 +40,7 @@ object UserService {
             Pair(Settings(), emptyMap<String, AssociationWithCredentials>())
         )
         val newUser = Profile(
-            name,
+            validatedAndNormalizedUsername,
             Conversion.bytesToBase64(saltBytes),
             Conversion.bytesToBase64(hashSaltBytes),
             Conversion.bytesToBase64(hashBytes),
@@ -52,7 +54,9 @@ object UserService {
                     hmacKeyBytes
                 )
             )
-        println("" + newUser.checkSum.length + " " + Conversion.Base64ToBytes(newUser.checkSum).size)
+        Log.debug {
+            "Checksum length ${newUser.checkSum.length}, bytes ${Conversion.Base64ToBytes(newUser.checkSum).size}"
+        }
         FileService.writeVaultFile(newUser.name, newUser.toString(), false)
         return newUser
     }

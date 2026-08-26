@@ -1,5 +1,7 @@
 package com.lousseief.vault.exception
 
+import com.lousseief.vault.service.FileService
+
 interface Cause {
     val name: String
 }
@@ -22,7 +24,14 @@ class VerificationException(message: VerificationExceptionCause, val e: Throwabl
 class UserException(message: UserExceptionCause, val e: Throwable? = null): Exception(message.explanation) {
 
     enum class UserExceptionCause(val explanation: String): Cause {
-        USER_EXISTS("The user name is already taken, please pick an other one.")
+        USER_EXISTS("The user name is already taken, please pick an other one."),
+        EMPTY_USERNAME("The user name must contain at least one character."),
+        USERNAME_TOO_LONG("The user name may be at most ${FileService.USERNAME_MAX_LENGTH} characters long."),
+        INVALID_USERNAME(
+            "The user name may only contain letters (a-z, A-Z), digits, hyphen (-) and underscore " +
+            "(_). Upper and lower case are both allowed but mean the same thing, so 'James' and " +
+            "'james' are the same user."
+        )
     }
 }
 

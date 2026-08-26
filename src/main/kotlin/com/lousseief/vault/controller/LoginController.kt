@@ -2,6 +2,7 @@ package com.lousseief.vault.controller
 
 import com.lousseief.vault.Router
 import com.lousseief.vault.exception.AuthenticationException
+import com.lousseief.vault.exception.UserException
 import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.service.FileService
 import com.lousseief.vault.service.UserService
@@ -33,7 +34,15 @@ class LoginController(private val router: Router) {
     private val password = SimpleStringProperty(null)
 
     private fun attemptLogin() {
-        if (!FileService.userExists(username.value)) {
+        /* the input boundary: the name is validated and normalized here, once, and everything
+        downstream works with the result. An unusable name is reported as a failed login rather than
+        as a validation error, so that the message doesn't reveal which user names exist. */
+        val validatedName = try {
+            FileService.validateUserName(username.value ?: "")
+        } catch (e: UserException) {
+            null
+        }
+        if (validatedName === null || !FileService.userExists(validatedName)) {
             Alert(Alert.AlertType.ERROR).apply {
                 title = "Something went wrong"
                 headerText = "Username or password invalid"
@@ -43,12 +52,22 @@ class LoginController(private val router: Router) {
             passwordField.selectAll()
         } else {
             try {
-                val loggedInUser = UserService.loadUser(username.value)
+                val loggedInUser = UserService.loadUser(validatedName)
                 val (associations, settings, userNames) = loggedInUser.initialize(password.value)
                 val uiProfile = UiProfile.fromProfile(loggedInUser, associations, settings, userNames, password.value)
                 router.showMain(uiProfile)
             }
             catch(e: AuthenticationException) {
+                Alert(Alert.AlertType.ERROR).apply {
+                    title = "Something went wrong"
+                    headerText = "Login failed"
+                    contentText = e.message
+                }.showAndWait()
+                passwordField.requestFocus()
+                passwordField.selectAll()
+            }
+            catch(e: Exception) {
+                // e.g. a corrupt or unreadable .vault file - report it instead of killing the app
                 Alert(Alert.AlertType.ERROR).apply {
                     title = "Something went wrong"
                     headerText = "Login failed"

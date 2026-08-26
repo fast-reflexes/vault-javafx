@@ -3,7 +3,7 @@ package com.lousseief.vault.controller.dialog
 import com.lousseief.vault.crypto.CryptoUtils
 import com.lousseief.vault.crypto.CryptoUtils.getCharPoolContent
 import com.lousseief.vault.utils.Colors
-import com.lousseief.vault.utils.copySelectionToClipboard
+import com.lousseief.vault.utils.copySecretToClipboard
 import com.lousseief.vault.utils.initializeSpinner
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
@@ -75,6 +75,16 @@ class StringGeneratorDialogController(defaultPasswordLength: Int) {
         generatedStringProperty
     )
 
+    /* with no category selected the character pool is empty, which would make generation divide by
+    zero - so generation is blocked until at least one category is picked */
+    val noCategorySelected = Bindings.createBooleanBinding(
+        {
+            !lowerCaseProperty.value && !upperCaseProperty.value &&
+                !numbersProperty.value && !specialCharsProperty.value
+        },
+        lowerCaseProperty, upperCaseProperty, numbersProperty, specialCharsProperty
+    )
+
     @FXML
     fun initialize() {
         stringField.textProperty().bind(generatedStringProperty)
@@ -107,13 +117,14 @@ class StringGeneratorDialogController(defaultPasswordLength: Int) {
                 )
                 event.consume()
             }
+            disableProperty().bind(noCategorySelected)
             Platform.runLater { this.requestFocus() }
         }
         dialogPane.lookupButton(copyButton).apply {
             this as Button
             graphic = FontAwesomeIconView(FontAwesomeIcon.COPY).apply { fill = Paint.valueOf(Colors.GRAY_DARK)}
             addEventFilter(ActionEvent.ACTION) { event ->
-                copySelectionToClipboard(generatedStringProperty.value)
+                copySecretToClipboard(generatedStringProperty.value)
                 event.consume()
             }
             disableProperty().bind(stringHasNotBeenGenerated)

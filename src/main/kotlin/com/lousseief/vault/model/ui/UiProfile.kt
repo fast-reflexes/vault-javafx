@@ -10,6 +10,7 @@ import com.lousseief.vault.model.Profile
 import com.lousseief.vault.model.Settings
 import com.lousseief.vault.model.Vault
 import com.lousseief.vault.service.*
+import com.lousseief.vault.utils.Log
 import com.lousseief.vault.utils.sortInPlaceByMainIdentifier
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleMapProperty
@@ -91,47 +92,44 @@ class UiProfile(
             profile.setPassword(password)
             return profile
         }
-
-        const val DEBUG = false
     }
 
     val isDirty = SimpleBooleanProperty(false)
 
     init {
         associations.addListener(MapChangeListener {
-            println("Change in associations")
+            Log.debug { "Change in associations" }
             reevaluateDirtyFlag()
         })
         orderedAssociations.addListener(ListChangeListener {
-            println("Change in orderedAssociations")
+            Log.debug { "Change in orderedAssociations" }
             reevaluateDirtyFlag()
         })
         settings.isDirty.addListener {
-            println("Settings change")
+            Log.debug { "Settings change" }
             reevaluateDirtyFlag()
         }
     }
 
-    private fun printDirtyFlagTrace() {
-        println("IV differs: ${savedProfile.iv != iv}")
-        println("Verification hash differs: ${savedProfile.verificationHash != verificationHash}")
-        println("Verification salt differs: ${savedProfile.verificationSalt != verificationSalt}")
-        println("Encryption salt differs: ${savedProfile.keyMaterialSalt != keyMaterialSalt}")
-        println("Encrypted data differs: ${savedProfile.encryptedData != encryptedData}")
-        println("Checksum differs: ${savedProfile.checkSum != checkSum}")
-        println("Settings is dirty: ${settings.isDirty.value}")
-        println(
+    private fun logDirtyFlagTrace() {
+        Log.debug { "IV differs: ${savedProfile.iv != iv}" }
+        Log.debug { "Verification hash differs: ${savedProfile.verificationHash != verificationHash}" }
+        Log.debug { "Verification salt differs: ${savedProfile.verificationSalt != verificationSalt}" }
+        Log.debug { "Encryption salt differs: ${savedProfile.keyMaterialSalt != keyMaterialSalt}" }
+        Log.debug { "Encrypted data differs: ${savedProfile.encryptedData != encryptedData}" }
+        Log.debug { "Checksum differs: ${savedProfile.checkSum != checkSum}" }
+        Log.debug { "Settings is dirty: ${settings.isDirty.value}" }
+        Log.debug {
             "Associations are dirty: ${
                 associations.values.any {
-                    it.containsChange(
-                        persistedAssociations[it.mainIdentifier.value]
-                    )
+                    it.containsChange(persistedAssociations[it.mainIdentifier.value])
                 }
             }"
-        )
+        }
     }
+
     fun reevaluateDirtyFlag() {
-        println("Running evaluation of dirty flag")
+        Log.debug { "Running evaluation of dirty flag" }
         val sP = savedProfile
         val isCurrentlyDirty = (
             keyMaterialSalt != sP.keyMaterialSalt
@@ -145,9 +143,7 @@ class UiProfile(
                 }
                 || settings.isDirty.value
         )
-        if(DEBUG) {
-            printDirtyFlagTrace()
-        }
+        logDirtyFlagTrace()
         isDirty.set(isCurrentlyDirty)
     }
 
@@ -249,7 +245,7 @@ class UiProfile(
         val vault = accessVault(password)
         val credentials = (vault.second[savedIdentifier]?.credentials)?.toMutableList()
             ?: throw InternalException(InternalException.InternalExceptionCause.MISSING_IDENTIFIER)
-                .apply { println("searching for ${savedIdentifier}, found ${associations.keys}") }
+                .apply { Log.debug { "searching for $savedIdentifier, found ${associations.keys}" } }
         val uiCredentials = credentials.map(UiCredential::fromCredentials)
         return credentials to uiCredentials
     }
@@ -327,7 +323,7 @@ class UiProfile(
             persistedAssociations.clear()
             persistedAssociations.putAll(freshAssociations)
 
-            printDirtyFlagTrace()
+            logDirtyFlagTrace()
         }
     }
 
@@ -337,7 +333,7 @@ class UiProfile(
             { (settings, associations) ->
                 val existingAssociation = associations[identifier]
                     ?: throw InternalException(InternalException.InternalExceptionCause.MISSING_IDENTIFIER)
-                        .apply { println("searching for ${identifier}, found ${associations.keys}") }
+                        .apply { Log.debug { "searching for $identifier, found ${associations.keys}" } }
                 associations[identifier] = existingAssociation.copy(credentials = credentials)
                 Pair(settings, associations)
             },

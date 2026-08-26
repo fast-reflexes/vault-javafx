@@ -21,7 +21,7 @@ kotlin {
 
 
 group = "com.lousseief"
-version = "1.1.2"
+version = "1.2"
 
 repositories {
     mavenCentral()
@@ -45,7 +45,6 @@ dependencies {
 
     // for compiling the windows jar
     //implementation("org.openjfx:javafx-graphics:26.0.2:win")
-    implementation("org.controlsfx:controlsfx:9.0.0")
     implementation("commons-codec:commons-codec:1.18.0")
 
     testImplementation("junit:junit:4.13.2")

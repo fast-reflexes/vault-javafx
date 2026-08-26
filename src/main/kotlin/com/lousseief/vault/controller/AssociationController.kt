@@ -311,9 +311,7 @@ class AssociationController(val user: UiProfile, val association: UiAssociation,
             fill = Paint.valueOf("white")
         }
         deleteAssociationButton.setOnAction {
-            println("Delete association")
             onDeleteAssociation()
-
         }
     }
 }

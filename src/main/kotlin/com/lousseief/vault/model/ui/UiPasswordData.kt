@@ -34,7 +34,6 @@ data class UiPasswordData(
             savedPasswordResetter = Timer(true)
                 .schedule(expirationMillis) {
                     Platform.runLater {
-                        println("reset!")
                         savedMasterPassword = null
                         savedPasswordExpiry.set(null)
                     }

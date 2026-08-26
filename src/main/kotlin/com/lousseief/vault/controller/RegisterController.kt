@@ -1,6 +1,8 @@
 package com.lousseief.vault.controller
 
 import com.lousseief.vault.Router
+import com.lousseief.vault.exception.UserException
+import com.lousseief.vault.service.FileService
 import com.lousseief.vault.service.UserService
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
@@ -35,6 +37,13 @@ class RegisterController(private val router: Router) {
 
     fun registerUser() {
         try {
+            val normalizedName = try {
+                FileService.validateUserName(username.value ?: "")
+            } catch (e: UserException) {
+                usernameField.requestFocus()
+                usernameField.selectAll()
+                throw e
+            }
             if (password.value != passwordRepetition.value) {
                 passwordRepetitionField.requestFocus()
                 passwordRepetitionField.selectAll()
@@ -48,11 +57,11 @@ class RegisterController(private val router: Router) {
                 usernameField.requestFocus()
                 usernameField.selectAll()
             }
-            UserService.createUser(username.value, password.value)
+            UserService.createUser(normalizedName, password.value)
             Alert(Alert.AlertType.INFORMATION).apply {
                 title = "Success"
                 headerText = "User added"
-                contentText = "The user was successfully added! Please go ahead and login!"
+                contentText = "The user '$normalizedName' was successfully added! Please go ahead and login!"
             }.showAndWait()
             router.showLogin(false)
         } catch (e: Exception) {
@@ -62,7 +71,6 @@ class RegisterController(private val router: Router) {
                 contentText = e.message
             }.showAndWait()
         }
-        println("Name is: " + username.get() + " " + password.get())
     }
 
     @FXML

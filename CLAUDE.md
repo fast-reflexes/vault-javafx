@@ -22,6 +22,17 @@ stored encrypted in a `<username>.vault` file.
   then `vault.settings` is read from the current working directory (repo root has one).
 - `.vault` profile files live in the directory named by `vault.settings` (`FileService`).
 
+## Debug logging
+
+`utils/Log.kt` writes to stderr and requires BOTH `IS_DEVELOPMENT=true` and `DEBUG=true`
+(both literally `"true"`, case-insensitive; `DEBUG=1` does NOT work). Neither is set by Gradle,
+so normal runs and shipped builds are silent. Use `Log.debug { "..." }` — the lambda is never
+evaluated when logging is off. Never use bare `println` for diagnostics.
+
+These logs are deliberately unredacted and DO include the master password and vault contents,
+so only enable them locally against a throwaway vault — never on a machine holding a real one,
+and never ship a build with both flags defaulted on.
+
 ## Architecture
 
 - `Main.kt` launches `Router` (the `Application`), which swaps views (Login/Register/Main) in a

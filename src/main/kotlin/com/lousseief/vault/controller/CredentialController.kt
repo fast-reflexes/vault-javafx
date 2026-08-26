@@ -6,7 +6,7 @@ import com.lousseief.vault.dialog.Dialogs
 import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.model.ui.UiCredential
 import com.lousseief.vault.utils.Colors
-import com.lousseief.vault.utils.copySelectionToClipboard
+import com.lousseief.vault.utils.copySecretToClipboard
 import com.lousseief.vault.utils.timeToStringDate
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
@@ -162,7 +162,7 @@ class CredentialController(
             val keyCodeCopy = KeyCodeCombination(KeyCode.C, KeyCombination.META_DOWN) // cmd on Mac, ctrl on Windows
             setOnKeyPressed { event ->
                 if(keyCodeCopy.match(event)) {
-                    copySelectionToClipboard(this.selectedText)
+                    copySecretToClipboard(this.selectedText)
                 }
             }
         }
@@ -183,7 +183,7 @@ class CredentialController(
             val keyCodeCopy = KeyCodeCombination(KeyCode.C, KeyCombination.META_DOWN) // cmd on Mac, ctrl on Windows
             setOnKeyPressed { event ->
                 if(keyCodeCopy.match(event)) {
-                    copySelectionToClipboard(this.selectedText)
+                    copySecretToClipboard(this.selectedText)
                 }
             }
         }
@@ -206,7 +206,7 @@ class CredentialController(
         }
 
         copyPasswordButton.setOnAction {
-            copySelectionToClipboard(credential.password.value)
+            copySecretToClipboard(credential.password.value)
         }
         copyPasswordButton.graphic = FontAwesomeIconView(FontAwesomeIcon.COPY).apply {
             fill = Paint.valueOf(Colors.GRAY_DARK)

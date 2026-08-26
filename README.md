@@ -110,6 +110,47 @@ To run fat jar, execute `java -jar <JAR>>`
 An error is displayed on started due to that this project does not use Java modules and thus, this project is an unnamed
 module. This can be ignored.
 
+## Debug logging
+
+Diagnostic output is off by default and requires **both** `IS_DEVELOPMENT` and `DEBUG` to be set
+to `true`:
+
+```
+IS_DEVELOPMENT=true DEBUG=true ./gradlew run
+```
+
+Both must be literally `true` (case doesn't matter, so `TRUE` works). Anything else — including
+`DEBUG=1` — leaves logging off. Neither variable is set by Gradle, so a plain `./gradlew run` and
+every distributed build are completely silent. Note that `IS_DEVELOPMENT` on its own also moves
+`vault.settings` to the working directory (see *Develop* above); `DEBUG` on its own does nothing.
+
+Output goes to **stderr**, prefixed with `[debug]`.
+
+To add a log line, use `Log.debug` from `utils/Log.kt` and never a bare `println`:
+
+```kotlin
+Log.debug { "Change in associations" }
+```
+
+The message is a lambda, so the string is never built while logging is off and a disabled call
+costs nothing.
+
+### A warning about what these logs contain
+
+These logs are deliberately **not** redacted. They print vault contents — including association
+names, i.e. the full list of every site and company you hold an account with. Anything you add
+via `Log.debug` will be printed verbatim, secrets included.
+
+Only enable both flags locally, and preferably against a throwaway vault. Two reasons to be
+careful even then:
+
+- On a bundled `.app`, macOS captures stderr into the unified log, where it persists after the
+  app exits and is readable by other processes running as you. It is not as ephemeral as a
+  terminal.
+- Terminal scrollback and shell session logs keep it around too.
+
+Never ship a build with both flags defaulted on.
+
 ## Test
 
 Tests live in `src/test/kotlin` and use JUnit 4. To run them, execute
@@ -147,7 +188,7 @@ Building the installer needs to be done on the actual platform that we're buildi
 
 Thus, to build on a Mac computer with Java 24 (or later) installed, execute (adjust paths if necessary):
 
-    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.1.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.1.2 --vendor Lousseief --icon packaging/vault.icns
+    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.2 --vendor Lousseief --icon packaging/vault.icns
 
 This will include the input directory `./build/` in the build and then, relative the root of the input directory, it will
 look for `libs/<JAR>` for the job to create an installer. This command results in a `dmg` image which can be used like
@@ -160,7 +201,7 @@ live in `packaging/`.
 2. Make sure that build file is synced so that the correct dependencies are downloaded.
 3. Build the fat jar using `./gradlew fatJar`
 4. Test the jar if you want to using `java -jar <JAR>`
-5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.1.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.1.2 --vendor Lousseief --icon packaging/vault.icns`
+5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.2 --vendor Lousseief --icon packaging/vault.icns`
    (`--icon` gives the app bundle the Vault icon in the Dock, Finder and Launchpad; the icon sources live in `packaging/`)
 6. Copy the `Vault.dmg` file onto the desktop
 7. Double-click it and drag the program icon to the left to the applications folder to ther right, confirm overwrite if
@@ -430,14 +471,6 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 ### Known bugs
 * When in credentials view, when you update a credential and then close the popup you have to press twice on the credentials window close
 
-### Release Notes
-
-#### v. 1.1
-* Add version label
-* Show current location of profiles when trying to update it
-* Sort associations without respect to casing
-
-
 ## TODO
 
 ### Backlog:
@@ -445,7 +478,6 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 * Add possibility to cancel by button OR that text shows CLOSE instead of SAVE and that it does the same thing as cancel 
   when no change has been made
 
-* Skriv release grej (versioner)
 * Remove default Java menu (and content) from the application
 * Fixa ny ikon till jaren
 * Fix nicer icon for the Mac installer / program

@@ -11,6 +11,7 @@ import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.input.Clipboard
 import javafx.scene.input.ClipboardContent
+import javafx.scene.input.DataFormat
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
@@ -21,13 +22,59 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.Timer
+import java.util.TimerTask
+import kotlin.concurrent.schedule
 
-fun copySelectionToClipboard(string: String) =
+/** How long a copied secret is allowed to stay on the system clipboard. */
+const val CLIPBOARD_CLEAR_SECONDS = 30L
+
+/* Hints that ask clipboard managers and history features not to persist the entry. DataFormat
+throws if the same mime type is registered twice, so look it up before constructing it. */
+private fun clipboardHint(mimeType: String): DataFormat =
+    DataFormat.lookupMimeType(mimeType) ?: DataFormat(mimeType)
+
+private val CONCEALED_HINTS: List<DataFormat> by lazy {
+    listOf(
+        // macOS convention, honoured by most third party clipboard managers
+        clipboardHint("org.nspasteboard.ConcealedType"),
+        // Windows clipboard history / cloud clipboard
+        clipboardHint("ExcludeClipboardContentFromMonitorProcessing"),
+        clipboardHint("CanIncludeInClipboardHistory"),
+        clipboardHint("CanUploadToCloudClipboard")
+    )
+}
+
+private var clipboardClearTask: TimerTask? = null
+
+/**
+ * Copies a secret (password or part of one) to the system clipboard, marks it so clipboard managers
+ * skip it, and clears it again after [CLIPBOARD_CLEAR_SECONDS].
+ *
+ * The clipboard is only cleared if it still holds the value we put there, so anything the user
+ * copied in the meantime is left alone.
+ */
+fun copySecretToClipboard(secret: String) {
+    val clipboard = Clipboard.getSystemClipboard()
     ClipboardContent()
         .apply {
-            putString(string)
-            Clipboard.getSystemClipboard().setContent(this)
+            putString(secret)
+            CONCEALED_HINTS.forEach { put(it, "") }
+            clipboard.setContent(this)
         }
+
+    clipboardClearTask?.cancel()
+    // daemon timer, so a pending clear never keeps the application alive
+    clipboardClearTask = Timer(true)
+        .schedule(CLIPBOARD_CLEAR_SECONDS * 1000L) {
+            Platform.runLater {
+                val current = Clipboard.getSystemClipboard()
+                if (current.hasString() && current.string == secret) {
+                    current.clear()
+                }
+            }
+        }
+}
 
 fun initializeSpinner(property: SimpleIntegerProperty, spinner: Spinner<Int>, max: Int, min: Int) {
     val factory = spinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory
