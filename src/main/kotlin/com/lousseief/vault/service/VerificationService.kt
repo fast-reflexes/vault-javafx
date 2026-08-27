@@ -32,7 +32,7 @@ object VerificationService {
      */
     fun authorize(password: String, keyMaterialSalt: String, verification: String, verificationSalt: String): ByteArray {
         val (_, keyMaterialBytes) = KeyDerivation.deriveKey(password, Conversion.Base64ToBytes(keyMaterialSalt))
-        val (_, hashBytes) = KeyDerivation.deriveKey(Conversion.bytesToUTF8(keyMaterialBytes), Conversion.Base64ToBytes(verificationSalt))
+        val (_, hashBytes) = KeyDerivation.deriveKey(Conversion.bytesToBase64(keyMaterialBytes), Conversion.Base64ToBytes(verificationSalt))
         if(keyMaterialBytes.size != 64)
             throw InternalException(InternalException.InternalExceptionCause.UNEXPECTED_CRYPTO_SIZE)
         val authorized = CryptoUtils.constantCompareByteArrays(Conversion.Base64ToBytes(verification), hashBytes)

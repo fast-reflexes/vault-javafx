@@ -179,7 +179,7 @@ for Windows.
 
 Export the fat jar using `./gradlew fatJar`.
 
-Once the jar is exported, it can be tested in the correct environment using `java -jar <NAME OF JAR>`. Thus should work
+Once the jar is exported, it can be tested in the correct environment using `java -jar <NAME OF JAR>`. This should work
 as expected in the environment that we wish to build for.
 
 Once we have the jar, package it into an installer with a Java runtime INCLUDED in the bundle using `jpackage`. 
@@ -188,7 +188,7 @@ Building the installer needs to be done on the actual platform that we're buildi
 
 Thus, to build on a Mac computer with Java 24 (or later) installed, execute (adjust paths if necessary):
 
-    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.2 --vendor Lousseief --icon packaging/vault.icns
+    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-2.0-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 2.0 --vendor Lousseief --icon packaging/vault.icns
 
 This will include the input directory `./build/` in the build and then, relative the root of the input directory, it will
 look for `libs/<JAR>` for the job to create an installer. This command results in a `dmg` image which can be used like
@@ -201,7 +201,7 @@ live in `packaging/`.
 2. Make sure that build file is synced so that the correct dependencies are downloaded.
 3. Build the fat jar using `./gradlew fatJar`
 4. Test the jar if you want to using `java -jar <JAR>`
-5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-1.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 1.2 --vendor Lousseief --icon packaging/vault.icns`
+5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-2.0-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 2.0 --vendor Lousseief --icon packaging/vault.icns`
    (`--icon` gives the app bundle the Vault icon in the Dock, Finder and Launchpad; the icon sources live in `packaging/`)
 6. Copy the `Vault.dmg` file onto the desktop
 7. Double-click it and drag the program icon to the left to the applications folder to ther right, confirm overwrite if

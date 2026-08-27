@@ -20,3 +20,7 @@
 * Added logging utility (activiated via IS_DEVELOPMENT=true and DEBUG=true)
 * Other minor fixes
 
+## v. 2.0 - security audit continued
+* Updated wrongful use of `bytesToUTF8` which lost entropy with `bytesToBase64` instead (vaults migrated before final change)
+* Updated adjustment of wrongful permissions on Vault files
+* Improve support for Windows file permissions

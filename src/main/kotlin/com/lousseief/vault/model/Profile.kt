@@ -1,1 +1,35 @@
-package com.lousseief.vault.modelclass Profile(    val name: String,    keyMaterialSalt: String,    verificationSalt: String,    verificationHash: String,    iv: String,    encryptedData: String,    checkSum: String = "",): IProfile(    keyMaterialSalt,    verificationSalt,    verificationHash,    iv,    encryptedData,    checkSum) {    fun initialize(password: String): Triple<MutableMap<String, Association>, Settings, MutableMap<String, Int>> {        val (fetchedSettings, fetchedAssociationsWithCredentials) = accessVault(password)        val settings = fetchedSettings        val associations = fetchedAssociationsWithCredentials.mapValues { it.value.association }.toMutableMap()        val userNames = fetchedAssociationsWithCredentials            .map {                it.value.credentials                    .map { it.identities }                    .flatten()            }            .flatten()            .groupBy { it }            .mapValues { it.value.size }            .toMutableMap()        return Triple(associations, settings, userNames)    }}
+package com.lousseief.vault.model
+
+class Profile(
+    val name: String,
+    keyMaterialSalt: String,
+    verificationSalt: String,
+    verificationHash: String,
+    iv: String,
+    encryptedData: String,
+    checkSum: String = "",
+): IProfile(
+    keyMaterialSalt,
+    verificationSalt,
+    verificationHash,
+    iv,
+    encryptedData,
+    checkSum
+) {
+    fun initialize(password: String): Triple<MutableMap<String, Association>, Settings, MutableMap<String, Int>> {
+        val (fetchedSettings, fetchedAssociationsWithCredentials) = accessVault(password)
+        val settings = fetchedSettings
+        val associations = fetchedAssociationsWithCredentials.mapValues { it.value.association }.toMutableMap()
+        val userNames = fetchedAssociationsWithCredentials
+            .map {
+                it.value.credentials
+                    .map { it.identities }
+                    .flatten()
+            }
+            .flatten()
+            .groupBy { it }
+            .mapValues { it.value.size }
+            .toMutableMap()
+        return Triple(associations, settings, userNames)
+    }
+}

@@ -5,14 +5,23 @@ import com.lousseief.vault.exception.FileException
 import com.lousseief.vault.exception.UserException
 import com.lousseief.vault.model.Profile
 import com.lousseief.vault.model.Vault
+import com.lousseief.vault.utils.Log
 import com.lousseief.vault.utils.OSPlatform
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.attribute.AclEntry
+import java.nio.file.attribute.AclEntryFlag
+import java.nio.file.attribute.AclEntryPermission
+import java.nio.file.attribute.AclEntryType
+import java.nio.file.attribute.AclFileAttributeView
 import java.nio.file.attribute.PosixFilePermissions
+import java.nio.file.attribute.UserPrincipal
+import java.nio.file.attribute.UserPrincipalNotFoundException
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.EnumSet
 
 object FileService {
 
@@ -89,7 +98,7 @@ object FileService {
             if (!created) {
                 throw IllegalStateException("Failed to create directory: $vaultDirPath")
             }
-            restrictDirectoryToOwner(vaultDir)
+            applyOwnerOnlyPermissions(vaultDir)
         }
         return vaultDirPath
     }
@@ -223,40 +232,105 @@ object FileService {
      * the POSIX view is unavailable, we fall back to the java.io.File permission flags.
      */
     private fun writeRestrictedBytes(file: File, bytes: ByteArray) {
-        val path = file.toPath()
-        if (!Files.exists(path)) {
-            try {
-                Files.createFile(path, PosixFilePermissions.asFileAttribute(OWNER_ONLY_FILE))
-            } catch (e: UnsupportedOperationException) {
-                Files.createFile(path)
-                restrictToOwnerFallback(file)
-            }
+        if (!Files.exists(file.toPath())) {
+            createOwnerOnlyFile(file)
         } else {
-            // tighten profiles that were created before permissions were restricted
-            try {
-                Files.setPosixFilePermissions(path, OWNER_ONLY_FILE)
-            } catch (e: UnsupportedOperationException) {
-                restrictToOwnerFallback(file)
-            }
+            /* a .vault file copied in by hand - which the change-profiles-location flow explicitly asks
+            the user to do - carries whatever permissions the copy gave it, and writing to an existing
+            file leaves its mode alone, so owner-only is (re)applied on every write */
+            applyOwnerOnlyPermissions(file)
         }
         file.writeBytes(bytes)
     }
 
-    private fun restrictDirectoryToOwner(directory: File) {
+    private fun createOwnerOnlyFile(file: File) {
+        val path = file.toPath()
         try {
-            Files.setPosixFilePermissions(directory.toPath(), OWNER_ONLY_DIR)
+            // the permissions are part of the creation, so the content is never briefly world readable
+            Files.createFile(path, PosixFilePermissions.asFileAttribute(OWNER_ONLY_FILE))
+            return
         } catch (e: UnsupportedOperationException) {
-            restrictToOwnerFallback(directory)
+            // no POSIX view, i.e. Windows: create plainly and restrict below instead
+        } catch (e: IOException) {
+            Log.debug { "could not create ${file.name} with owner-only permissions: ${e.message}" }
+        }
+        // a file must exist for the write to follow, so this failing is a genuine error
+        if (!Files.exists(path)) {
+            Files.createFile(path)
+        }
+        applyOwnerOnlyPermissions(file)
+    }
+
+    /**
+     * Restricts a file or directory to its owner. This is best effort on purpose: a file system that
+     * cannot express these permissions must never stop the user from saving their vault.
+     */
+    private fun applyOwnerOnlyPermissions(fileOrDirectory: File) {
+        /* deliberately catches everything: restricting permissions is a hardening step, and failing it
+        must never be the reason the user cannot save their vault */
+        try {
+            try {
+                Files.setPosixFilePermissions(
+                    fileOrDirectory.toPath(),
+                    if (fileOrDirectory.isDirectory) OWNER_ONLY_DIR else OWNER_ONLY_FILE
+                )
+                return
+            } catch (e: UnsupportedOperationException) {
+                // no POSIX view, i.e. Windows: fall through to ACLs below
+            }
+            restrictToOwnerViaAcl(fileOrDirectory)
+        } catch (e: Exception) {
+            Log.debug { "could not restrict permissions on ${fileOrDirectory.name}: $e" }
         }
     }
 
-    private fun restrictToOwnerFallback(file: File) {
-        // clear for everyone first, then re-grant to the owner only
-        file.setReadable(false, false)
-        file.setWritable(false, false)
-        file.setExecutable(false, false)
-        file.setReadable(true, true)
-        file.setWritable(true, true)
-        if (file.isDirectory) file.setExecutable(true, true)
+    /**
+     * The Windows equivalent of owner-only POSIX permissions: replaces the ACL with entries that grant
+     * full control to us and to nobody else, which also drops any permissive entry inherited from the
+     * parent directory.
+     *
+     * java.io.File's permission methods are useless here - on Windows they map to DOS attributes only,
+     * so setReadable does nothing at all and ownerOnly is ignored - which is why this goes through
+     * AclFileAttributeView instead.
+     */
+    private fun restrictToOwnerViaAcl(fileOrDirectory: File) {
+        val path = fileOrDirectory.toPath()
+        val aclView = Files.getFileAttributeView(path, AclFileAttributeView::class.java)
+        if (aclView === null) {
+            Log.debug { "${fileOrDirectory.name}: neither POSIX permissions nor ACLs are supported" }
+            return
+        }
+        /* grant to the account running the application AND to the file's owner: on Windows those can
+        differ (a file created by an elevated process ends up owned by Administrators), and granting
+        only one of them risks locking the other out of the vault entirely */
+        val principals = LinkedHashSet<UserPrincipal>()
+        try {
+            principals.add(
+                path.fileSystem.userPrincipalLookupService
+                    .lookupPrincipalByName(System.getProperty("user.name"))
+            )
+        } catch (e: UserPrincipalNotFoundException) {
+            Log.debug { "could not resolve the current user as a principal: ${e.message}" }
+        }
+        Files.getOwner(path)?.let { principals.add(it) }
+        if (principals.isEmpty()) {
+            Log.debug { "${fileOrDirectory.name}: no principal to grant access to, ACL left alone" }
+            return
+        }
+        // a directory must pass the restriction on to whatever is created inside it
+        val flags =
+            if (fileOrDirectory.isDirectory)
+                setOf(AclEntryFlag.FILE_INHERIT, AclEntryFlag.DIRECTORY_INHERIT)
+            else
+                emptySet()
+        aclView.acl = principals.map { principal ->
+            AclEntry.newBuilder()
+                .setType(AclEntryType.ALLOW)
+                .setPrincipal(principal)
+                .setPermissions(EnumSet.allOf(AclEntryPermission::class.java))
+                .setFlags(flags)
+                .build()
+        }
+        Log.debug { "restricted the ACL on ${fileOrDirectory.name} to $principals" }
     }
 }

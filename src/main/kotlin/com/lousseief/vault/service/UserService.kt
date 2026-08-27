@@ -18,9 +18,11 @@ object UserService {
 
     fun createKeyMaterial(masterPassword: String): VerificationData {
         val (saltBytes, keyMaterialBytes) = KeyDerivation.deriveKey(masterPassword)
-        val (hashSaltBytes, hashBytes) = KeyDerivation.deriveKey(Conversion.bytesToUTF8(keyMaterialBytes))
         if(keyMaterialBytes.size != 64)
             throw InternalException(InternalException.InternalExceptionCause.UNEXPECTED_CRYPTO_SIZE)
+        /* base64 is reversible, unlike a UTF-8 decode of arbitrary bytes, so the whole 512 bits of key
+        material actually reach the second derivation */
+        val (hashSaltBytes, hashBytes) = KeyDerivation.deriveKey(Conversion.bytesToBase64(keyMaterialBytes))
         return VerificationData(
             saltBytes,
             hashBytes,
