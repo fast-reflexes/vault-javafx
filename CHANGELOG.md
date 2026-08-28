@@ -24,3 +24,7 @@
 * Updated wrongful use of `bytesToUTF8` which lost entropy with `bytesToBase64` instead (vaults migrated before final change)
 * Updated adjustment of wrongful permissions on Vault files
 * Improve support for Windows file permissions
+
+## v. 2.0.1 - security audit continued
+* Protect against in-memory attacks by scrapping stored passwords as often as possible
+* Tighten interval during which the vault password does not need to be reiterated for continued access

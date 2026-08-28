@@ -55,6 +55,9 @@ class LoginController(private val router: Router) {
                 val loggedInUser = UserService.loadUser(validatedName)
                 val (associations, settings, userNames) = loggedInUser.initialize(password.value)
                 val uiProfile = UiProfile.fromProfile(loggedInUser, associations, settings, userNames, password.value)
+                /* drop the field's reference to the typed password - the String itself cannot be
+                erased, but this lets the GC reclaim it instead of the view pinning it */
+                passwordField.clear()
                 router.showMain(uiProfile)
             }
             catch(e: AuthenticationException) {

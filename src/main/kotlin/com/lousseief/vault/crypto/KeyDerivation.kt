@@ -19,21 +19,24 @@ object KeyDerivation {
     )
 
     fun deriveKey(password: String, salt: ByteArray? = null): PBKDF2Delivery {
+        val saltToUse = salt ?: ByteArray(SALT_BYTES).also{ CryptoUtils.fillRandom(it) }
+        val passwordChars = password.toCharArray()
+        val spec = PBEKeySpec(passwordChars, saltToUse,
+            ITERATIONS,
+            OUTPUT_BITS
+        )
         try {
-            val saltToUse = salt ?: ByteArray(SALT_BYTES).also{ CryptoUtils.fillRandom(it) }
-            val passwordChars = password.toCharArray()
             val skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512")
-            val spec = PBEKeySpec(passwordChars, saltToUse,
-                ITERATIONS,
-                OUTPUT_BITS
-            )
-            val key = skf.generateSecret(spec)
-            val res = key.encoded
-            return PBKDF2Delivery(saltToUse, res)
+            return PBKDF2Delivery(saltToUse, skf.generateSecret(spec).encoded)
         } catch (e: NoSuchAlgorithmException) {
             throw RuntimeException(e)
         } catch(e: InvalidKeySpecException) {
             throw RuntimeException(e)
+        } finally {
+            /* the spec and the char array each hold their own copy of the password - scrub both
+            (the String passed in cannot be scrubbed, see the README on memory hygiene) */
+            spec.clearPassword()
+            passwordChars.fill(0.toChar())
         }
     }
 

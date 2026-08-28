@@ -162,7 +162,7 @@ class UiProfile(
             passwordData.cancelSavedMasterPassword()
         }
         else if (settings.savePasswordForMinutes.value > 0) {
-            passwordData.resetSavedMasterPassword(nextPassword, settings.savePasswordForMinutes.value)
+            passwordData.resetSavedMasterPassword(nextPassword, settings.savePasswordForMinutes.value, isFreshEntry = true)
         }
     }
 

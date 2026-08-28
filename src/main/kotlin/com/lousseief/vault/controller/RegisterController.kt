@@ -58,6 +58,10 @@ class RegisterController(private val router: Router) {
                 usernameField.selectAll()
             }
             UserService.createUser(normalizedName, password.value)
+            /* drop the fields' references to the typed password - the Strings themselves cannot be
+            erased, but this lets the GC reclaim them instead of the view pinning them */
+            passwordField.clear()
+            passwordRepetitionField.clear()
             Alert(Alert.AlertType.INFORMATION).apply {
                 title = "Success"
                 headerText = "User added"

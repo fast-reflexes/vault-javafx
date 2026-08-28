@@ -33,14 +33,20 @@ object VaultService {
         iteration order of the map (e.g. remove an association which is old and then readding it) */
         val vaultWithSortedAssociations = vault.first to vault.second.toSortedMap()
         val plainString = jsonMapper.toJson(vaultWithSortedAssociations)
-        return CbcCrypto.encrypt(
-            Conversion.UTF8ToBytes(plainString),
-            encryptionKey,
-            iv?.let { Conversion.Base64ToBytes(it) }
-        )
-            .let { (cipherBytes, ivBytes) ->
-                Pair(Conversion.bytesToBase64(ivBytes), Conversion.bytesToBase64(cipherBytes))
-            }
+        val plainBytes = Conversion.UTF8ToBytes(plainString)
+        try {
+            return CbcCrypto.encrypt(
+                plainBytes,
+                encryptionKey,
+                iv?.let { Conversion.Base64ToBytes(it) }
+            )
+                .let { (cipherBytes, ivBytes) ->
+                    Pair(Conversion.bytesToBase64(ivBytes), Conversion.bytesToBase64(cipherBytes))
+                }
+        } finally {
+            // scrub the byte copy of the cleartext vault (the String copy is out of our control)
+            plainBytes.fill(0)
+        }
     }
 
     fun decryptVault(encryptedVault: String, iv: String, encryptionKey: ByteArray): MutableVault {
@@ -50,6 +56,8 @@ object VaultService {
             Conversion.Base64ToBytes(iv)
         )
         val plainText = Conversion.bytesToUTF8(plainBytes)
+        // scrub the byte copy of the cleartext vault (the String copy is out of our control)
+        plainBytes.fill(0)
         val itemType = object : TypeToken<MutableVault>() {}.type
         return jsonMapper.fromJson(plainText, itemType)
     }

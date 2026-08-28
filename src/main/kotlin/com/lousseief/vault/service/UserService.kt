@@ -23,13 +23,16 @@ object UserService {
         /* base64 is reversible, unlike a UTF-8 decode of arbitrary bytes, so the whole 512 bits of key
         material actually reach the second derivation */
         val (hashSaltBytes, hashBytes) = KeyDerivation.deriveKey(Conversion.bytesToBase64(keyMaterialBytes))
-        return VerificationData(
+        val verificationData = VerificationData(
             saltBytes,
             hashBytes,
             hashSaltBytes,
             keyMaterialBytes.sliceArray(0 until 32),
             keyMaterialBytes.sliceArray(32 until 64)
         )
+        // the slices above are copies, so the parent key material can be scrubbed here
+        keyMaterialBytes.fill(0)
+        return verificationData
     }
 
     fun createUser(validatedAndNormalizedUsername: String, password: String): Profile {
@@ -60,6 +63,9 @@ object UserService {
             "Checksum length ${newUser.checkSum.length}, bytes ${Conversion.Base64ToBytes(newUser.checkSum).size}"
         }
         FileService.writeVaultFile(newUser.name, newUser.toString(), false)
+        // best effort memory hygiene: the keys are not needed once the vault file is written
+        encryptionKeyBytes.fill(0)
+        hmacKeyBytes.fill(0)
         return newUser
     }
 

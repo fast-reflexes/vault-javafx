@@ -307,6 +307,8 @@ class MainController(private val router: Router, private val user: UiProfile) {
         logoutButton.setOnAction {
             val proceed = onTerminateSession(false)
             if (proceed) {
+                // forget the cached master password - logging out must end its lifetime
+                user.setPassword(null)
                 router.showLogin()
             }
         }

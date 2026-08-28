@@ -34,57 +34,65 @@ abstract class IProfile(
         postEncryptionCallback: (() -> Unit)? = null
     ): Vault {
         // verify that the correct password is used and if so, return the derived key
-        return VerificationService.authorize(
+        val keyMaterialBytes = VerificationService.authorize(
             password, keyMaterialSalt, verificationHash, verificationSalt
         )
-            .let {
-                Pair(it.sliceArray(0 until 32), it.sliceArray(32 until 64))
+        val encryptionKeyBytes = keyMaterialBytes.sliceArray(0 until 32)
+        val hMacKeyBytes = keyMaterialBytes.sliceArray(32 until 64)
+        try {
+            // verify integrity of the data we use
+            VerificationService.verify(hMacKeyBytes, toContentString(), checkSum)
+            val decryptedVault = VaultService.decryptVault(encryptedData, iv, encryptionKeyBytes)
+            val vault = if (vaultManipulation !== null) vaultManipulation(decryptedVault) else decryptedVault
+            if (encrypt) {
+                var encryptionKeyBytesToUse = encryptionKeyBytes
+                var hmacKeyBytesToUse = hMacKeyBytes
+                if (password != updatedPassword) {
+                    val (
+                        updatedSaltBytes,
+                        updatedHashBytes,
+                        updatedHashSalt,
+                        updatedEncryptionKeyBytes,
+                        updatedHmacKeyBytes
+                    ) = UserService.createKeyMaterial(updatedPassword)
+                    keyMaterialSalt = Conversion.bytesToBase64(updatedSaltBytes)
+                    verificationHash = Conversion.bytesToBase64(updatedHashBytes)
+                    verificationSalt = Conversion.bytesToBase64(updatedHashSalt)
+                    encryptionKeyBytesToUse = updatedEncryptionKeyBytes
+                    hmacKeyBytesToUse = updatedHmacKeyBytes
+                }
+                try {
+                    val (nextIv, nextCipherText) = VaultService.encryptVault(
+                        encryptionKeyBytesToUse,
+                        vault,
+                        if (requireNewIv) null else iv
+                    )
+                    iv = nextIv
+                    encryptedData = nextCipherText
+                    checkSum = Conversion.bytesToBase64(
+                        Hmac.generateMac(
+                            Conversion.UTF8ToBytes(toContentString()),
+                            hmacKeyBytesToUse
+                        )
+                    )
+                } finally {
+                    /* when the password was changed these are fresh arrays that the outer finally
+                    doesn't know about; when it wasn't, they alias the outer ones and scrubbing twice
+                    is harmless */
+                    encryptionKeyBytesToUse.fill(0)
+                    hmacKeyBytesToUse.fill(0)
+                }
+                if(postEncryptionCallback != null) {
+                    postEncryptionCallback()
+                }
             }
-            .also { (_, hMacKeyBytes) ->
-                // verify integrity of the data we use
-                VerificationService.verify(hMacKeyBytes, toContentString(), checkSum)
-            }
-            .let { (encryptionKeyBytes, hMacKeyBytes) ->
-                VaultService.decryptVault(encryptedData, iv, encryptionKeyBytes)
-                    .let { if (vaultManipulation !== null) vaultManipulation(it) else it }
-                    .let { vault ->
-                        if (encrypt) {
-                            var encryptionKeyBytesToUse = encryptionKeyBytes
-                            var hmacKeyBytesToUse = hMacKeyBytes
-                            if (password != updatedPassword) {
-                                val (
-                                    updatedSaltBytes,
-                                    updatedHashBytes,
-                                    updatedHashSalt,
-                                    updatedEncryptionKeyBytes,
-                                    updatedHmacKeyBytes
-                                ) = UserService.createKeyMaterial(updatedPassword)
-                                keyMaterialSalt = Conversion.bytesToBase64(updatedSaltBytes)
-                                verificationHash = Conversion.bytesToBase64(updatedHashBytes)
-                                verificationSalt = Conversion.bytesToBase64(updatedHashSalt)
-                                encryptionKeyBytesToUse = updatedEncryptionKeyBytes
-                                hmacKeyBytesToUse = updatedHmacKeyBytes
-                            }
-                            val (nextIv, nextCipherText) = VaultService.encryptVault(
-                                encryptionKeyBytesToUse,
-                                vault,
-                                if (requireNewIv) null else iv
-                            )
-                            iv = nextIv
-                            encryptedData = nextCipherText
-                            checkSum = Conversion.bytesToBase64(
-                                Hmac.generateMac(
-                                    Conversion.UTF8ToBytes(toContentString()),
-                                    hmacKeyBytesToUse
-                                )
-                            )
-                            if(postEncryptionCallback != null) {
-                                postEncryptionCallback()
-                            }
-                        }
-                        vault
-                    }
-            }
+            return vault
+        } finally {
+            // best effort memory hygiene: the keys are not needed once the call is over
+            keyMaterialBytes.fill(0)
+            encryptionKeyBytes.fill(0)
+            hMacKeyBytes.fill(0)
+        }
     }
 
     fun toContentString(): String =
