@@ -235,14 +235,15 @@ class MainController(private val router: Router, private val user: UiProfile) {
     private fun setupSettingsDialogButton() {
         settingsButton.setOnAction {
             val result = SettingsDialog(user).showAndWait()
-            val setPasswordDedupingTimeMinutes = result.get()
-            if(setPasswordDedupingTimeMinutes != user.settings.savePasswordForMinutes.value) {
+            /* absent when the dialog was dismissed with the window cross rather than the save button - the deduping
+            time is then discarded (the other settings in the dialog apply live regardless) */
+            if(result.isPresent && result.get() != null && result.get() != user.settings.savePasswordForMinutes.value) {
                 val previousSetting = user.settings.savePasswordForMinutes.value
                 // update before password call since otherwise pw mechanism, will use old value for password storage
-                user.settings.savePasswordForMinutes.set(setPasswordDedupingTimeMinutes)
+                user.settings.savePasswordForMinutes.set(result.get())
                 val password = user.passwordRequiredAction(true)
                 if(password !== null) {
-                    user.settings.savePasswordForMinutes.set(setPasswordDedupingTimeMinutes)
+                    user.settings.savePasswordForMinutes.set(result.get())
                 } else {
                     // restore old setting
                     user.settings.savePasswordForMinutes.set(previousSetting)

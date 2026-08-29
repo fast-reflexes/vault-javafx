@@ -3,6 +3,7 @@ package com.lousseief.vault.controller.dialog
 import com.lousseief.vault.crypto.CryptoUtils
 import com.lousseief.vault.crypto.CryptoUtils.getCharPoolContent
 import com.lousseief.vault.utils.Colors
+import com.lousseief.vault.utils.OSPlatform
 import com.lousseief.vault.utils.copySecretToClipboard
 import com.lousseief.vault.utils.initializeSpinner
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
@@ -96,6 +97,18 @@ class StringGeneratorDialogController(defaultPasswordLength: Int) {
         ButtonBar.setButtonUniformSize(dialogPane.lookupButton(copyButton), false)
         ButtonBar.setButtonUniformSize(dialogPane.lookupButton(generateButton), false)
         ButtonBar.setButtonUniformSize(dialogPane.lookupButton(closeButton), false)
+
+        /* close is CANCEL_CLOSE so escape and the window cross both reach it - the default flag is set here on top so
+        enter closes as well, since no single button data makes a button both the enter and the escape one */
+        (dialogPane.lookupButton(closeButton) as Button).isDefaultButton = true
+
+        /* the stock order strings already order these buttons the way we want, but on mac they place the growing
+        spacer BETWEEN generate and close, and it eats every pixel of slack. These minimal strings keep the same order
+        and move the grow to the front, so the three sit together at the right edge - H is copy and generate, C is
+        close. The bar is a direct child of the DialogPane from construction, so no css lookup or runLater is needed;
+        should it ever not be found the stock string stays and only the gap comes back, never the wrong order. */
+        dialogPane.childrenUnmodifiable.filterIsInstance<ButtonBar>().firstOrNull()?.buttonOrder =
+            if (OSPlatform.isWindows) "+CH" else "+HC"
 
         dialogPane.lookupButton(generateButton).apply {
             this as Button

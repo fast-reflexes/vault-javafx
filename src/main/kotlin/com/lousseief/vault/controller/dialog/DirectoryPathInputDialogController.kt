@@ -77,7 +77,12 @@ class DirectoryPathInputDialogController() {
         infoLabel.text = description
         readyDialog.graphic = icon
         readyDialog.setResultConverter { type: ButtonType? ->
-            // button type if null when closing with cross since no cancel button exists in the dialog
+            /* the type is null when the dialog is closed with the window cross. JavaFX only hands the converter a
+            button type when it can find one with button data CANCEL_CLOSE or NO to stand in for the cross, and this
+            dialog deliberately has neither - it has a single OK button, which is what makes the cross work at all
+            (JavaFX also permits the cross when the dialog has exactly one button type). Null therefore means
+            "dismissed without choosing a directory", and every call site treats that as an abort.
+            See README, "Dialogs and the window close button". */
             when (type) {
                 okButton -> directoryProperty.value
                 else -> null

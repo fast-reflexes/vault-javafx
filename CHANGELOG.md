@@ -28,3 +28,6 @@
 ## v. 2.0.1 - security audit continued
 * Protect against in-memory attacks by scrapping stored passwords as often as possible
 * Tighten interval during which the vault password does not need to be reiterated for continued access
+
+## v. 2.0.2
+* Align and corrected button types with respect to styling / appearance and enter / cancel button behaviour

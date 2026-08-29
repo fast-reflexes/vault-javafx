@@ -82,6 +82,12 @@ loop. Reported to Oracle via bugreport.java.com on 2026-08-23, internal review I
   Apple-grid squircle and glyph-on-transparency were all tried and look worse). A plate-free
   native look requires the Icon Composer format (Assets.car + CFBundleIconName), which needs
   full Xcode. Windows shows the `.ico` artwork as-is.
+- The native window close button behaves differently for a `Stage` than for a `Dialog`: on a `Stage` it always works
+  (veto it via `setOnCloseRequest`), while a `Dialog` only lets the cross close it when it has exactly one `ButtonType`
+  or one with button data `CANCEL_CLOSE`/`NO`, and a cross-close sets the result without firing any `ActionEvent`.
+  Note the credentials modal is a `Stage`, NOT a `Dialog`, despite looking like one. Full rules and a table of which
+  window is which in README, "Dialogs and the window close button" — read it before changing any `<buttonTypes>`
+  block, result converter, or close handler.
 - Unsaved-changes protection: `CredentialsController` snapshots the initial credentials and
   compares in `credentialsAreAltered` on close; `MainController` uses `user.isDirty`.
 - App version lives in `build.gradle.kts` (`version = "..."`) and is shown in the UI via the

@@ -2,6 +2,7 @@ package com.lousseief.vault.controller.dialog
 
 import com.lousseief.vault.dialog.SingleStringInputDialog
 import com.lousseief.vault.list.SettingsCategoryListCellFactory
+import com.lousseief.vault.model.ui.UiPasswordData
 import com.lousseief.vault.model.ui.UiProfile
 import com.lousseief.vault.utils.Colors
 import com.lousseief.vault.utils.initializeSpinner
@@ -46,6 +47,9 @@ class SettingsDialogController(val user: UiProfile) {
 
     @FXML
     private lateinit var dedupeTimeSpinner: Spinner<Int>
+
+    @FXML
+    private lateinit var dedupeTimeNoteLabel: Label
 
     @FXML
     private lateinit var categoriesView: ListView<String>
@@ -108,7 +112,16 @@ class SettingsDialogController(val user: UiProfile) {
         selectedCategory.bind(categoriesView.selectionModel.selectedItemProperty())
 
         initializeSpinner(user.settings.passwordLength, passwordLengthSpinner, STRING_LENGTH_MAX, STRING_LENGTH_MIN)
-        initializeSpinner(savePasswordForMinutesProperty, dedupeTimeSpinner, 30, 0)
+        /* capped at the hard limit in UiPasswordData: anything above it would silently have no effect, since the hard
+        expiry always wins over the sliding one. initializeSpinner clamps both the stepper and typed input to the max */
+        initializeSpinner(
+            savePasswordForMinutesProperty,
+            dedupeTimeSpinner,
+            UiPasswordData.MAX_SAVED_PASSWORD_MINUTES.toInt(),
+            0
+        )
+        dedupeTimeNoteLabel.text =
+            "Password is never reused for more than ${UiPasswordData.MAX_SAVED_PASSWORD_MINUTES} minutes"
 
         setupNewCategoryButton()
         setupRemoveCategoryButton()
@@ -117,14 +130,24 @@ class SettingsDialogController(val user: UiProfile) {
         categoryButtonsPane.columnConstraints.add(1, ColumnConstraints().apply { percentWidth = 50.0 })
     }
 
-    fun finalize(readyDialog: Dialog<Int>) {
+    fun finalize(readyDialog: Dialog<Int?>) {
         val icon = Label().apply {
             styleClass.addAll("alert", "confirmation", "dialog-pane") // can use "error" or "warning" instead of "confirmation" obv
         }
         readyDialog.headerText = "Profile settings"
         readyDialog.graphic = icon
-        readyDialog.setResultConverter {
-            savePasswordForMinutesProperty.value
+        readyDialog.setResultConverter { type: ButtonType? ->
+            /* the type is null when the dialog is closed with the window cross instead of the save button, since this
+            dialog has no button with button data CANCEL_CLOSE or NO for JavaFX to substitute (the cross works at all
+            only because there is exactly one button type). Treat that as "discard" and return null, mirroring
+            DirectoryPathInputDialogController. Note that the other two settings in this dialog - default password
+            length and the categories - are bound straight to the live profile settings and therefore apply
+            immediately, no matter how the dialog is closed.
+            See README, "Dialogs and the window close button". */
+            when (type) {
+                okButton -> savePasswordForMinutesProperty.value
+                else -> null
+            }
         }
 
         Platform.runLater{

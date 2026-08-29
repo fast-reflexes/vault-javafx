@@ -50,9 +50,19 @@
         </VBox>
     </content>
     <buttonTypes>
-        <!-- cancel_close is for order, if we use different types, we have no control of the order of the buttons -->
-        <ButtonType text="Copy string to clipboard" fx:id="copyButton" buttonData="CANCEL_CLOSE"/>
-        <ButtonType text="Generate string" fx:id="generateButton" buttonData="CANCEL_CLOSE"/>
-        <ButtonType text="Close" fx:id="closeButton" buttonData="OK_DONE" />
+        <!-- the data here is chosen for placement and keys, NOT for meaning - see README, "Dialogs and the window
+        close button" before changing any of it -->
+
+        <!-- HELP is used purely as a layout slot, for both buttons below. It is the only code that sorts BEFORE
+        cancel_close on mac and AFTER it on windows, which is exactly the split we want around close. It carries
+        neither the default nor the cancel flag, so unlike the cancel_close it replaced it claims no key and never
+        captures the window cross. These are NOT help buttons. -->
+        <ButtonType text="Copy string to clipboard" fx:id="copyButton" buttonData="HELP"/>
+        <ButtonType text="Generate string" fx:id="generateButton" buttonData="HELP"/>
+
+        <!-- CANCEL_CLOSE gives close both escape and the window cross, and being the only one of its kind it is
+        unambiguously what the cross resolves to. The controller additionally sets isDefaultButton on it so enter
+        closes as well, since no single button data grants a button both the enter and the escape role. -->
+        <ButtonType text="Close" fx:id="closeButton" buttonData="CANCEL_CLOSE" />
     </buttonTypes>
 </DialogPane>

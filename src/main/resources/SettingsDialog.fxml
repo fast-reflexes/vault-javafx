@@ -49,10 +49,22 @@
                     <Label text="Default password length:"/>
                     <Spinner maxWidth="80" amountToStepBy="1" prefWidth="80" fx:id="passwordLengthSpinner" />
                 </HBox>
-                <HBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="Infinity" alignment="CENTER_RIGHT">
-                    <Label text="Minutes to reuse entered password for subsequent operations:"/>
-                    <Spinner maxWidth="80" amountToStepBy="1" prefWidth="80" fx:id="dedupeTimeSpinner" />
-                </HBox>
+                <VBox spacing="3" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <HBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="Infinity" alignment="CENTER_RIGHT">
+                        <Label text="Minutes to reuse entered password for subsequent operations:"/>
+                        <Spinner maxWidth="80" amountToStepBy="1" prefWidth="80" fx:id="dedupeTimeSpinner" />
+                    </HBox>
+                    <!-- the font family is needed: the System font has no usable italic face, so -fx-font-style on
+                    its own silently renders upright. sans-serif is generic and resolves on both mac and Windows -->
+                    <Label
+                        fx:id="dedupeTimeNoteLabel"
+                        wrapText="true"
+                        maxWidth="Infinity"
+                        alignment="CENTER_RIGHT"
+                        textAlignment="RIGHT"
+                        style="-fx-text-fill: red;"
+                    />
+                </VBox>
             </VBox>
         </VBox>
 

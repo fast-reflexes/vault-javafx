@@ -188,7 +188,7 @@ Building the installer needs to be done on the actual platform that we're buildi
 
 Thus, to build on a Mac computer with Java 24 (or later) installed, execute (adjust paths if necessary):
 
-    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-2.0.1-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 2.0.1 --vendor Lousseief --icon packaging/vault.icns
+    jpackage --input build/ --name Vault --main-jar libs/vault-javafx-2.0.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 2.0.2 --vendor Lousseief --icon packaging/vault.icns
 
 This will include the input directory `./build/` in the build and then, relative the root of the input directory, it will
 look for `libs/<JAR>` for the job to create an installer. This command results in a `dmg` image which can be used like
@@ -201,7 +201,7 @@ live in `packaging/`.
 2. Make sure that build file is synced so that the correct dependencies are downloaded.
 3. Build the fat jar using `./gradlew fatJar`
 4. Test the jar if you want to using `java -jar <JAR>`
-5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-2.0.1-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 2.0.1 --vendor Lousseief --icon packaging/vault.icns`
+5. In the root folder of this project, run: `jpackage --input build/ --name Vault --main-jar libs/vault-javafx-2.0.2-fat.jar --main-class com.lousseief.vault.MainKt --type dmg --app-version 2.0.2 --vendor Lousseief --icon packaging/vault.icns`
    (`--icon` gives the app bundle the Vault icon in the Dock, Finder and Launchpad; the icon sources live in `packaging/`)
 6. Copy the `Vault.dmg` file onto the desktop
 7. Double-click it and drag the program icon to the left to the applications folder to ther right, confirm overwrite if
@@ -403,6 +403,61 @@ button tries to do the same in the same scene. Note that a third button can be t
 same as being a default button. Normally, button types which are `OK` or `OK_DONE` are default buttons and `CANCEL` or
 `CANCEL_CLOSE` are cancel buttons. This can also be set manually in the code.
 
+### Dialogs and the window close button
+
+The close button (red cross on mac, X on Windows) is native window decoration. The OS always draws it, whatever buttons
+the window holds. What a click does depends on which of two kinds of window it is, and they are easy to confuse because
+both are modal and both look like "a dialog":
+
+| Window | Kind | Where it is built |
+| --- | --- | --- |
+| Login / Register / Main | `Stage` | `Router` swaps views in the single primary stage |
+| **Credentials modal** | **`Stage`** (`WINDOW_MODAL`, owned by the main window) | `AssociationController.setupCredentialsButton` |
+| Everything in `dialog/` | `javafx.scene.control.Dialog` | `dialog/*.kt` + `controller/dialog/*.kt` |
+| Confirmations and info popups | `Alert` (a `Dialog` subclass) | `Dialogs.kt`, and inline in the controllers |
+
+On a **`Stage`** the cross always works: it fires `WINDOW_CLOSE_REQUEST` and the window hides, and the only way to have
+a say is to consume that event in `setOnCloseRequest`. That hook is why the unsaved-changes prompts in
+`CredentialsController` and `MainController` are possible; a `Dialog` has no equivalent. Watch out for the credentials
+modal - it is a `Stage`, not a `Dialog`, despite being the most dialog-like window in the app, so none of the rules
+below apply to it.
+
+On a **`Dialog`**, `Dialog.close()` first asks `FXDialog.requestPermissionToClose()`, and a `buttonData` value then
+decides several unrelated things at once:
+
+* The cross is dead if there are 2+ buttons and none is `CANCEL_CLOSE`/`NO`. It stays drawn and clickable, and does
+  nothing. The button *data* decides this, never the label.
+* Otherwise it closes, returning the first `CANCEL_CLOSE`/`NO` in declaration order, or `null` if the dialog has only
+  one button - hence the `ButtonType?` converters in `DirectoryPathInput` and `Settings`.
+* A cross-close only sets the result - no `ActionEvent` fires, and a disabled button still counts. Enter is the
+  opposite: it respects `disable`, so a disabled OK cannot be triggered by the keyboard.
+* `OK_DONE`/`YES`/`FINISH`/`NEXT_FORWARD` are the Enter button, `CANCEL_CLOSE`/`NO` the Escape one.
+* On mac Enter always hits the Enter button; on Windows a focused button takes it instead. Space is always the focused
+  one.
+* Blue comes from `:default` alone, so cancel buttons look plain and `isDefaultButton` can move the blue elsewhere.
+* `ButtonBar` sorts by a platform order string, so the data decides position - the FXML order does not. Where a button
+  needs a position its semantic data will not give it, pick a neutral value that sorts where you want.
+* With no result converter at all, JavaFX casts the `ButtonType` to the result type - an unchecked cast that throws
+  `ClassCastException` as soon as anyone reads it. `StringGeneratorDialog` is in this state, saved only by its caller
+  ignoring the result.
+* None of the above can be picked separately, so check all of them before editing a `<buttonTypes>` block.
+
+The dialogs fall into four groups, each a deliberate choice:
+
+* **Cancel + OK** (`AddUsername`, `AddPassword`, `ChangeMasterPassword`, `PasswordConfirm`, `SingleStringInput`).
+  `CANCEL_CLOSE` + `OK_DONE`. Escape and the cross cancel, enter confirms, order is native on both platforms.
+* **Action buttons plus a close** (`StringGenerator`). Close is `CANCEL_CLOSE` plus `isDefaultButton` in the
+  controller, so escape, the cross AND enter all reach it. Copy and generate are `HELP` purely for placement: `H` is
+  the only code sorting before `CANCEL_CLOSE` on mac and after it on Windows, and it claims no key. The controller also
+  narrows `buttonOrder` to `"+HC"`/`"+CH"`, since the stock strings put the growing spacer between generate and close
+  on mac. The `ButtonBar` takes no `fx:id` - `DialogPane` builds it in its own constructor - but it is a direct child
+  from that moment, so `childrenUnmodifiable` reaches it without a css lookup or `runLater`.
+* **Single button** (`DirectoryPathInput`, `Settings`). The lone button makes the cross work, and it becomes a silent
+  cancel handing the converter `null`, so both must gate their side effects on a non-null result. `Settings` honours
+  this only for the password reuse time - password length and categories are bound to the live profile settings and
+  apply however the dialog closes.
+* **Stages, not dialogs** (`Credentials`). No button types at all; the cross is vetoed in `setOnCloseRequest`.
+
 ### Observable properties
 
 Remember that observables support LAZY evaluation and if so, they will not trigger reevaluation as expected. For example,
@@ -474,16 +529,10 @@ som sådana i en sträng. Ska strängen användas för I7O av en människa finns
 ## TODO
 
 ### Backlog:
-* Investigate why X works on credentials modal as CANCEL and if this is on purpose
-* Add possibility to cancel by button OR that text shows CLOSE instead of SAVE and that it does the same thing as cancel 
-  when no change has been made
-
+* Fix so that settings dialog persists NOTHING immediately and only persists upon SAVE (clicking CANCEL CROSS will still 
+  leave some things persisted as it is now).
 * Remove default Java menu (and content) from the application
-* Fixa ny ikon till jaren
-* Fix nicer icon for the Mac installer / program
-* Set icon to program window (see link)
 * When you add the password, also add it with asterisks except if a checkbox is filled indicating clear text (like when passwords are shown)
-* Go through security audit and fix things
 
 ### Inbox (to do MAYBE at some later point)
 * When starting before having chosen profile location, there is an ugly error screen shown which indicates that the program couldnt start
